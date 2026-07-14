@@ -17,11 +17,20 @@ export function MarketsView({
   panelOpen: boolean;
   refreshIntervalSeconds: number;
 }) {
+  const demoState = import.meta.env.DEV
+    ? new URLSearchParams(window.location.search).get("demo")
+    : null;
   const query = useQuery({
-    queryKey: ["markets"],
-    queryFn: fetchMarkets,
+    queryKey: demoState ? ["markets", demoState] : ["markets"],
+    queryFn:
+      demoState === "loading"
+        ? () => new Promise<never>(() => undefined)
+        : demoState === "error"
+          ? () => Promise.reject(new Error("Liquidium could not be reached."))
+          : fetchMarkets,
     enabled: panelOpen,
     refetchInterval: panelOpen ? refreshIntervalSeconds * 1_000 : false,
+    ...(demoState === "error" ? { retry: false } : {}),
   });
   const snapshot = query.data;
 
