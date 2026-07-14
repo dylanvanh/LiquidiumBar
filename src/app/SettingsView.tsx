@@ -1,6 +1,7 @@
 import { isTauri } from "@tauri-apps/api/core";
 import { disable, enable, isEnabled } from "@tauri-apps/plugin-autostart";
 import { openUrl } from "@tauri-apps/plugin-opener";
+import { Copy, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { truncateProfile } from "./format";
 import type { MenuBarMetric, ProfileRecord, RefreshIntervalSeconds } from "./storage";
@@ -148,7 +149,7 @@ export function SettingsView({
                 aria-label={`Copy ${profile.label} principal`}
                 onClick={() => void navigator.clipboard.writeText(profile.id)}
               >
-                ⧉
+                <Copy aria-hidden="true" size={15} />
               </button>
               <button
                 type="button"
@@ -163,7 +164,7 @@ export function SettingsView({
                     onRemoveProfile(profile.id);
                 }}
               >
-                −
+                <Trash2 aria-hidden="true" size={15} />
               </button>
             </div>
           ))

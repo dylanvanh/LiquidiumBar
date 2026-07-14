@@ -1,4 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
+import {
+  ChevronRight,
+  Copy,
+  Eye,
+  EyeOff,
+  MoreHorizontal,
+  Plus,
+  RefreshCw,
+  UserRoundPlus,
+  WalletCards,
+} from "lucide-react";
 import { type FormEvent, useState } from "react";
 import { validateProfileId } from "../liquidium/profile";
 import type { NormalizedPortfolio, NormalizedPosition } from "../liquidium/sdk.types";
@@ -80,7 +91,7 @@ function ProfileOnboarding({
   return (
     <section className="onboarding view" aria-labelledby="profile-title">
       <div className="onboarding-icon" aria-hidden="true">
-        ◎
+        <UserRoundPlus size={23} strokeWidth={1.7} />
       </div>
       <p className="eyebrow">Read-only monitoring</p>
       <h1 id="profile-title">Add a Liquidium profile</h1>
@@ -185,25 +196,25 @@ function PortfolioMonitor({
           ))}
         </select>
         <ToolbarButton label="Add profile" onClick={() => setManaging("add")}>
-          ＋
+          <Plus size={17} />
         </ToolbarButton>
         <ToolbarButton
           label="Copy profile principal"
           onClick={() => void navigator.clipboard.writeText(profile.id)}
         >
-          ⧉
+          <Copy size={16} />
         </ToolbarButton>
         <ToolbarButton
           label={hideBalances ? "Show balances" : "Hide balances"}
           onClick={onTogglePrivacy}
         >
-          {hideBalances ? "◉" : "○"}
+          {hideBalances ? <Eye size={17} /> : <EyeOff size={17} />}
         </ToolbarButton>
         <ToolbarButton
           label="More profile actions"
           onClick={() => setManaging(managing === "rename" ? undefined : "rename")}
         >
-          •••
+          <MoreHorizontal size={18} />
         </ToolbarButton>
       </div>
 
@@ -234,11 +245,12 @@ function PortfolioMonitor({
             disabled={query.isFetching}
             aria-label="Refresh portfolio"
           >
-            <span
+            <RefreshCw
+              aria-hidden="true"
+              size={18}
+              strokeWidth={1.8}
               className={query.isFetching ? "refresh-icon spinning" : "refresh-icon"}
-            >
-              ↻
-            </span>
+            />
           </button>
         </div>
       </div>
@@ -323,7 +335,7 @@ function PortfolioSnapshotView({
   if (portfolio.positions.length === 0) {
     return (
       <div className="empty-state">
-        <span aria-hidden="true">◇</span>
+        <WalletCards aria-hidden="true" size={24} strokeWidth={1.6} />
         <h2>No active positions</h2>
         <p>This valid principal has no reserves returned by Liquidium RC.1.</p>
         <small>Updated {formatAge(portfolio.fetchedAt)}</small>
@@ -442,7 +454,7 @@ function PositionRow({
           value={formatPrivate(formatUsd(position.borrowedUsd), hideBalances)}
         />
         <span className="disclosure" aria-hidden="true">
-          ›
+          <ChevronRight size={16} strokeWidth={1.8} />
         </span>
       </summary>
       <div className="market-details">

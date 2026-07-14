@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { isTauri } from "@tauri-apps/api/core";
 import { openUrl } from "@tauri-apps/plugin-opener";
+import { ExternalLink, RefreshCw } from "lucide-react";
 import type {
   NormalizedMarket,
   ScaledAmount,
@@ -71,11 +72,12 @@ export function InsightsView({
             aria-label="Refresh insights"
             title="Refresh insights"
           >
-            <span
+            <RefreshCw
+              aria-hidden="true"
+              size={18}
+              strokeWidth={1.8}
               className={query.isFetching ? "refresh-icon spinning" : "refresh-icon"}
-            >
-              ↻
-            </span>
+            />
           </button>
         </div>
       </div>
@@ -113,7 +115,7 @@ export function InsightsView({
           protocol history.
         </p>
         <button type="button" onClick={openOfficialInsights}>
-          View full breakdown <span aria-hidden="true">↗</span>
+          View full breakdown <ExternalLink aria-hidden="true" size={13} />
         </button>
       </div>
     </section>

@@ -1,3 +1,4 @@
+import { EyeOff } from "lucide-react";
 import type { ReactNode } from "react";
 import { Bar } from "../components/dither-kit/bar";
 import { BarChart } from "../components/dither-kit/bar-chart";
@@ -92,7 +93,7 @@ export function PortfolioCompositionChart({
   if (hidden) {
     return (
       <section className="chart-card private-chart" aria-label="Portfolio graph hidden">
-        <span aria-hidden="true">◌</span>
+        <EyeOff aria-hidden="true" size={24} strokeWidth={1.6} />
         <strong>Graph hidden</strong>
         <small>Turn off privacy mode to view supplied-position composition.</small>
       </section>

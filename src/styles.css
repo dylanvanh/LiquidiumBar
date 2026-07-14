@@ -508,9 +508,7 @@ button {
   opacity: 0.6;
 }
 .refresh-icon {
-  display: inline-block;
-  font-size: 20px;
-  line-height: 1;
+  display: block;
 }
 .refresh-icon.spinning {
   animation: spin 0.85s linear infinite;
@@ -619,8 +617,9 @@ button {
   font-variant-numeric: tabular-nums;
 }
 .disclosure {
+  display: grid;
+  place-items: center;
   color: var(--faint);
-  font-size: 17px;
   transform-origin: center;
   transition: transform 140ms ease;
 }
