@@ -59,7 +59,6 @@ export function InsightsView({
     <section className="view insights-view" aria-labelledby="insights-title">
       <div className="view-heading insights-heading">
         <div>
-          <p className="eyebrow">Protocol pulse</p>
           <h1 id="insights-title">Insights</h1>
         </div>
         <div className="view-actions">
