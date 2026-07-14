@@ -10,6 +10,7 @@
     "frontendDist": "../dist"
   },
   "app": {
+    "macOSPrivateApi": true,
     "windows": [
       {
         "label": "main",
@@ -22,7 +23,13 @@
         "maxHeight": 560,
         "resizable": false,
         "decorations": false,
+        "transparent": true,
         "shadow": true,
+        "windowEffects": {
+          "effects": ["popover"],
+          "state": "followsWindowActiveState",
+          "radius": 20
+        },
         "alwaysOnTop": true,
         "visibleOnAllWorkspaces": true,
         "skipTaskbar": true,
