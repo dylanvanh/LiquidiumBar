@@ -127,8 +127,8 @@ export function App() {
         <InsightsView
           panelOpen={panelOpen}
           refreshIntervalSeconds={settings.refreshIntervalSeconds}
-          displayMode={settings.displayMode}
-          onDisplayModeChange={(displayMode) => update({ displayMode })}
+          displayMode={settings.insightsDisplayMode}
+          onDisplayModeChange={(insightsDisplayMode) => update({ insightsDisplayMode })}
         />
       ) : null}
       {settings.section === "portfolio" ? (
@@ -138,13 +138,15 @@ export function App() {
           profiles={settings.profiles}
           selectedProfileId={settings.selectedProfileId}
           hideBalances={settings.hideBalances}
-          displayMode={settings.displayMode}
+          displayMode={settings.portfolioDisplayMode}
           onAddProfile={addProfile}
           onSelectProfile={(selectedProfileId) => update({ selectedProfileId })}
           onRenameProfile={renameProfile}
           onRemoveProfile={removeProfile}
           onTogglePrivacy={() => update({ hideBalances: !settings.hideBalances })}
-          onDisplayModeChange={(displayMode) => update({ displayMode })}
+          onDisplayModeChange={(portfolioDisplayMode) =>
+            update({ portfolioDisplayMode })
+          }
         />
       ) : null}
       {settings.section === "settings" ? (

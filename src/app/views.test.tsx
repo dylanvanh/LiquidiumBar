@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { marketSnapshotFixture, portfolioFixture } from "../test/fixtures";
+import { AssetIcon } from "./AssetIcon";
 import { DisplayModeSwitcher } from "./DisplayModeSwitcher";
 import { InsightsView } from "./InsightsView";
 import { PortfolioView } from "./PortfolioView";
@@ -72,6 +73,16 @@ describe("display mode", () => {
     );
     await user.click(screen.getByRole("button", { name: "Numbers" }));
     expect(onChange).toHaveBeenCalledWith("numbers");
+  });
+});
+
+describe("asset icons", () => {
+  it("renders branded icons with a fallback for unknown assets", () => {
+    const { container, rerender } = render(<AssetIcon symbol="BTC" />);
+    expect(container.querySelector("svg.asset-icon")).toBeInTheDocument();
+
+    rerender(<AssetIcon symbol="NEW" />);
+    expect(screen.getByText("N")).toBeVisible();
   });
 });
 

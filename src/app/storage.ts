@@ -22,7 +22,8 @@ export interface AppSettings {
   profiles: ProfileRecord[];
   selectedProfileId?: string;
   hideBalances: boolean;
-  displayMode: DisplayMode;
+  insightsDisplayMode: DisplayMode;
+  portfolioDisplayMode: DisplayMode;
   menuBarMetric: MenuBarMetric;
   refreshIntervalSeconds: RefreshIntervalSeconds;
 }
@@ -32,7 +33,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
   section: "insights",
   profiles: [],
   hideBalances: false,
-  displayMode: "graphs",
+  insightsDisplayMode: "numbers",
+  portfolioDisplayMode: "graphs",
   menuBarMetric: "borrowed",
   refreshIntervalSeconds: 60,
 };
@@ -187,7 +189,15 @@ function normalizeSettings(value: unknown): AppSettings {
     value.section === "portfolio" || value.section === "settings"
       ? value.section
       : DEFAULT_SETTINGS.section;
-  const displayMode = value.displayMode === "numbers" ? "numbers" : "graphs";
+  const legacyDisplayMode = normalizeDisplayMode(value.displayMode);
+  const insightsDisplayMode =
+    normalizeDisplayMode(value.insightsDisplayMode) ??
+    legacyDisplayMode ??
+    DEFAULT_SETTINGS.insightsDisplayMode;
+  const portfolioDisplayMode =
+    normalizeDisplayMode(value.portfolioDisplayMode) ??
+    legacyDisplayMode ??
+    DEFAULT_SETTINGS.portfolioDisplayMode;
   const menuBarMetric: MenuBarMetric =
     value.menuBarMetric === "supplied" || value.menuBarMetric === "available"
       ? value.menuBarMetric
@@ -199,10 +209,15 @@ function normalizeSettings(value: unknown): AppSettings {
     profiles,
     selectedProfileId,
     hideBalances: value.hideBalances === true,
-    displayMode,
+    insightsDisplayMode,
+    portfolioDisplayMode,
     menuBarMetric,
     refreshIntervalSeconds,
   };
+}
+
+function normalizeDisplayMode(value: unknown): DisplayMode | undefined {
+  return value === "graphs" || value === "numbers" ? value : undefined;
 }
 
 function portfolioSnapshotKey(profileId: string): string {

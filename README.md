@@ -2,7 +2,7 @@
 
 LiqWatch is an unofficial, read-only Liquidium monitor for the macOS menu bar. It shows live lending markets and the positions associated with public Liquidium profile principals without connecting a wallet or offering transactions.
 
-The app is built with Tauri 2, React, TypeScript, TanStack Query, [Dither Kit](https://www.tripwire.sh/dither-kit), and `@liquidium/client@0.5.0-rc.1`. Dither Kit is installed from its official source registry and tracked by `dither-kit.json`. LiqWatch has no backend, analytics, telemetry, signing, or transaction path.
+The app is built with Tauri 2, React, TypeScript, TanStack Query, [Dither Kit](https://www.tripwire.sh/dither-kit), [Web3 Icons](https://web3icons.io), and `@liquidium/client@0.5.0-rc.1`. Dither Kit is installed from its official source registry and tracked by `dither-kit.json`. LiqWatch has no backend, analytics, telemetry, signing, or transaction path.
 
 ## Screenshots
 

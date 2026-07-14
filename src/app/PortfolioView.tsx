@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { type FormEvent, useState } from "react";
 import { validateProfileId } from "../liquidium/profile";
 import type { NormalizedPortfolio, NormalizedPosition } from "../liquidium/sdk.types";
+import { AssetIcon } from "./AssetIcon";
 import { DisplayModeSwitcher } from "./DisplayModeSwitcher";
 import { PortfolioCompositionChart } from "./DitherCharts";
 import {
@@ -427,9 +428,7 @@ function PositionRow({
   return (
     <details className="market-row position-row">
       <summary>
-        <span className="asset-avatar" aria-hidden="true">
-          {position.symbol.slice(0, 1)}
-        </span>
+        <AssetIcon symbol={position.symbol} />
         <span className="market-identity">
           <strong>{position.symbol}</strong>
           <small>{position.chain}</small>

@@ -6,6 +6,7 @@ import type {
   ScaledAmount,
   ScaledRatio,
 } from "../liquidium/sdk.types";
+import { AssetIcon } from "./AssetIcon";
 import { DisplayModeSwitcher } from "./DisplayModeSwitcher";
 import { MarketValueChart } from "./DitherCharts";
 import { formatAge } from "./format";
@@ -140,9 +141,7 @@ function InsightsNumbers({
       <section className="market-list" aria-label="Pool totals">
         {markets.map((market) => (
           <div className="insight-number-row" key={market.id}>
-            <span className="asset-avatar" aria-hidden="true">
-              {market.symbol.slice(0, 1)}
-            </span>
+            <AssetIcon symbol={market.symbol} />
             <span className="market-identity">
               <strong>{market.symbol}</strong>
               <small>{market.chain}</small>
