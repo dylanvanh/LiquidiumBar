@@ -8,6 +8,7 @@ import { DisplayModeSwitcher } from "./DisplayModeSwitcher";
 import { InsightsView } from "./InsightsView";
 import { MarketsView } from "./MarketsView";
 import { PortfolioView } from "./PortfolioView";
+import { SettingsView } from "./SettingsView";
 import type { ProfileRecord } from "./storage";
 
 const queryMocks = vi.hoisted(() => ({
@@ -110,6 +111,27 @@ describe("display mode", () => {
     );
     await user.click(screen.getByRole("button", { name: "Numbers" }));
     expect(onChange).toHaveBeenCalledWith("numbers");
+  });
+});
+
+describe("settings", () => {
+  it("lets the user choose the number shown in the menu bar", async () => {
+    const user = userEvent.setup();
+    const onMenuBarMetricChange = vi.fn();
+    render(
+      <SettingsView
+        refreshIntervalSeconds={60}
+        menuBarMetric="borrowed"
+        profiles={[]}
+        onRefreshIntervalChange={vi.fn()}
+        onMenuBarMetricChange={onMenuBarMetricChange}
+        onSelectProfile={vi.fn()}
+        onRemoveProfile={vi.fn()}
+      />
+    );
+
+    await user.selectOptions(screen.getByLabelText("Menu-bar value"), "available");
+    expect(onMenuBarMetricChange).toHaveBeenCalledWith("available");
   });
 });
 

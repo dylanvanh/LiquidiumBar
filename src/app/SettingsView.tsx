@@ -3,21 +3,25 @@ import { disable, enable, isEnabled } from "@tauri-apps/plugin-autostart";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { useEffect, useState } from "react";
 import { truncateProfile } from "./format";
-import type { ProfileRecord, RefreshIntervalSeconds } from "./storage";
+import type { MenuBarMetric, ProfileRecord, RefreshIntervalSeconds } from "./storage";
 import { REFRESH_INTERVALS } from "./storage";
 
 interface SettingsViewProps {
   refreshIntervalSeconds: RefreshIntervalSeconds;
+  menuBarMetric: MenuBarMetric;
   profiles: ProfileRecord[];
   onRefreshIntervalChange(value: RefreshIntervalSeconds): void;
+  onMenuBarMetricChange(value: MenuBarMetric): void;
   onSelectProfile(profileId: string): void;
   onRemoveProfile(profileId: string): void;
 }
 
 export function SettingsView({
   refreshIntervalSeconds,
+  menuBarMetric,
   profiles,
   onRefreshIntervalChange,
+  onMenuBarMetricChange,
   onSelectProfile,
   onRemoveProfile,
 }: SettingsViewProps) {
@@ -88,6 +92,22 @@ export function SettingsView({
             {autostartError}
           </p>
         ) : null}
+        <SettingRow
+          label="Menu-bar value"
+          description="Choose the compact market total shown beside the icon."
+        >
+          <select
+            aria-label="Menu-bar value"
+            value={menuBarMetric}
+            onChange={(event) =>
+              onMenuBarMetricChange(event.target.value as MenuBarMetric)
+            }
+          >
+            <option value="supplied">Supplied</option>
+            <option value="borrowed">Borrowed</option>
+            <option value="available">Available</option>
+          </select>
+        </SettingRow>
         <SettingRow
           label="Refresh interval"
           description="Updates the menu-bar total; portfolios poll while open."

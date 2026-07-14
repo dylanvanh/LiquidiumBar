@@ -72,7 +72,7 @@ fn validate_tray_title(title: &str) -> Result<&str, &'static str> {
 }
 
 #[tauri::command]
-fn set_tray_borrowed_title(app: tauri::AppHandle, title: String) -> Result<(), String> {
+fn set_tray_market_title(app: tauri::AppHandle, title: String) -> Result<(), String> {
     let title = validate_tray_title(&title).map_err(str::to_owned)?;
     let tray = app
         .tray_by_id(TRAY_ID)
@@ -167,7 +167,7 @@ pub fn run() {
         ))
         .invoke_handler(tauri::generate_handler![
             log_compatibility,
-            set_tray_borrowed_title
+            set_tray_market_title
         ])
         .setup(|app| {
             #[cfg(target_os = "macos")]
@@ -217,12 +217,9 @@ mod tests {
 
     #[test]
     fn tray_titles_are_short_and_single_line() {
-        assert_eq!(
-            validate_tray_title(" $803.1K borrowed "),
-            Ok("$803.1K borrowed")
-        );
+        assert_eq!(validate_tray_title(" $803.1K "), Ok("$803.1K"));
         assert!(validate_tray_title("").is_err());
-        assert!(validate_tray_title("borrowed\n$803K").is_err());
+        assert!(validate_tray_title("$803K\nborrowed").is_err());
         assert!(validate_tray_title("a title that is far too long for the menu bar").is_err());
     }
 }

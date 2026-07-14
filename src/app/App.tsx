@@ -15,7 +15,7 @@ import {
   saveSettings,
 } from "./storage";
 import { usePanelLifecycle } from "./usePanelLifecycle";
-import { useTrayBorrowedTotal } from "./useTrayBorrowedTotal";
+import { useTrayMarketTotal } from "./useTrayMarketTotal";
 
 const sections: ReadonlyArray<{ id: AppSettings["section"]; label: string }> = [
   { id: "markets", label: "Markets" },
@@ -29,7 +29,7 @@ export function App() {
   const [ready, setReady] = useState(false);
   const panelOpen = usePanelLifecycle();
   const queryClient = useQueryClient();
-  useTrayBorrowedTotal(ready, settings.refreshIntervalSeconds);
+  useTrayMarketTotal(ready, settings.refreshIntervalSeconds, settings.menuBarMetric);
 
   useEffect(() => {
     let active = true;
@@ -155,10 +155,12 @@ export function App() {
       {settings.section === "settings" ? (
         <SettingsView
           refreshIntervalSeconds={settings.refreshIntervalSeconds}
+          menuBarMetric={settings.menuBarMetric}
           profiles={settings.profiles}
           onRefreshIntervalChange={(refreshIntervalSeconds: RefreshIntervalSeconds) =>
             update({ refreshIntervalSeconds })
           }
+          onMenuBarMetricChange={(menuBarMetric) => update({ menuBarMetric })}
           onSelectProfile={(selectedProfileId) =>
             update({ selectedProfileId, section: "portfolio" })
           }

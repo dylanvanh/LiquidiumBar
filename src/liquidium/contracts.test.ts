@@ -13,7 +13,8 @@ import {
   loadSettings,
   serializeWithBigInt,
 } from "../app/storage";
-import { formatTrayBorrowed } from "../app/useTrayBorrowedTotal";
+import { formatTrayValue, selectMenuBarAmount } from "../app/useTrayMarketTotal";
+import { marketSnapshotFixture } from "../test/fixtures";
 import { mapLiquidiumError } from "./errors";
 import { validateProfileId } from "./profile";
 
@@ -25,9 +26,8 @@ describe("application contracts", () => {
       formatApr({ value: 50_000_000_000_000_000_000_000_000n, decimals: 27 })
     ).toBe("5.00%");
     expect(formatBps(7_400n)).toBe("74.00%");
-    expect(formatTrayBorrowed({ value: 803_067_600_000n, decimals: 6 })).toBe(
-      "$803.1K borrowed"
-    );
+    expect(formatTrayValue({ value: 803_067_600_000n, decimals: 6 })).toBe("$803.1K");
+    expect(formatTrayValue(undefined)).toBe("—");
   });
 
   it("masks balances without masking unavailable fields", () => {
@@ -43,6 +43,7 @@ describe("application contracts", () => {
 
   it("defaults new and legacy settings to graph mode", async () => {
     expect(DEFAULT_SETTINGS.displayMode).toBe("graphs");
+    expect(DEFAULT_SETTINGS.menuBarMetric).toBe("borrowed");
     window.localStorage.setItem(
       "settings",
       serializeWithBigInt({
@@ -53,7 +54,19 @@ describe("application contracts", () => {
         refreshIntervalSeconds: 60,
       })
     );
-    expect((await loadSettings()).displayMode).toBe("graphs");
+    expect(await loadSettings()).toMatchObject({
+      displayMode: "graphs",
+      menuBarMetric: "borrowed",
+    });
+  });
+
+  it("selects the configured menu-bar market total", () => {
+    const snapshot = marketSnapshotFixture();
+    expect(selectMenuBarAmount(snapshot, "supplied")).toBe(snapshot.totalSuppliedUsd);
+    expect(selectMenuBarAmount(snapshot, "borrowed")).toBe(snapshot.totalBorrowedUsd);
+    expect(selectMenuBarAmount(snapshot, "available")).toBe(
+      snapshot.availableLiquidityUsd
+    );
   });
 
   it("persists the insights section", async () => {
