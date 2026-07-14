@@ -17,10 +17,24 @@ LiquidiumBar is an unofficial, read-only Liquidium monitor for the macOS menu ba
 
 ## Screenshots
 
+### Insights
+
 <p align="center">
-  <img src="docs/screenshots/insights.png" alt="LiquidiumBar Insights" width="31%">
-  <img src="docs/screenshots/portfolio.png" alt="LiquidiumBar Portfolio" width="31%">
-  <img src="docs/screenshots/settings.png" alt="LiquidiumBar Settings" width="31%">
+  <img src="docs/screenshots/insights.png" alt="LiquidiumBar Insights charts" width="47%">
+  <img src="docs/screenshots/insights-details.png" alt="LiquidiumBar Insights details" width="47%">
+</p>
+
+### Portfolio
+
+<p align="center">
+  <img src="docs/screenshots/portfolio.png" alt="LiquidiumBar Portfolio chart" width="47%">
+  <img src="docs/screenshots/portfolio-details.png" alt="LiquidiumBar Portfolio details" width="47%">
+</p>
+
+### Settings
+
+<p align="center">
+  <img src="docs/screenshots/settings.png" alt="LiquidiumBar Settings" width="390">
 </p>
 
 ## Run locally
