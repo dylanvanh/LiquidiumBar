@@ -5,7 +5,7 @@ import { validateProfileId } from "../liquidium/profile";
 import type { MarketSnapshot, NormalizedPortfolio } from "../liquidium/sdk.types";
 
 export const SETTINGS_VERSION = 1;
-export const REFRESH_INTERVALS = [30, 60, 120, 300] as const;
+export const REFRESH_INTERVALS = [60, 120, 300] as const;
 export type RefreshIntervalSeconds = (typeof REFRESH_INTERVALS)[number];
 export type AppSection = "insights" | "portfolio" | "settings";
 export type DisplayMode = "graphs" | "numbers";
@@ -36,7 +36,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   insightsDisplayMode: "numbers",
   portfolioDisplayMode: "graphs",
   menuBarMetric: "borrowed",
-  refreshIntervalSeconds: 60,
+  refreshIntervalSeconds: 300,
 };
 
 const STORE_PATH = "liqwatch.v1.json";
@@ -180,11 +180,14 @@ function normalizeSettings(value: unknown): AppSettings {
     profiles.some(({ id }) => id === value.selectedProfileId)
       ? value.selectedProfileId
       : profiles[0]?.id;
-  const refreshIntervalSeconds = REFRESH_INTERVALS.includes(
-    value.refreshIntervalSeconds as RefreshIntervalSeconds
-  )
-    ? (value.refreshIntervalSeconds as RefreshIntervalSeconds)
-    : DEFAULT_SETTINGS.refreshIntervalSeconds;
+  const refreshIntervalSeconds =
+    value.refreshIntervalSeconds === 30
+      ? 60
+      : REFRESH_INTERVALS.includes(
+            value.refreshIntervalSeconds as RefreshIntervalSeconds
+          )
+        ? (value.refreshIntervalSeconds as RefreshIntervalSeconds)
+        : DEFAULT_SETTINGS.refreshIntervalSeconds;
   const section =
     value.section === "portfolio" || value.section === "settings"
       ? value.section

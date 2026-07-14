@@ -123,7 +123,7 @@ export function SettingsView({
           >
             {REFRESH_INTERVALS.map((seconds) => (
               <option key={seconds} value={seconds}>
-                {seconds < 60 ? `${seconds} sec` : `${seconds / 60} min`}
+                {seconds / 60} min
               </option>
             ))}
           </select>

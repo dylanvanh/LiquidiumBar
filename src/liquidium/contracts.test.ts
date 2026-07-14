@@ -46,6 +46,7 @@ describe("application contracts", () => {
     expect(DEFAULT_SETTINGS.insightsDisplayMode).toBe("numbers");
     expect(DEFAULT_SETTINGS.portfolioDisplayMode).toBe("graphs");
     expect(DEFAULT_SETTINGS.menuBarMetric).toBe("borrowed");
+    expect(DEFAULT_SETTINGS.refreshIntervalSeconds).toBe(300);
     window.localStorage.setItem(
       "settings",
       serializeWithBigInt({
@@ -62,6 +63,17 @@ describe("application contracts", () => {
       portfolioDisplayMode: "graphs",
       menuBarMetric: "borrowed",
     });
+  });
+
+  it("migrates the former 30-second refresh interval to the one-minute minimum", async () => {
+    window.localStorage.setItem(
+      "settings",
+      serializeWithBigInt({
+        ...DEFAULT_SETTINGS,
+        refreshIntervalSeconds: 30,
+      })
+    );
+    expect((await loadSettings()).refreshIntervalSeconds).toBe(60);
   });
 
   it("migrates the former shared preference only to Portfolio", async () => {

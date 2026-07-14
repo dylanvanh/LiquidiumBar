@@ -90,15 +90,16 @@ describe("asset icons", () => {
 });
 
 describe("settings", () => {
-  it("lets the user choose the number shown in the menu bar", async () => {
+  it("offers one-to-five-minute refresh intervals", async () => {
     const user = userEvent.setup();
     const onMenuBarMetricChange = vi.fn();
+    const onRefreshIntervalChange = vi.fn();
     render(
       <SettingsView
-        refreshIntervalSeconds={60}
+        refreshIntervalSeconds={300}
         menuBarMetric="borrowed"
         profiles={[]}
-        onRefreshIntervalChange={vi.fn()}
+        onRefreshIntervalChange={onRefreshIntervalChange}
         onMenuBarMetricChange={onMenuBarMetricChange}
         onSelectProfile={vi.fn()}
         onRemoveProfile={vi.fn()}
@@ -107,6 +108,12 @@ describe("settings", () => {
 
     await user.selectOptions(screen.getByLabelText("Menu-bar value"), "available");
     expect(onMenuBarMetricChange).toHaveBeenCalledWith("available");
+
+    const refreshSelect = screen.getByLabelText("Refresh interval");
+    expect(screen.getAllByRole("option", { name: /min/ })).toHaveLength(3);
+    expect(screen.queryByRole("option", { name: /sec/ })).not.toBeInTheDocument();
+    await user.selectOptions(refreshSelect, "60");
+    expect(onRefreshIntervalChange).toHaveBeenCalledWith(60);
   });
 });
 

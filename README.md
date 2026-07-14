@@ -25,7 +25,7 @@ The populated portfolio screenshot uses a development-only fixture to demonstrat
 - Validates canonical principals, stores local profile labels, and supports profile switching, rename, removal, copy, privacy mode, and empty/error states.
 - Shows supplied and borrowed value, collateral/risk metrics, derived health factor, weighted supply/borrow/net APR, and reserve rows when the SDK supplies the required inputs.
 - Persists settings and versioned normalized snapshots with explicit `bigint` encoding so the last successful data remains available after restart or a refresh failure.
-- Market totals refresh in the background for the menu-bar readout. Portfolio polling runs only while the panel is open. Query data becomes stale after 30 seconds; selectable polling intervals are 30, 60, 120, or 300 seconds.
+- Market totals refresh in the background for the menu-bar readout. Portfolio polling runs only while the panel is open. Query data becomes stale after 30 seconds; selectable polling intervals are 1, 2, or 5 minutes, with 5 minutes as the default.
 
 ## Architecture and data boundary
 
