@@ -122,6 +122,8 @@ export function App() {
         <MarketsView
           panelOpen={panelOpen}
           refreshIntervalSeconds={settings.refreshIntervalSeconds}
+          displayMode={settings.displayMode}
+          onDisplayModeChange={(displayMode) => update({ displayMode })}
         />
       ) : null}
       {settings.section === "portfolio" ? (
@@ -131,11 +133,13 @@ export function App() {
           profiles={settings.profiles}
           selectedProfileId={settings.selectedProfileId}
           hideBalances={settings.hideBalances}
+          displayMode={settings.displayMode}
           onAddProfile={addProfile}
           onSelectProfile={(selectedProfileId) => update({ selectedProfileId })}
           onRenameProfile={renameProfile}
           onRemoveProfile={removeProfile}
           onTogglePrivacy={() => update({ hideBalances: !settings.hideBalances })}
+          onDisplayModeChange={(displayMode) => update({ displayMode })}
         />
       ) : null}
       {settings.section === "settings" ? (

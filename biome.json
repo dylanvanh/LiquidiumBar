@@ -1,7 +1,14 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.4.15/schema.json",
   "files": {
-    "includes": ["**", "!src-tauri/target", "!src-tauri/gen", "!dist", "!coverage"]
+    "includes": [
+      "**",
+      "!src-tauri/target",
+      "!src-tauri/gen",
+      "!src/components/dither-kit",
+      "!dist",
+      "!coverage"
+    ]
   },
   "formatter": {
     "enabled": true,
@@ -19,6 +26,11 @@
     "formatter": {
       "quoteStyle": "double",
       "trailingCommas": "es5"
+    }
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
     }
   }
 }

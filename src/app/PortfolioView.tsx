@@ -2,6 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { type FormEvent, useState } from "react";
 import { validateProfileId } from "../liquidium/profile";
 import type { NormalizedPortfolio, NormalizedPosition } from "../liquidium/sdk.types";
+import { DisplayModeSwitcher } from "./DisplayModeSwitcher";
+import { PortfolioValueChart } from "./DitherCharts";
 import {
   formatAge,
   formatApr,
@@ -15,7 +17,7 @@ import {
   truncateProfile,
 } from "./format";
 import { fetchPortfolio } from "./queries";
-import type { ProfileRecord } from "./storage";
+import type { DisplayMode, ProfileRecord } from "./storage";
 
 interface PortfolioViewProps {
   panelOpen: boolean;
@@ -23,11 +25,13 @@ interface PortfolioViewProps {
   profiles: ProfileRecord[];
   selectedProfileId?: string;
   hideBalances: boolean;
+  displayMode: DisplayMode;
   onAddProfile(profile: ProfileRecord): void;
   onSelectProfile(profileId: string): void;
   onRenameProfile(profileId: string, label: string): void;
   onRemoveProfile(profileId: string): void;
   onTogglePrivacy(): void;
+  onDisplayModeChange(value: DisplayMode): void;
 }
 
 export function PortfolioView(props: PortfolioViewProps) {
@@ -138,10 +142,17 @@ function PortfolioMonitor({
   onRenameProfile,
   onRemoveProfile,
   onTogglePrivacy,
+  displayMode,
+  onDisplayModeChange,
 }: PortfolioViewProps & { profile: ProfileRecord }) {
   const [managing, setManaging] = useState<"add" | "rename">();
+  const demoState = import.meta.env.DEV
+    ? new URLSearchParams(window.location.search).get("demo")
+    : null;
   const query = useQuery({
-    queryKey: ["portfolio", profile.id],
+    queryKey: demoState
+      ? ["portfolio", profile.id, demoState]
+      : ["portfolio", profile.id],
     queryFn: () => fetchPortfolio(profile.id),
     enabled: panelOpen,
     refetchInterval: panelOpen ? refreshIntervalSeconds * 1_000 : false,
@@ -213,17 +224,22 @@ function PortfolioMonitor({
           </p>
           <h1 id="portfolio-title">{profile.label}</h1>
         </div>
-        <button
-          type="button"
-          className="icon-button"
-          onClick={() => query.refetch()}
-          disabled={query.isFetching}
-          aria-label="Refresh portfolio"
-        >
-          <span className={query.isFetching ? "refresh-icon spinning" : "refresh-icon"}>
-            ↻
-          </span>
-        </button>
+        <div className="view-actions">
+          <DisplayModeSwitcher value={displayMode} onChange={onDisplayModeChange} />
+          <button
+            type="button"
+            className="icon-button"
+            onClick={() => query.refetch()}
+            disabled={query.isFetching}
+            aria-label="Refresh portfolio"
+          >
+            <span
+              className={query.isFetching ? "refresh-icon spinning" : "refresh-icon"}
+            >
+              ↻
+            </span>
+          </button>
+        </div>
       </div>
 
       {!query.data && query.isPending ? <PortfolioSkeleton /> : null}
@@ -236,6 +252,8 @@ function PortfolioMonitor({
           hideBalances={hideBalances}
           refreshError={query.error}
           refreshing={query.isFetching}
+          displayMode={displayMode}
+          panelOpen={panelOpen}
         />
       ) : null}
     </section>
@@ -291,11 +309,15 @@ function PortfolioSnapshotView({
   hideBalances,
   refreshError,
   refreshing,
+  displayMode,
+  panelOpen,
 }: {
   portfolio: NormalizedPortfolio;
   hideBalances: boolean;
   refreshError: Error | null;
   refreshing: boolean;
+  displayMode: DisplayMode;
+  panelOpen: boolean;
 }) {
   if (portfolio.positions.length === 0) {
     return (
@@ -326,39 +348,49 @@ function PortfolioSnapshotView({
           {riskLabel(portfolio.riskState)}
         </div>
       </div>
-      <section className="metric-grid portfolio-metrics" aria-label="Portfolio totals">
-        <Metric
-          label="Supplied"
-          value={formatPrivate(formatUsd(portfolio.totalSuppliedUsd), hideBalances)}
-        />
-        <Metric
-          label="Borrowed"
-          value={formatPrivate(formatUsd(portfolio.totalBorrowedUsd), hideBalances)}
-        />
-        <Metric
-          label="Available to borrow"
-          value={formatPrivate(formatUsd(portfolio.availableToBorrowUsd), hideBalances)}
-        />
-        <Metric
-          label="Health factor"
-          value={
-            portfolio.healthFactorInfinite ? "∞" : formatRatio(portfolio.healthFactor)
-          }
-        />
-        <Metric
-          label="Weighted supply APR"
-          value={formatApr(portfolio.weightedSupplyApr)}
-        />
-        <Metric
-          label="Weighted borrow APR"
-          value={formatApr(portfolio.weightedBorrowApr)}
-        />
-        <Metric
-          label="Estimated net APR"
-          value={formatApr(portfolio.estimatedNetApr)}
-        />
-        <Metric label="Current LTV" value={formatBps(portfolio.currentLtvBps)} />
-      </section>
+      {displayMode === "graphs" && panelOpen ? (
+        <PortfolioValueChart positions={portfolio.positions} hidden={hideBalances} />
+      ) : (
+        <section
+          className="metric-grid portfolio-metrics"
+          aria-label="Portfolio totals"
+        >
+          <Metric
+            label="Supplied"
+            value={formatPrivate(formatUsd(portfolio.totalSuppliedUsd), hideBalances)}
+          />
+          <Metric
+            label="Borrowed"
+            value={formatPrivate(formatUsd(portfolio.totalBorrowedUsd), hideBalances)}
+          />
+          <Metric
+            label="Available to borrow"
+            value={formatPrivate(
+              formatUsd(portfolio.availableToBorrowUsd),
+              hideBalances
+            )}
+          />
+          <Metric
+            label="Health factor"
+            value={
+              portfolio.healthFactorInfinite ? "∞" : formatRatio(portfolio.healthFactor)
+            }
+          />
+          <Metric
+            label="Weighted supply APR"
+            value={formatApr(portfolio.weightedSupplyApr)}
+          />
+          <Metric
+            label="Weighted borrow APR"
+            value={formatApr(portfolio.weightedBorrowApr)}
+          />
+          <Metric
+            label="Estimated net APR"
+            value={formatApr(portfolio.estimatedNetApr)}
+          />
+          <Metric label="Current LTV" value={formatBps(portfolio.currentLtvBps)} />
+        </section>
+      )}
       <div className="list-heading">
         <span>{portfolio.positions.length} reserves</span>
         <span>

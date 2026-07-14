@@ -8,6 +8,7 @@ export const SETTINGS_VERSION = 1;
 export const REFRESH_INTERVALS = [30, 60, 120, 300] as const;
 export type RefreshIntervalSeconds = (typeof REFRESH_INTERVALS)[number];
 export type AppSection = "markets" | "portfolio" | "settings";
+export type DisplayMode = "graphs" | "numbers";
 
 export interface ProfileRecord {
   id: string;
@@ -20,6 +21,7 @@ export interface AppSettings {
   profiles: ProfileRecord[];
   selectedProfileId?: string;
   hideBalances: boolean;
+  displayMode: DisplayMode;
   refreshIntervalSeconds: RefreshIntervalSeconds;
 }
 
@@ -28,6 +30,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   section: "markets",
   profiles: [],
   hideBalances: false,
+  displayMode: "graphs",
   refreshIntervalSeconds: 60,
 };
 
@@ -183,6 +186,7 @@ function normalizeSettings(value: unknown): AppSettings {
     value.section === "settings"
       ? value.section
       : DEFAULT_SETTINGS.section;
+  const displayMode = value.displayMode === "numbers" ? "numbers" : "graphs";
 
   return {
     version: SETTINGS_VERSION,
@@ -190,6 +194,7 @@ function normalizeSettings(value: unknown): AppSettings {
     profiles,
     selectedProfileId,
     hideBalances: value.hideBalances === true,
+    displayMode,
     refreshIntervalSeconds,
   };
 }

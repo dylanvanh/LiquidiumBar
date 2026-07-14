@@ -2,7 +2,7 @@
 
 LiqWatch is an unofficial, read-only Liquidium monitor for the macOS menu bar. It shows live lending markets and the positions associated with public Liquidium profile principals without connecting a wallet or offering transactions.
 
-The app is built with Tauri 2, React, TypeScript, TanStack Query, and `@liquidium/client@0.5.0-rc.1`. It has no backend, analytics, telemetry, signing, or transaction path.
+The app is built with Tauri 2, React, TypeScript, TanStack Query, [Dither Kit](https://www.tripwire.sh/dither-kit), and `@liquidium/client@0.5.0-rc.1`. Dither Kit is installed from its official source registry and tracked by `dither-kit.json`. LiqWatch has no backend, analytics, telemetry, signing, or transaction path.
 
 ## Screenshots
 
@@ -20,6 +20,7 @@ The populated portfolio screenshot uses a development-only fixture to demonstrat
 
 - Runs as a 390×560 borderless macOS menu-bar panel with a monochrome template icon, accessory activation policy, tray-relative positioning, focus-loss hiding, and one reusable window.
 - Shows protocol totals, aggregate utilization, every pool returned by the SDK, and pool details including APR, liquidity, caps, curve parameters, price, frozen state, same-asset borrowing, and timestamps.
+- Defaults to interactive Dither Kit graphs for pool and reserve value comparisons, with a persistent Graphs/Numbers switch for exact figures.
 - Validates canonical principals, stores local profile labels, and supports profile switching, rename, removal, copy, privacy mode, and empty/error states.
 - Shows supplied and borrowed value, collateral/risk metrics, derived health factor, weighted supply/borrow/net APR, and reserve rows when the SDK supplies the required inputs.
 - Persists settings and versioned normalized snapshots with explicit `bigint` encoding so the last successful data remains available after restart or a refresh failure.

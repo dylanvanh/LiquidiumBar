@@ -10,14 +10,14 @@ The production policy is defined in `src-tauri/tauri.conf.json`:
 default-src 'self';
 connect-src 'self' ipc: http://ipc.localhost https://icp-api.io;
 img-src 'self' asset: http://asset.localhost data:;
-style-src 'self';
+style-src 'self' 'unsafe-inline';
 font-src 'self';
 object-src 'none';
 base-uri 'none';
 frame-ancestors 'none'
 ```
 
-Production permits local bundled assets, Tauri IPC, and the sole observed SDK origin. It permits no remote scripts or styles, `eval`, inline styles, frames, plugins, or arbitrary connections. Development has a separate `devCsp` for Vite assets, React refresh, and the local HMR socket; those exceptions are not present in release builds.
+Production permits local bundled assets, Tauri IPC, and the sole observed SDK origin. Inline styles are allowed because Dither Kit positions and sizes its canvas layers dynamically; scripts remain restricted to bundled local assets. It permits no remote scripts or styles, `eval`, frames, plugins, or arbitrary connections. Development has a separate `devCsp` for Vite assets, React refresh, and the local HMR socket; its HMR exceptions are not present in release builds.
 
 ## Tauri permissions
 

@@ -1,5 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import type { NormalizedMarket, ScaledAmount } from "../liquidium/sdk.types";
+import { DisplayModeSwitcher } from "./DisplayModeSwitcher";
+import { MarketValueChart } from "./DitherCharts";
 import {
   formatAge,
   formatApr,
@@ -9,13 +11,18 @@ import {
   formatUsd,
 } from "./format";
 import { fetchMarkets } from "./queries";
+import type { DisplayMode } from "./storage";
 
 export function MarketsView({
   panelOpen,
   refreshIntervalSeconds,
+  displayMode,
+  onDisplayModeChange,
 }: {
   panelOpen: boolean;
   refreshIntervalSeconds: number;
+  displayMode: DisplayMode;
+  onDisplayModeChange(value: DisplayMode): void;
 }) {
   const demoState = import.meta.env.DEV
     ? new URLSearchParams(window.location.search).get("demo")
@@ -64,18 +71,23 @@ export function MarketsView({
           <p className="eyebrow">Liquidium protocol</p>
           <h1 id="markets-title">Markets</h1>
         </div>
-        <button
-          type="button"
-          className="icon-button"
-          onClick={() => query.refetch()}
-          disabled={query.isFetching}
-          aria-label="Refresh markets"
-          title="Refresh markets"
-        >
-          <span className={query.isFetching ? "refresh-icon spinning" : "refresh-icon"}>
-            ↻
-          </span>
-        </button>
+        <div className="view-actions">
+          <DisplayModeSwitcher value={displayMode} onChange={onDisplayModeChange} />
+          <button
+            type="button"
+            className="icon-button"
+            onClick={() => query.refetch()}
+            disabled={query.isFetching}
+            aria-label="Refresh markets"
+            title="Refresh markets"
+          >
+            <span
+              className={query.isFetching ? "refresh-icon spinning" : "refresh-icon"}
+            >
+              ↻
+            </span>
+          </button>
+        </div>
       </div>
 
       {query.error ? (
@@ -84,12 +96,19 @@ export function MarketsView({
         </div>
       ) : null}
 
-      <section className="metric-grid" aria-label="Protocol totals">
-        <Metric label="Supplied" value={formatUsd(snapshot.totalSuppliedUsd)} />
-        <Metric label="Borrowed" value={formatUsd(snapshot.totalBorrowedUsd)} />
-        <Metric label="Available" value={formatUsd(snapshot.availableLiquidityUsd)} />
-        <Metric label="Utilization" value={formatApr(snapshot.aggregateUtilization)} />
-      </section>
+      {displayMode === "graphs" && panelOpen ? (
+        <MarketValueChart markets={snapshot.markets} />
+      ) : (
+        <section className="metric-grid" aria-label="Protocol totals">
+          <Metric label="Supplied" value={formatUsd(snapshot.totalSuppliedUsd)} />
+          <Metric label="Borrowed" value={formatUsd(snapshot.totalBorrowedUsd)} />
+          <Metric label="Available" value={formatUsd(snapshot.availableLiquidityUsd)} />
+          <Metric
+            label="Utilization"
+            value={formatApr(snapshot.aggregateUtilization)}
+          />
+        </section>
+      )}
 
       <div className="list-heading">
         <span>{snapshot.markets.length} pools</span>

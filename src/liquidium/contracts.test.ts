@@ -7,8 +7,10 @@ import {
   formatUsd,
 } from "../app/format";
 import {
+  DEFAULT_SETTINGS,
   deserializeWithBigInt,
   isSnapshotStale,
+  loadSettings,
   serializeWithBigInt,
 } from "../app/storage";
 import { mapLiquidiumError } from "./errors";
@@ -33,6 +35,21 @@ describe("application contracts", () => {
   it("round-trips tagged bigint persistence", () => {
     const input = { amount: 123_456_789_012_345_678_901n, nested: [0n, -2n] };
     expect(deserializeWithBigInt(serializeWithBigInt(input))).toEqual(input);
+  });
+
+  it("defaults new and legacy settings to graph mode", async () => {
+    expect(DEFAULT_SETTINGS.displayMode).toBe("graphs");
+    window.localStorage.setItem(
+      "settings",
+      serializeWithBigInt({
+        version: 1,
+        section: "markets",
+        profiles: [],
+        hideBalances: false,
+        refreshIntervalSeconds: 60,
+      })
+    );
+    expect((await loadSettings()).displayMode).toBe("graphs");
   });
 
   it("detects stale and invalid snapshot timestamps", () => {

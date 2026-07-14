@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { marketSnapshotFixture, portfolioFixture } from "../test/fixtures";
+import { DisplayModeSwitcher } from "./DisplayModeSwitcher";
 import { MarketsView } from "./MarketsView";
 import { PortfolioView } from "./PortfolioView";
 import type { ProfileRecord } from "./storage";
@@ -34,17 +35,26 @@ const basePortfolioProps = {
   profiles: [{ id: "aaaaa-aa", label: "Main" }],
   selectedProfileId: "aaaaa-aa",
   hideBalances: false,
+  displayMode: "numbers" as const,
   onAddProfile: vi.fn(),
   onSelectProfile: vi.fn(),
   onRenameProfile: vi.fn(),
   onRemoveProfile: vi.fn(),
   onTogglePrivacy: vi.fn(),
+  onDisplayModeChange: vi.fn(),
+};
+
+const marketViewProps = {
+  panelOpen: true,
+  refreshIntervalSeconds: 300,
+  displayMode: "numbers" as const,
+  onDisplayModeChange: vi.fn(),
 };
 
 describe("market states", () => {
   it("renders a loading state", () => {
     queryMocks.fetchMarkets.mockReturnValue(new Promise(() => undefined));
-    renderWithQuery(<MarketsView panelOpen refreshIntervalSeconds={300} />);
+    renderWithQuery(<MarketsView {...marketViewProps} />);
     expect(screen.getByLabelText("Loading markets")).toHaveAttribute(
       "aria-busy",
       "true"
@@ -55,7 +65,7 @@ describe("market states", () => {
     queryMocks.fetchMarkets.mockResolvedValue(
       marketSnapshotFixture({ pricesComplete: false })
     );
-    renderWithQuery(<MarketsView panelOpen refreshIntervalSeconds={300} />);
+    renderWithQuery(<MarketsView {...marketViewProps} />);
     expect((await screen.findAllByText("BTC"))[0]).toBeVisible();
     expect(screen.getByText(/Totals exclude pools/)).toBeVisible();
   });
@@ -64,9 +74,24 @@ describe("market states", () => {
     const client = createClient();
     client.setQueryData(["markets"], marketSnapshotFixture());
     queryMocks.fetchMarkets.mockRejectedValue(new Error("offline"));
-    renderWithQuery(<MarketsView panelOpen refreshIntervalSeconds={300} />, client);
+    renderWithQuery(<MarketsView {...marketViewProps} />, client);
     expect(await screen.findByText(/Refresh failed\. Showing data/)).toBeVisible();
     expect(screen.getAllByText("BTC")[0]).toBeVisible();
+  });
+});
+
+describe("display mode", () => {
+  it("switches between graphs and exact numbers", async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    render(<DisplayModeSwitcher value="graphs" onChange={onChange} />);
+
+    expect(screen.getByRole("button", { name: "Graphs" })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+    await user.click(screen.getByRole("button", { name: "Numbers" }));
+    expect(onChange).toHaveBeenCalledWith("numbers");
   });
 });
 
