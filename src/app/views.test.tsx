@@ -121,8 +121,11 @@ describe("insights", () => {
     expect(screen.getByText("Total available")).toBeVisible();
     expect(screen.getByText("Supplied vs borrowed")).toBeVisible();
     expect(screen.getByText("Share of deposits")).toBeVisible();
-    expect(screen.getByLabelText("Supplied vs borrowed")).toAppearBefore(
-      screen.getByLabelText("Protocol totals")
+    expect(screen.getByLabelText("Protocol totals")).toAppearBefore(
+      screen.getByLabelText("Market composition")
+    );
+    expect(screen.getByLabelText("Market composition")).toAppearBefore(
+      screen.getByLabelText("Supplied vs borrowed")
     );
     expect(screen.getByRole("button", { name: /View full breakdown/ })).toBeVisible();
   });
