@@ -40,11 +40,11 @@ export const DEFAULT_SETTINGS: AppSettings = {
   refreshIntervalSeconds: 300,
 };
 
-const STORE_PATH = "liqwatch.v1.json";
+const STORE_PATH = "liquidiumbar.v1.json";
 const SETTINGS_KEY = "settings";
 const MARKET_SNAPSHOT_KEY = "snapshot:markets";
 const PORTFOLIO_SNAPSHOT_PREFIX = "snapshot:portfolio:";
-const BIGINT_TAG = "__liqwatch_bigint__";
+const BIGINT_TAG = "__liquidiumbar_bigint__";
 let storePromise: Promise<Store> | undefined;
 
 export function serializeWithBigInt(value: unknown): string {

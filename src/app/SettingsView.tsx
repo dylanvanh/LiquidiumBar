@@ -75,7 +75,7 @@ export function SettingsView({
       <SettingsGroup title="General">
         <SettingRow
           label="Open at Login"
-          description="Starts LiqWatch as a menu-bar accessory."
+          description="Starts LiquidiumBar as a menu-bar accessory."
         >
           <button
             type="button"
@@ -185,7 +185,7 @@ export function SettingsView({
 
       <SettingsGroup title="About">
         <SettingRow
-          label="LiqWatch"
+          label="LiquidiumBar"
           description="Unofficial Liquidium monitoring client."
         >
           <span className="setting-value">0.1.0</span>
@@ -201,7 +201,8 @@ export function SettingsView({
       </SettingsGroup>
 
       <p className="unofficial-note">
-        LiqWatch is an unofficial, read-only product and is not endorsed by Liquidium.
+        LiquidiumBar is an unofficial, read-only product and is not endorsed by
+        Liquidium.
       </p>
     </section>
   );

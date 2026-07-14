@@ -1,6 +1,6 @@
 # Security, network, and local data
 
-LiqWatch is intentionally read-only. It has no wallet connection, private-key handling, signing, transactions, backend service, analytics, or telemetry.
+LiquidiumBar is intentionally read-only. It has no wallet connection, private-key handling, signing, transactions, backend service, analytics, or telemetry.
 
 ## Content Security Policy
 
@@ -32,14 +32,14 @@ There is no shell, command execution, filesystem, process, clipboard, notificati
 
 ## Local storage
 
-The Tauri Store file is:
+LiquidiumBar stores local state at:
 
 ```text
-~/Library/Application Support/app.liqwatch.desktop/liqwatch.v1.json
+~/Library/Application Support/app.liquidiumbar.desktop/liquidiumbar.v1.json
 ```
 
 It contains versioned settings, public profile principals and local labels, privacy preference, refresh interval, selected tab/profile, and normalized market/portfolio snapshots. Financial integers are serialized as tagged decimal strings and restored to `bigint` explicitly. A profile's cached portfolio snapshot is deleted when the profile is removed. Corrupt or old-version records are ignored safely.
 
-The data is not encrypted because it contains only public protocol data and user-selected local preferences. Privacy mode masks amounts on screen; it does not encrypt the store. Removing the store file resets all local LiqWatch state.
+The data is not encrypted because it contains only public protocol data and user-selected local preferences. Privacy mode masks amounts on screen; it does not encrypt the store. Removing the store file resets all local LiquidiumBar state.
 
 In an ordinary browser development session—not a Tauri window—the same keys use that browser's `localStorage` solely to support UI development and tests.

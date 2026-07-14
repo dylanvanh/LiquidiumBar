@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "LiqWatch",
+  "productName": "LiquidiumBar",
   "version": "0.1.0",
-  "identifier": "app.liqwatch.desktop",
+  "identifier": "app.liquidiumbar.desktop",
   "build": {
     "beforeDevCommand": "pnpm dev",
     "devUrl": "http://localhost:1420",
@@ -14,7 +14,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "LiqWatch",
+        "title": "LiquidiumBar",
         "width": 390,
         "height": 560,
         "minWidth": 390,

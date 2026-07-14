@@ -52,7 +52,7 @@ export function App() {
 
   if (!ready) {
     return (
-      <section className="app-bootstrap" aria-label="Loading LiqWatch">
+      <section className="app-bootstrap" aria-label="Loading LiquidiumBar">
         <span />
       </section>
     );
@@ -101,10 +101,10 @@ export function App() {
       <header className="titlebar">
         <div className="wordmark">
           <img className="wordmark-glyph" src={liquidiumMark} alt="" />
-          <span>LiqWatch</span>
+          <span>LiquidiumBar</span>
         </div>
       </header>
-      <nav className="section-tabs" aria-label="LiqWatch sections">
+      <nav className="section-tabs" aria-label="LiquidiumBar sections">
         {sections.map(({ id, label }) => (
           <button
             key={id}

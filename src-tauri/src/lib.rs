@@ -9,7 +9,7 @@ use tauri::{
 use tauri_plugin_positioner::{Position, WindowExt};
 
 const MAIN_WINDOW_LABEL: &str = "main";
-const TRAY_ID: &str = "liqwatch";
+const TRAY_ID: &str = "liquidiumbar";
 const MENU_OPEN_ID: &str = "open";
 const MENU_QUIT_ID: &str = "quit";
 
@@ -45,7 +45,7 @@ fn panel_action(is_visible: bool) -> PanelAction {
 
 fn log_compatibility_report(report: &CompatibilityLog) {
     eprintln!(
-        "LiqWatch compatibility: runtime_ready={} markets_ok={} market_count={} portfolio_ok={} position_count={} observed_origins={:?}",
+        "LiquidiumBar compatibility: runtime_ready={} markets_ok={} market_count={} portfolio_ok={} position_count={} observed_origins={:?}",
         report.runtime_ready,
         report.markets_ok,
         report.market_count,
@@ -83,15 +83,15 @@ fn set_tray_market_title(app: tauri::AppHandle, title: Option<String>) -> Result
     let title = normalize_tray_title(title).map_err(str::to_owned)?;
     let tray = app
         .tray_by_id(TRAY_ID)
-        .ok_or_else(|| "LiqWatch tray icon is unavailable".to_owned())?;
+        .ok_or_else(|| "LiquidiumBar tray icon is unavailable".to_owned())?;
     // tray-icon 0.24.1 ignores None on macOS instead of clearing NSStatusItem.title.
     // An explicit empty string removes the title and recalculates the item width.
     tray.set_title(Some(title.as_str()))
         .map_err(|error| error.to_string())?;
     let tooltip = if title.is_empty() {
-        "LiqWatch".to_owned()
+        "LiquidiumBar".to_owned()
     } else {
-        format!("LiqWatch · {title}")
+        format!("LiquidiumBar · {title}")
     };
     tray.set_tooltip(Some(tooltip))
         .map_err(|error| error.to_string())
@@ -132,15 +132,15 @@ fn toggle_panel(app: &tauri::AppHandle) -> tauri::Result<()> {
 }
 
 fn configure_tray(app: &tauri::App) -> tauri::Result<()> {
-    let open = MenuItem::with_id(app, MENU_OPEN_ID, "Open LiqWatch", true, None::<&str>)?;
-    let quit = MenuItem::with_id(app, MENU_QUIT_ID, "Quit LiqWatch", true, None::<&str>)?;
+    let open = MenuItem::with_id(app, MENU_OPEN_ID, "Open LiquidiumBar", true, None::<&str>)?;
+    let quit = MenuItem::with_id(app, MENU_QUIT_ID, "Quit LiquidiumBar", true, None::<&str>)?;
     let menu = Menu::with_items(app, &[&open, &quit])?;
     let tray_icon = Image::from_bytes(include_bytes!("../icons/tray-template.png"))?;
 
     TrayIconBuilder::with_id(TRAY_ID)
         .icon(tray_icon)
         .icon_as_template(true)
-        .tooltip("LiqWatch")
+        .tooltip("LiquidiumBar")
         .menu(&menu)
         .show_menu_on_left_click(false)
         .on_menu_event(|app, event| match event.id().as_ref() {
@@ -188,7 +188,7 @@ pub fn run() {
             app.set_activation_policy(tauri::ActivationPolicy::Accessory);
             configure_tray(app)?;
             #[cfg(debug_assertions)]
-            if std::env::var_os("LIQWATCH_OPEN_PANEL").is_some() {
+            if std::env::var_os("LIQUIDIUMBAR_OPEN_PANEL").is_some() {
                 show_panel(app.handle())?;
             }
             Ok(())
@@ -212,7 +212,7 @@ pub fn run() {
             }
         })
         .run(tauri::generate_context!())
-        .expect("error while running LiqWatch");
+        .expect("error while running LiquidiumBar");
 }
 
 #[cfg(test)]

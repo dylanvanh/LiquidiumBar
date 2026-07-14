@@ -2,11 +2,11 @@
 
 ## Version and inspection basis
 
-LiqWatch pins `@liquidium/client@0.5.0` exactly. The adapter was implemented against the installed package declarations and runtime, with source cross-checks in:
+LiquidiumBar pins `@liquidium/client@0.5.0` exactly. The adapter was implemented against the installed package declarations and runtime, with source cross-checks in:
 
 `/Users/dylan/liquidium/repos/liquidium-cross-chain-app/external`
 
-That local source checkout reported commit `e53daf1` and a package version of `0.5.0`. The installed package declarations and stable source agree on LiqWatch's four read methods; the installed release remains authoritative for the application build.
+That local source checkout reported commit `e53daf1` and a package version of `0.5.0`. The installed package declarations and stable source agree on LiquidiumBar's four read methods; the installed release remains authoritative for the application build.
 
 ## Used surface
 
@@ -22,7 +22,7 @@ client.positions.getUserReserves(profileId)
 
 No wallet adapter, profile mutation, signing, approval, borrowing, lending, repayment, withdrawal, or other transaction API is imported or called.
 
-## Stable LiqWatch contracts
+## Stable LiquidiumBar contracts
 
 - `ScaledAmount` and `ScaledRatio` retain a `bigint` value plus explicit decimal scale.
 - Market and portfolio responses are normalized before reaching React.
@@ -37,15 +37,15 @@ SDK 0.5.0 runtime risk fields are represented in basis points despite some gener
 
 ## Unsupported or incomplete fields
 
-| Field | LiqWatch behavior |
+| Field | LiquidiumBar behavior |
 | --- | --- |
 | APY | Not derived or displayed; compounding cadence is unavailable. |
 | Per-position collateral flags | Not inferred from aggregate collateral data. |
-| Price timestamps | No timestamp is attached to SDK prices, so only the LiqWatch fetch time is shown. |
+| Price timestamps | No timestamp is attached to SDK prices, so only the LiquidiumBar fetch time is shown. |
 | Market names and icons | Asset symbols are used; missing presentation metadata is not guessed. |
 | Raw SDK health factor | Ignored because its scale is not documented reliably. |
 | Profile existence | A syntactically valid empty profile cannot be distinguished from an unregistered profile. |
 
 ## Principal validation
 
-The SDK exports no profile validator in version 0.5.0. LiqWatch pins `@icp-sdk/core@5.4.0` and uses `Principal.fromText`, then compares the canonical `toText()` result. Invalid or non-canonical input is rejected before a network query.
+The SDK exports no profile validator in version 0.5.0. LiquidiumBar pins `@icp-sdk/core@5.4.0` and uses `Principal.fromText`, then compares the canonical `toText()` result. Invalid or non-canonical input is rejected before a network query.

@@ -17,7 +17,7 @@ const queryClient = new QueryClient({
 const root = document.getElementById("root");
 
 if (!root) {
-  throw new Error("LiqWatch root element is missing");
+  throw new Error("LiquidiumBar root element is missing");
 }
 
 createRoot(root).render(

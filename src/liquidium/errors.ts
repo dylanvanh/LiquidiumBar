@@ -33,7 +33,7 @@ export function mapLiquidiumError(error: unknown): LiquidiumAppError {
 
   return {
     type: "sdk",
-    message: "LiqWatch could not load Liquidium data.",
+    message: "LiquidiumBar could not load Liquidium data.",
     cause: error,
   };
 }

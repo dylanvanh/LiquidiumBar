@@ -20,8 +20,8 @@ pnpm tauri build
 The active bundle targets are `app` and `dmg`. Outputs are written below:
 
 ```text
-src-tauri/target/release/bundle/macos/LiqWatch.app
-src-tauri/target/release/bundle/dmg/LiqWatch_0.1.0_aarch64.dmg
+src-tauri/target/release/bundle/macos/LiquidiumBar.app
+src-tauri/target/release/bundle/dmg/LiquidiumBar_0.1.0_aarch64.dmg
 ```
 
 ## Developer ID signing and notarization
@@ -42,7 +42,7 @@ See Tauri's official [macOS code-signing guide](https://v2.tauri.app/distribute/
 
 - Launch the packaged `.app`; confirm no normal Dock icon appears.
 - Left-click the tray icon repeatedly; confirm the same panel toggles instead of new windows being created.
-- Use the native **Open LiqWatch** and **Quit LiqWatch** menu commands.
+- Use the native **Open LiquidiumBar** and **Quit LiquidiumBar** menu commands.
 - Move the menu-bar item across displays and test above left, center, and right menu-bar regions.
 - Test with a second display disconnected/reconnected and with different display scaling.
 - Open from a full-screen Space and confirm placement, all-Spaces visibility, focus, and focus-loss hiding.
@@ -57,4 +57,4 @@ See Tauri's official [macOS code-signing guide](https://v2.tauri.app/distribute/
 
 ## Distribution disclaimer
 
-LiqWatch is unofficial and is not affiliated with, endorsed by, or supported by Liquidium. It is a monitoring convenience, not financial advice or a transaction interface. Release notes should disclose the pinned SDK version and known incomplete fields listed in [SDK_CAPABILITIES.md](SDK_CAPABILITIES.md).
+LiquidiumBar is unofficial and is not affiliated with, endorsed by, or supported by Liquidium. It is a monitoring convenience, not financial advice or a transaction interface. Release notes should disclose the pinned SDK version and known incomplete fields listed in [SDK_CAPABILITIES.md](SDK_CAPABILITIES.md).

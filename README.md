@@ -1,8 +1,8 @@
-# LiqWatch
+# LiquidiumBar
 
-LiqWatch is an unofficial, read-only Liquidium monitor for the macOS menu bar. It shows live lending markets and the positions associated with public Liquidium profile principals without connecting a wallet or offering transactions.
+LiquidiumBar is an unofficial, read-only Liquidium monitor for the macOS menu bar. It shows live lending markets and the positions associated with public Liquidium profile principals without connecting a wallet or offering transactions.
 
-The app is built with Tauri 2, React, TypeScript, TanStack Query, [Dither Kit](https://www.tripwire.sh/dither-kit), [Web3 Icons](https://web3icons.io), and `@liquidium/client@0.5.0`. Dither Kit is installed from its official source registry and tracked by `dither-kit.json`. LiqWatch has no backend, analytics, telemetry, signing, or transaction path.
+The app is built with Tauri 2, React, TypeScript, TanStack Query, [Dither Kit](https://www.tripwire.sh/dither-kit), [Web3 Icons](https://web3icons.io), and `@liquidium/client@0.5.0`. Dither Kit is installed from its official source registry and tracked by `dither-kit.json`. LiquidiumBar has no backend, analytics, telemetry, signing, or transaction path.
 
 ## Screenshots
 
@@ -25,7 +25,7 @@ The populated portfolio screenshot uses a development-only fixture to demonstrat
 - Validates canonical principals, stores local profile labels, and supports profile switching, rename, removal, copy, privacy mode, and empty/error states.
 - Shows supplied and borrowed value, collateral/risk metrics, derived health factor, weighted supply/borrow/net APR, and reserve rows when the SDK supplies the required inputs.
 - Persists settings and versioned normalized snapshots with explicit `bigint` encoding so the last successful data remains available after restart or a refresh failure.
-- The menu bar shows only the LiqWatch icon by default. Users can optionally display supplied, borrowed, or available value; market totals refresh in the background only when a value is selected. Portfolio polling runs only while the panel is open. Query data becomes stale after 30 seconds; selectable polling intervals are 1, 2, or 5 minutes, with 5 minutes as the default.
+- The menu bar shows only the LiquidiumBar icon by default. Users can optionally display supplied, borrowed, or available value; market totals refresh in the background only when a value is selected. Portfolio polling runs only while the panel is open. Query data becomes stale after 30 seconds; selectable polling intervals are 1, 2, or 5 minutes, with 5 minutes as the default.
 
 ## Architecture and data boundary
 
@@ -48,7 +48,7 @@ The stable SDK dependency is isolated behind `LiquidiumReadAdapter`. The adapter
 
 Application contracts use scaled `bigint` amounts and ratios. Values are converted to JavaScript numbers only at the final display boundary. Profile syntax is checked with the explicitly pinned `@icp-sdk/core@5.4.0` principal implementation.
 
-Rates are labeled APR. LiqWatch does not invent APY or compounding assumptions. Weighted and net APR are shown only when every required rate and price exists. Health factor is derived from liquidation-threshold and current-LTV basis points; the SDK's raw health-factor field is intentionally ignored because version 0.5.0 does not document its scale reliably.
+Rates are labeled APR. LiquidiumBar does not invent APY or compounding assumptions. Weighted and net APR are shown only when every required rate and price exists. Health factor is derived from liquidation-threshold and current-LTV basis points; the SDK's raw health-factor field is intentionally ignored because version 0.5.0 does not document its scale reliably.
 
 See [SDK capabilities](docs/SDK_CAPABILITIES.md), [compatibility results](docs/COMPATIBILITY.md), and [security and storage](docs/SECURITY.md) for the detailed contract.
 
@@ -83,6 +83,6 @@ The release build produces an `.app` and `.dmg` under `src-tauri/target/release/
 
 ## Known data limitations
 
-SDK 0.5.0 does not provide a reliable contract for APY, compounding cadence, per-position collateral flags, price timestamps, human market names/icons, the raw health-factor scale, or profile-existence detection. A valid principal with no reserves—including `aaaaa-aa`—is shown as **No active positions**; LiqWatch cannot distinguish that from an unregistered profile.
+SDK 0.5.0 does not provide a reliable contract for APY, compounding cadence, per-position collateral flags, price timestamps, human market names/icons, the raw health-factor scale, or profile-existence detection. A valid principal with no reserves—including `aaaaa-aa`—is shown as **No active positions**; LiquidiumBar cannot distinguish that from an unregistered profile.
 
 This project is unofficial and is not affiliated with, endorsed by, or supported by Liquidium. Information may be delayed, incomplete, or incorrect and is not financial advice. Verify important values in official Liquidium interfaces before acting.

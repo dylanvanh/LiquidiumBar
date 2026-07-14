@@ -1,3 +1,3 @@
 fn main() {
-    liqwatch_lib::run();
+    liquidiumbar_lib::run();
 }

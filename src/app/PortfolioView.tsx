@@ -96,8 +96,8 @@ function ProfileOnboarding({
       <p className="eyebrow">Read-only monitoring</p>
       <h1 id="profile-title">Add a Liquidium profile</h1>
       <p className="onboarding-copy">
-        Enter a profile principal to monitor public positions. LiqWatch never asks for a
-        wallet or signing permission.
+        Enter a profile principal to monitor public positions. LiquidiumBar never asks
+        for a wallet or signing permission.
       </p>
       <form className="profile-form" onSubmit={submit} noValidate>
         <label htmlFor="profile-id">Profile principal</label>

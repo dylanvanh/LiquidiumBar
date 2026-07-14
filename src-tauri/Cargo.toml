@@ -1,13 +1,13 @@
 [package]
-name = "liqwatch"
+name = "liquidiumbar"
 version = "0.1.0"
 description = "Liquidium from your menu bar"
-authors = ["LiqWatch contributors"]
+authors = ["LiquidiumBar contributors"]
 edition = "2024"
 rust-version = "1.85"
 
 [lib]
-name = "liqwatch_lib"
+name = "liquidiumbar_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
