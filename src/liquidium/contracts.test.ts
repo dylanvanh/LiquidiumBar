@@ -15,6 +15,7 @@ import {
 } from "../app/storage";
 import { formatTrayValue, selectMenuBarAmount } from "../app/useTrayMarketTotal";
 import { marketSnapshotFixture } from "../test/fixtures";
+import { isSupportedWalletAddress } from "./adapter";
 import { mapLiquidiumError } from "./errors";
 import { validateProfileId } from "./profile";
 
@@ -143,6 +144,17 @@ describe("application contracts", () => {
       ok: false,
       error: { type: "invalid-profile" },
     });
+  });
+
+  it("recognizes supported Ethereum and Bitcoin wallet address shapes", () => {
+    expect(isSupportedWalletAddress("0x1111111111111111111111111111111111111111")).toBe(
+      true
+    );
+    expect(isSupportedWalletAddress("1BoatSLRHtKNngkdXEeobR76b53LETtpyT")).toBe(true);
+    expect(isSupportedWalletAddress("bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kygt080")).toBe(
+      true
+    );
+    expect(isSupportedWalletAddress("not a wallet")).toBe(false);
   });
 
   it("maps SDK transport errors separately from protocol errors", () => {

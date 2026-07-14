@@ -30,6 +30,7 @@ import type {
 export interface LiquidiumReadAdapter {
   getMarkets(): Promise<MarketSnapshot>;
   getPortfolio(profileId: string): Promise<NormalizedPortfolio>;
+  resolveProfileId(profileOrWallet: string): Promise<string>;
 }
 
 export class SdkLiquidiumReadAdapter implements LiquidiumReadAdapter {
@@ -93,9 +94,62 @@ export class SdkLiquidiumReadAdapter implements LiquidiumReadAdapter {
       throw mapLiquidiumError(error);
     }
   }
+
+  async resolveProfileId(profileOrWallet: string): Promise<string> {
+    const input = profileOrWallet.trim();
+    const profile = validateProfileId(input);
+
+    if (profile.ok) {
+      return profile.profileId;
+    }
+
+    if (!isSupportedWalletAddress(input)) {
+      throw {
+        type: "invalid-profile",
+        message:
+          "Enter a valid Liquidium profile principal, Ethereum address, or Bitcoin address.",
+      } satisfies LiquidiumAppError;
+    }
+
+    try {
+      const profileId = await this.client.accounts.getProfileId(input);
+
+      if (!profileId) {
+        throw {
+          type: "invalid-profile",
+          message: "No Liquidium profile is linked to this wallet address.",
+        } satisfies LiquidiumAppError;
+      }
+
+      const resolvedProfile = validateProfileId(profileId);
+      if (!resolvedProfile.ok) {
+        throw resolvedProfile.error;
+      }
+
+      return resolvedProfile.profileId;
+    } catch (error) {
+      if (isLiquidiumAppError(error)) {
+        throw error;
+      }
+      throw mapLiquidiumError(error);
+    }
+  }
 }
 
 export const liquidiumAdapter: LiquidiumReadAdapter = new SdkLiquidiumReadAdapter();
+
+export function isSupportedWalletAddress(input: string): boolean {
+  const address = input.trim();
+  const evmAddress = /^0x[0-9a-fA-F]{40}$/;
+  const legacyBitcoinAddress = /^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$/;
+  const segwitBitcoinAddress = /^bc1[ac-hj-np-z02-9]{11,71}$/;
+
+  return (
+    evmAddress.test(address) ||
+    legacyBitcoinAddress.test(address) ||
+    segwitBitcoinAddress.test(address.toLowerCase())
+  );
+}
 
 export function normalizeMarket(pool: Pool, priceUsd?: number): NormalizedMarket {
   const decimals = toSafeDecimals(pool.decimals, `${pool.asset} amount`);

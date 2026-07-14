@@ -14,6 +14,7 @@ import type { ProfileRecord } from "./storage";
 const queryMocks = vi.hoisted(() => ({
   fetchMarkets: vi.fn(),
   fetchPortfolio: vi.fn(),
+  resolveProfileInput: vi.fn(),
 }));
 
 vi.mock("./queries", () => queryMocks);
@@ -190,10 +191,72 @@ describe("portfolio states", () => {
         onAddProfile={onAddProfile}
       />
     );
-    await user.type(screen.getByLabelText("Profile principal"), "not valid");
+    queryMocks.resolveProfileInput.mockRejectedValue({
+      type: "invalid-profile",
+      message:
+        "Enter a valid Liquidium profile principal, Ethereum address, or Bitcoin address.",
+    });
+    await user.type(
+      screen.getByLabelText("Profile principal or wallet address"),
+      "not valid"
+    );
     await user.click(screen.getByRole("button", { name: "Add profile" }));
-    expect(screen.getByRole("alert")).toHaveTextContent("invalid");
+    expect(await screen.findByRole("alert")).toHaveTextContent("valid");
     expect(onAddProfile).not.toHaveBeenCalled();
+  });
+
+  it("resolves a linked wallet address before adding the profile", async () => {
+    const user = userEvent.setup();
+    const onAddProfile = vi.fn();
+    const walletAddress = "0x1111111111111111111111111111111111111111";
+    queryMocks.resolveProfileInput.mockResolvedValue("aaaaa-aa");
+    renderWithQuery(
+      <PortfolioView
+        {...basePortfolioProps}
+        profiles={[]}
+        selectedProfileId={undefined}
+        onAddProfile={onAddProfile}
+      />
+    );
+
+    await user.type(
+      screen.getByLabelText("Profile principal or wallet address"),
+      walletAddress
+    );
+    await user.click(screen.getByRole("button", { name: "Add profile" }));
+
+    await waitFor(() =>
+      expect(onAddProfile).toHaveBeenCalledWith({
+        id: "aaaaa-aa",
+        label: "Profile 1",
+      })
+    );
+    expect(queryMocks.resolveProfileInput).toHaveBeenCalledWith(walletAddress);
+  });
+
+  it("explains when a wallet has no linked Liquidium profile", async () => {
+    const user = userEvent.setup();
+    queryMocks.resolveProfileInput.mockRejectedValue({
+      type: "invalid-profile",
+      message: "No Liquidium profile is linked to this wallet address.",
+    });
+    renderWithQuery(
+      <PortfolioView
+        {...basePortfolioProps}
+        profiles={[]}
+        selectedProfileId={undefined}
+      />
+    );
+
+    await user.type(
+      screen.getByLabelText("Profile principal or wallet address"),
+      "bc1qexamplewalletaddress000000000000000000000"
+    );
+    await user.click(screen.getByRole("button", { name: "Add profile" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "No Liquidium profile is linked"
+    );
   });
 
   it("renders a valid empty portfolio", async () => {

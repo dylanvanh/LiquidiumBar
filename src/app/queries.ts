@@ -21,3 +21,8 @@ export async function fetchPortfolio(profileId: string): Promise<NormalizedPortf
   void savePortfolioSnapshot(profileId, snapshot).catch(() => undefined);
   return snapshot;
 }
+
+export async function resolveProfileInput(input: string): Promise<string> {
+  const { liquidiumAdapter } = await import("../liquidium/adapter");
+  return liquidiumAdapter.resolveProfileId(input);
+}

@@ -11,8 +11,11 @@ import {
   WalletCards,
 } from "lucide-react";
 import { type FormEvent, useState } from "react";
-import { validateProfileId } from "../liquidium/profile";
-import type { NormalizedPortfolio, NormalizedPosition } from "../liquidium/sdk.types";
+import type {
+  LiquidiumAppError,
+  NormalizedPortfolio,
+  NormalizedPosition,
+} from "../liquidium/sdk.types";
 import { AssetIcon } from "./AssetIcon";
 import { DisplayModeSwitcher } from "./DisplayModeSwitcher";
 import { PortfolioCompositionChart } from "./DitherCharts";
@@ -28,7 +31,7 @@ import {
   formatUsd,
   truncateProfile,
 } from "./format";
-import { fetchPortfolio } from "./queries";
+import { fetchPortfolio, resolveProfileInput } from "./queries";
 import type { DisplayMode, ProfileRecord } from "./storage";
 
 interface PortfolioViewProps {
@@ -73,19 +76,24 @@ function ProfileOnboarding({
   const [profileInput, setProfileInput] = useState("");
   const [label, setLabel] = useState("");
   const [error, setError] = useState<string>();
+  const [resolving, setResolving] = useState(false);
 
-  const submit = (event: FormEvent) => {
+  const submit = async (event: FormEvent) => {
     event.preventDefault();
-    const validation = validateProfileId(profileInput);
-    if (!validation.ok) {
-      setError(validation.error.message);
-      return;
-    }
     setError(undefined);
-    onAdd({
-      id: validation.profileId,
-      label: label.trim() || `Profile ${profileCount + 1}`,
-    });
+    setResolving(true);
+
+    try {
+      const profileId = await resolveProfileInput(profileInput);
+      onAdd({
+        id: profileId,
+        label: label.trim() || `Profile ${profileCount + 1}`,
+      });
+    } catch (cause) {
+      setError(profileInputError(cause));
+    } finally {
+      setResolving(false);
+    }
   };
 
   return (
@@ -96,11 +104,11 @@ function ProfileOnboarding({
       <p className="eyebrow">Read-only monitoring</p>
       <h1 id="profile-title">Add a Liquidium profile</h1>
       <p className="onboarding-copy">
-        Enter a profile principal to monitor public positions. LiquidiumBar never asks
-        for a wallet or signing permission.
+        Enter a profile principal or a linked wallet address. Wallet lookup is read-only
+        and never requests a signature.
       </p>
       <form className="profile-form" onSubmit={submit} noValidate>
-        <label htmlFor="profile-id">Profile principal</label>
+        <label htmlFor="profile-id">Profile principal or wallet address</label>
         <input
           id="profile-id"
           className="mono-input"
@@ -109,9 +117,10 @@ function ProfileOnboarding({
             setProfileInput(event.target.value);
             setError(undefined);
           }}
-          placeholder="aaaaa-aa"
+          placeholder="aaaaa-aa, 0x…, or bc1…"
           autoComplete="off"
           spellCheck={false}
+          disabled={resolving}
           aria-invalid={Boolean(error)}
           aria-describedby={error ? "profile-error" : "profile-help"}
         />
@@ -121,7 +130,8 @@ function ProfileOnboarding({
           </p>
         ) : (
           <p id="profile-help" className="field-help">
-            Validated locally as an ICP principal.
+            Supports Liquidium profile principals and linked Ethereum or Bitcoin
+            addresses.
           </p>
         )}
         <label htmlFor="profile-label">
@@ -133,13 +143,32 @@ function ProfileOnboarding({
           onChange={(event) => setLabel(event.target.value)}
           placeholder="Main profile"
           maxLength={40}
+          disabled={resolving}
         />
-        <button type="submit" className="primary-button wide-button">
-          Add profile
+        <button
+          type="submit"
+          className="primary-button wide-button"
+          disabled={resolving}
+          aria-busy={resolving}
+        >
+          {resolving ? "Looking up profile…" : "Add profile"}
         </button>
       </form>
     </section>
   );
+}
+
+function profileInputError(error: unknown): string {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof (error as LiquidiumAppError).message === "string"
+  ) {
+    return (error as LiquidiumAppError).message;
+  }
+
+  return "Liquidium could not look up this profile. Try again.";
 }
 
 function PortfolioMonitor({

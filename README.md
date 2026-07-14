@@ -22,7 +22,7 @@ The populated portfolio screenshot uses a development-only fixture to demonstrat
 - Shows a user-selected compact Supplied, Borrowed, or Available total beside the menu-bar icon—with no label—using the cached snapshot immediately at launch and quietly refreshing market data in the background.
 - Opens directly to a compact Insights view with a Numbers mode for protocol totals and per-pool USD values. Graphs mode shows the totals row first, the supplied-market composition donut second, and supplied-versus-borrowed bars third. Detailed statistics stay on Liquidium's official Insights page.
 - Uses a supplied-position composition pie for portfolios, with the persistent Graphs/Numbers switch exposing exact risk and APR figures when needed.
-- Validates canonical principals, stores local profile labels, and supports profile switching, rename, removal, copy, privacy mode, and empty/error states.
+- Accepts a profile principal or linked Ethereum/Bitcoin wallet address, stores local profile labels, and supports profile switching, rename, removal, copy, privacy mode, and empty/error states.
 - Shows supplied and borrowed value, collateral/risk metrics, derived health factor, weighted supply/borrow/net APR, and reserve rows when the SDK supplies the required inputs.
 - Persists settings and versioned normalized snapshots with explicit `bigint` encoding so the last successful data remains available after restart or a refresh failure.
 - The menu bar shows only the LiquidiumBar icon by default. Users can optionally display supplied, borrowed, or available value; market totals refresh in the background only when a value is selected. Portfolio polling runs only while the panel is open. Query data becomes stale after 30 seconds; selectable polling intervals are 1, 2, or 5 minutes, with 5 minutes as the default.
@@ -45,6 +45,7 @@ The stable SDK dependency is isolated behind `LiquidiumReadAdapter`. The adapter
 - `client.market.getAssetPrices()`
 - `client.positions.getUserPositionSummary(profileId)`
 - `client.positions.getUserReserves(profileId)`
+- `client.accounts.getProfileId(walletAddress)`
 
 Application contracts use scaled `bigint` amounts and ratios. Values are converted to JavaScript numbers only at the final display boundary. Profile syntax is checked with the explicitly pinned `@icp-sdk/core@5.4.0` principal implementation.
 

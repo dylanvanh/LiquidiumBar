@@ -1,5 +1,10 @@
+import type { LiquidiumClient } from "@liquidium/client";
 import { poolFixture, reserveFixture, summaryFixture } from "../test/fixtures";
-import { normalizeMarket, normalizePortfolio } from "./adapter";
+import {
+  normalizeMarket,
+  normalizePortfolio,
+  SdkLiquidiumReadAdapter,
+} from "./adapter";
 
 describe("Liquidium 0.5.0 normalization", () => {
   it("normalizes rates and observed basis-point risk fields", () => {
@@ -42,3 +47,41 @@ describe("Liquidium 0.5.0 normalization", () => {
     expect(portfolio.estimatedNetApr).toBeUndefined();
   });
 });
+
+describe("Liquidium profile resolution", () => {
+  it("uses a profile principal directly without a wallet lookup", async () => {
+    const getProfileId = vi.fn();
+    const adapter = profileResolver(getProfileId);
+
+    await expect(adapter.resolveProfileId("  aaaaa-aa ")).resolves.toBe("aaaaa-aa");
+    expect(getProfileId).not.toHaveBeenCalled();
+  });
+
+  it("resolves a linked wallet address through the accounts module", async () => {
+    const walletAddress = "0x1111111111111111111111111111111111111111";
+    const getProfileId = vi.fn().mockResolvedValue("aaaaa-aa");
+    const adapter = profileResolver(getProfileId);
+
+    await expect(adapter.resolveProfileId(walletAddress)).resolves.toBe("aaaaa-aa");
+    expect(getProfileId).toHaveBeenCalledWith(walletAddress);
+  });
+
+  it("rejects a wallet address with no linked profile", async () => {
+    const adapter = profileResolver(vi.fn().mockResolvedValue(null));
+
+    await expect(
+      adapter.resolveProfileId("0x1111111111111111111111111111111111111111")
+    ).rejects.toMatchObject({
+      type: "invalid-profile",
+      message: "No Liquidium profile is linked to this wallet address.",
+    });
+  });
+});
+
+function profileResolver(getProfileId: ReturnType<typeof vi.fn>) {
+  const client = {
+    accounts: { getProfileId },
+  } as unknown as LiquidiumClient;
+
+  return new SdkLiquidiumReadAdapter(client);
+}

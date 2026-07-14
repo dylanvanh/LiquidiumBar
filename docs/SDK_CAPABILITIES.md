@@ -18,9 +18,10 @@ client.market.listPools()
 client.market.getAssetPrices()
 client.positions.getUserPositionSummary(profileId)
 client.positions.getUserReserves(profileId)
+client.accounts.getProfileId(walletAddress)
 ```
 
-No wallet adapter, profile mutation, signing, approval, borrowing, lending, repayment, withdrawal, or other transaction API is imported or called.
+Wallet-address profile lookup is a public, read-only canister query. No wallet adapter, profile mutation, signing, approval, borrowing, lending, repayment, withdrawal, or other transaction API is imported or called.
 
 ## Stable LiquidiumBar contracts
 
