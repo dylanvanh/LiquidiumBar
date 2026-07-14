@@ -21,8 +21,12 @@
         "maxWidth": 390,
         "maxHeight": 560,
         "resizable": false,
-        "decorations": true,
-        "visible": true
+        "decorations": false,
+        "shadow": true,
+        "alwaysOnTop": true,
+        "visibleOnAllWorkspaces": true,
+        "skipTaskbar": true,
+        "visible": false
       }
     ],
     "security": {
