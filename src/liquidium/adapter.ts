@@ -27,8 +27,6 @@ import type {
   ScaledRatio,
 } from "./sdk.types";
 
-const SDK_USD_DECIMALS = 27;
-
 export interface LiquidiumReadAdapter {
   getMarkets(): Promise<MarketSnapshot>;
   getPortfolio(profileId: string): Promise<NormalizedPortfolio>;
@@ -99,7 +97,7 @@ export class SdkLiquidiumReadAdapter implements LiquidiumReadAdapter {
 
 export const liquidiumAdapter: LiquidiumReadAdapter = new SdkLiquidiumReadAdapter();
 
-function normalizeMarket(pool: Pool, priceUsd?: number): NormalizedMarket {
+export function normalizeMarket(pool: Pool, priceUsd?: number): NormalizedMarket {
   const decimals = toSafeDecimals(pool.decimals, `${pool.asset} amount`);
   const rateDecimals = toSafeDecimals(pool.rateDecimals, `${pool.asset} rate`);
   const totalSupplied = amount(pool.totalSupply, decimals);
@@ -150,12 +148,16 @@ function normalizeMarket(pool: Pool, priceUsd?: number): NormalizedMarket {
   };
 }
 
-function normalizePortfolio(
+export function normalizePortfolio(
   profileId: string,
   summary: UserPositionSummary,
   reserves: UserReserve[]
 ): NormalizedPortfolio {
   const fetchedAt = new Date().toISOString();
+  const summaryUsdDecimals = toSafeDecimals(
+    summary.usdDecimals,
+    "portfolio USD amount"
+  );
   const positions = reserves.map(normalizePosition);
   const pricedPositions = positions.filter(hasPositionUsdValues);
   const pricesComplete = pricedPositions.length === positions.length;
@@ -194,9 +196,9 @@ function normalizePortfolio(
     totalSuppliedUsd: pricedPositions.length ? totalSuppliedUsd : undefined,
     totalBorrowedUsd: pricedPositions.length ? totalBorrowedUsd : undefined,
     netPositionUsd: pricedPositions.length ? netPositionUsd : undefined,
-    availableToBorrowUsd: sdkUsd(summary.availableBorrowsUsd),
-    collateralUsd: sdkUsd(summary.totalCollateralUsd),
-    debtUsd: sdkUsd(summary.totalDebtUsd),
+    availableToBorrowUsd: sdkUsd(summary.availableBorrowsUsd, summaryUsdDecimals),
+    collateralUsd: sdkUsd(summary.totalCollateralUsd, summaryUsdDecimals),
+    debtUsd: sdkUsd(summary.totalDebtUsd, summaryUsdDecimals),
     weightedSupplyApr,
     weightedBorrowApr,
     estimatedNetApr,
@@ -225,6 +227,10 @@ function normalizePosition(reserve: UserReserve): NormalizedPosition {
     reserve.pool.rateDecimals,
     `${reserve.position.asset} rate`
   );
+  const usdDecimals = toSafeDecimals(
+    reserve.usdDecimals,
+    `${reserve.position.asset} USD amount`
+  );
 
   return {
     id: reserve.position.poolId,
@@ -238,8 +244,12 @@ function normalizePosition(reserve: UserReserve): NormalizedPosition {
     ),
     earnedInterest: amount(reserve.position.earnedInterest, depositedDecimals),
     debtInterest: amount(reserve.position.debtInterest, borrowedDecimals),
-    suppliedUsd: validPrice(reserve.priceUsd) ? sdkUsd(reserve.suppliedUsd) : undefined,
-    borrowedUsd: validPrice(reserve.priceUsd) ? sdkUsd(reserve.borrowedUsd) : undefined,
+    suppliedUsd: validPrice(reserve.priceUsd)
+      ? sdkUsd(reserve.suppliedUsd, usdDecimals)
+      : undefined,
+    borrowedUsd: validPrice(reserve.priceUsd)
+      ? sdkUsd(reserve.borrowedUsd, usdDecimals)
+      : undefined,
     priceUsd: validPrice(reserve.priceUsd),
     supplyApr: ratio(reserve.pool.lendingRate, rateDecimals),
     borrowApr: ratio(reserve.pool.borrowingRate, rateDecimals),
@@ -276,9 +286,9 @@ function deriveHealth(summary: UserPositionSummary): {
   };
 }
 
-function sdkUsd(value: bigint): ScaledAmount {
+function sdkUsd(value: bigint, sourceDecimals: number): ScaledAmount {
   return {
-    value: rescaleBigInt(value, SDK_USD_DECIMALS, USD_DECIMALS),
+    value: rescaleBigInt(value, sourceDecimals, USD_DECIMALS),
     decimals: USD_DECIMALS,
   };
 }

@@ -136,6 +136,15 @@ export async function hydrateSnapshots(
   );
 }
 
+export function isSnapshotStale(
+  fetchedAt: string,
+  staleTimeMs = 30_000,
+  nowMs = Date.now()
+): boolean {
+  const fetchedAtMs = Date.parse(fetchedAt);
+  return !Number.isFinite(fetchedAtMs) || nowMs - fetchedAtMs >= staleTimeMs;
+}
+
 function normalizeSettings(value: unknown): AppSettings {
   if (!isRecord(value) || value.version !== SETTINGS_VERSION) return DEFAULT_SETTINGS;
   const profiles = Array.isArray(value.profiles)
