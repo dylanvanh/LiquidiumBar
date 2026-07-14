@@ -35,6 +35,11 @@ interface ValueDatum {
   borrowed: number;
 }
 
+interface CompositionDatum {
+  asset: string;
+  suppliedUsd: number;
+}
+
 export function MarketValueChart({
   markets,
   action,
@@ -60,6 +65,23 @@ export function MarketValueChart({
   );
 }
 
+export function MarketCompositionChart({ markets }: { markets: NormalizedMarket[] }) {
+  const data = markets.map((market) => ({
+    asset: market.symbol,
+    suppliedUsd: chartAmount(market.totalSuppliedUsd),
+  }));
+
+  return (
+    <CompositionChart
+      data={data}
+      eyebrow="Market composition"
+      title="Share of deposits"
+      ariaLabel="Market composition"
+      accessibleSummary={`Share of supplied USD value across ${markets.length} Liquidium markets.`}
+    />
+  );
+}
+
 export function PortfolioCompositionChart({
   positions,
   hidden,
@@ -77,15 +99,40 @@ export function PortfolioCompositionChart({
     );
   }
 
-  const data = positions
-    .map((position) => ({
-      asset: position.symbol,
-      suppliedUsd: chartAmount(position.suppliedUsd),
-    }))
+  const data = positions.map((position) => ({
+    asset: position.symbol,
+    suppliedUsd: chartAmount(position.suppliedUsd),
+  }));
+
+  return (
+    <CompositionChart
+      data={data}
+      eyebrow="Portfolio composition"
+      title="Share of supplied positions"
+      ariaLabel="Portfolio composition"
+      accessibleSummary={`Share of supplied USD value across ${data.length} portfolio reserves.`}
+    />
+  );
+}
+
+function CompositionChart({
+  data,
+  eyebrow,
+  title,
+  ariaLabel,
+  accessibleSummary,
+}: {
+  data: CompositionDatum[];
+  eyebrow: string;
+  title: string;
+  ariaLabel: string;
+  accessibleSummary: string;
+}) {
+  const visibleData = data
     .filter(({ suppliedUsd }) => suppliedUsd > 0)
     .sort((a, b) => compositionRank(a.asset) - compositionRank(b.asset));
   const config = Object.fromEntries(
-    data.map(({ asset }, index) => [
+    visibleData.map(({ asset }, index) => [
       asset,
       {
         label: asset,
@@ -95,23 +142,21 @@ export function PortfolioCompositionChart({
       },
     ])
   ) satisfies ChartConfig;
-  const total = data.reduce((sum, item) => sum + item.suppliedUsd, 0);
+  const total = visibleData.reduce((sum, item) => sum + item.suppliedUsd, 0);
 
   return (
-    <section className="chart-card composition-card" aria-label="Portfolio composition">
+    <section className="chart-card composition-card" aria-label={ariaLabel}>
       <div className="chart-card-heading">
         <div>
-          <span className="chart-eyebrow">Portfolio composition</span>
-          <strong>Share of supplied positions</strong>
+          <span className="chart-eyebrow">{eyebrow}</span>
+          <strong>{title}</strong>
         </div>
         <small>USD snapshot</small>
       </div>
-      <p className="sr-only">
-        Share of supplied USD value across {data.length} portfolio reserves.
-      </p>
+      <p className="sr-only">{accessibleSummary}</p>
       <div className="dither-chart-frame composition-chart-frame">
         <PieChart
-          data={data}
+          data={visibleData}
           config={config}
           dataKey="suppliedUsd"
           nameKey="asset"

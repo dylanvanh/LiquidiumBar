@@ -21,6 +21,9 @@ vi.mock("./DitherCharts", () => ({
   MarketValueChart: () => (
     <section aria-label="Supplied vs borrowed">Supplied vs borrowed</section>
   ),
+  MarketCompositionChart: () => (
+    <section aria-label="Market composition">Share of deposits</section>
+  ),
   PortfolioCompositionChart: () => (
     <section aria-label="Portfolio composition">Portfolio composition</section>
   ),
@@ -108,13 +111,16 @@ describe("settings", () => {
 });
 
 describe("insights", () => {
-  it("defaults to the protocol capital graph and links to the full breakdown", async () => {
+  it("shows totals and both protocol graphs in graph mode", async () => {
     queryMocks.fetchMarkets.mockResolvedValue(marketSnapshotFixture());
     renderWithQuery(<InsightsView {...insightViewProps} />);
 
     expect(await screen.findByRole("heading", { name: "Insights" })).toBeVisible();
+    expect(screen.getByText("Total supplied")).toBeVisible();
+    expect(screen.getByText("Total borrowed")).toBeVisible();
+    expect(screen.getByText("Total available")).toBeVisible();
     expect(screen.getByText("Supplied vs borrowed")).toBeVisible();
-    expect(screen.queryByText("Total supplied")).not.toBeInTheDocument();
+    expect(screen.getByText("Share of deposits")).toBeVisible();
     expect(screen.getByRole("button", { name: /View full breakdown/ })).toBeVisible();
   });
 

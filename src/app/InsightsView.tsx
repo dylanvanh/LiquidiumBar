@@ -8,7 +8,7 @@ import type {
 } from "../liquidium/sdk.types";
 import { AssetIcon } from "./AssetIcon";
 import { DisplayModeSwitcher } from "./DisplayModeSwitcher";
-import { MarketValueChart } from "./DitherCharts";
+import { MarketCompositionChart, MarketValueChart } from "./DitherCharts";
 import { formatAge } from "./format";
 import { fetchMarkets } from "./queries";
 import type { DisplayMode } from "./storage";
@@ -88,7 +88,12 @@ export function InsightsView({
       ) : null}
 
       {displayMode === "graphs" && panelOpen ? (
-        <MarketValueChart markets={snapshot.markets} />
+        <InsightsGraphs
+          markets={snapshot.markets}
+          supplied={snapshot.totalSuppliedUsd}
+          borrowed={snapshot.totalBorrowedUsd}
+          available={snapshot.availableLiquidityUsd}
+        />
       ) : (
         <InsightsNumbers
           markets={snapshot.markets}
@@ -116,6 +121,26 @@ export function InsightsView({
   );
 }
 
+function InsightsGraphs({
+  markets,
+  supplied,
+  borrowed,
+  available,
+}: {
+  markets: NormalizedMarket[];
+  supplied: ScaledAmount | undefined;
+  borrowed: ScaledAmount | undefined;
+  available: ScaledAmount | undefined;
+}) {
+  return (
+    <div className="insights-graphs">
+      <ProtocolTotals supplied={supplied} borrowed={borrowed} available={available} />
+      <MarketValueChart markets={markets} />
+      <MarketCompositionChart markets={markets} />
+    </div>
+  );
+}
+
 function InsightsNumbers({
   markets,
   supplied,
@@ -129,11 +154,7 @@ function InsightsNumbers({
 }) {
   return (
     <div className="insights-numbers">
-      <section className="insight-totals" aria-label="Protocol totals">
-        <InsightTotal label="Total supplied" value={formatCompactUsd(supplied)} />
-        <InsightTotal label="Active loans" value={formatCompactUsd(borrowed)} />
-        <InsightTotal label="Available" value={formatCompactUsd(available)} />
-      </section>
+      <ProtocolTotals supplied={supplied} borrowed={borrowed} available={available} />
       <div className="list-heading">
         <span>{markets.length} pools</span>
         <span>USD snapshot</span>
@@ -152,6 +173,24 @@ function InsightsNumbers({
         ))}
       </section>
     </div>
+  );
+}
+
+function ProtocolTotals({
+  supplied,
+  borrowed,
+  available,
+}: {
+  supplied: ScaledAmount | undefined;
+  borrowed: ScaledAmount | undefined;
+  available: ScaledAmount | undefined;
+}) {
+  return (
+    <section className="insight-totals" aria-label="Protocol totals">
+      <InsightTotal label="Total supplied" value={formatCompactUsd(supplied)} />
+      <InsightTotal label="Total borrowed" value={formatCompactUsd(borrowed)} />
+      <InsightTotal label="Total available" value={formatCompactUsd(available)} />
+    </section>
   );
 }
 
