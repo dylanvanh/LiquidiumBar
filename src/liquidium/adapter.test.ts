@@ -1,7 +1,7 @@
 import { poolFixture, reserveFixture, summaryFixture } from "../test/fixtures";
 import { normalizeMarket, normalizePortfolio } from "./adapter";
 
-describe("Liquidium RC.1 normalization", () => {
+describe("Liquidium 0.5.0 normalization", () => {
   it("normalizes rates and observed basis-point risk fields", () => {
     const market = normalizeMarket(poolFixture, 100);
     expect(market.supplyApr).toEqual({

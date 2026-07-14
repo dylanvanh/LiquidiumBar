@@ -337,7 +337,7 @@ function PortfolioSnapshotView({
       <div className="empty-state">
         <WalletCards aria-hidden="true" size={24} strokeWidth={1.6} />
         <h2>No active positions</h2>
-        <p>This valid principal has no reserves returned by Liquidium RC.1.</p>
+        <p>This valid principal has no reserves returned by Liquidium 0.5.0.</p>
         <small>Updated {formatAge(portfolio.fetchedAt)}</small>
       </div>
     );
@@ -424,7 +424,7 @@ function PortfolioSnapshotView({
       </div>
       <p className="data-note">
         APR is shown as reported. APY, compounding cadence, and per-position collateral
-        flags are unavailable in SDK RC.1.
+        flags are unavailable in SDK 0.5.0.
       </p>
     </>
   );

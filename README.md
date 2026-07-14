@@ -2,7 +2,7 @@
 
 LiqWatch is an unofficial, read-only Liquidium monitor for the macOS menu bar. It shows live lending markets and the positions associated with public Liquidium profile principals without connecting a wallet or offering transactions.
 
-The app is built with Tauri 2, React, TypeScript, TanStack Query, [Dither Kit](https://www.tripwire.sh/dither-kit), [Web3 Icons](https://web3icons.io), and `@liquidium/client@0.5.0-rc.1`. Dither Kit is installed from its official source registry and tracked by `dither-kit.json`. LiqWatch has no backend, analytics, telemetry, signing, or transaction path.
+The app is built with Tauri 2, React, TypeScript, TanStack Query, [Dither Kit](https://www.tripwire.sh/dither-kit), [Web3 Icons](https://web3icons.io), and `@liquidium/client@0.5.0`. Dither Kit is installed from its official source registry and tracked by `dither-kit.json`. LiqWatch has no backend, analytics, telemetry, signing, or transaction path.
 
 ## Screenshots
 
@@ -34,7 +34,7 @@ macOS tray → Tauri window → React + TanStack Query
                               ↓
                      LiquidiumReadAdapter
                               ↓
-              @liquidium/client@0.5.0-rc.1
+                @liquidium/client@0.5.0
                               ↓
                        https://icp-api.io
 ```
@@ -48,7 +48,7 @@ The RC dependency is isolated behind `LiquidiumReadAdapter`. The adapter constru
 
 Application contracts use scaled `bigint` amounts and ratios. Values are converted to JavaScript numbers only at the final display boundary. Profile syntax is checked with the explicitly pinned `@icp-sdk/core@5.4.0` principal implementation.
 
-Rates are labeled APR. LiqWatch does not invent APY or compounding assumptions. Weighted and net APR are shown only when every required rate and price exists. Health factor is derived from liquidation-threshold and current-LTV basis points; the SDK's raw health-factor field is intentionally ignored because RC.1 does not document its scale reliably.
+Rates are labeled APR. LiqWatch does not invent APY or compounding assumptions. Weighted and net APR are shown only when every required rate and price exists. Health factor is derived from liquidation-threshold and current-LTV basis points; the SDK's raw health-factor field is intentionally ignored because version 0.5.0 does not document its scale reliably.
 
 See [SDK capabilities](docs/SDK_CAPABILITIES.md), [compatibility results](docs/COMPATIBILITY.md), and [security and storage](docs/SECURITY.md) for the detailed contract.
 
@@ -83,6 +83,6 @@ The release build produces an `.app` and `.dmg` under `src-tauri/target/release/
 
 ## Known data limitations
 
-RC.1 does not provide a reliable contract for APY, compounding cadence, per-position collateral flags, price timestamps, human market names/icons, the raw health-factor scale, or profile-existence detection. A valid principal with no reserves—including `aaaaa-aa`—is shown as **No active positions**; LiqWatch cannot distinguish that from an unregistered profile.
+SDK 0.5.0 does not provide a reliable contract for APY, compounding cadence, per-position collateral flags, price timestamps, human market names/icons, the raw health-factor scale, or profile-existence detection. A valid principal with no reserves—including `aaaaa-aa`—is shown as **No active positions**; LiqWatch cannot distinguish that from an unregistered profile.
 
 This project is unofficial and is not affiliated with, endorsed by, or supported by Liquidium. Information may be delayed, incomplete, or incorrect and is not financial advice. Verify important values in official Liquidium interfaces before acting.

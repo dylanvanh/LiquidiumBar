@@ -29,6 +29,11 @@ runtime_ready=true markets_ok=true market_count=4 portfolio_ok=true position_cou
 
 No polyfill, fetch shim, Web Crypto workaround, CORS proxy, or SDK patch was required.
 
+The four live read calls were repeated after upgrading to stable
+`@liquidium/client@0.5.0`: four pools (`BTC`, `USDT`, `USDC`, and `ICP`), five
+price entries, an empty `aaaaa-aa` summary, and zero reserves were returned
+successfully.
+
 ## Observed network surface
 
 - Production external network origin: `https://icp-api.io`
