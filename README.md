@@ -37,6 +37,18 @@ LiquidiumBar is an unofficial, read-only Liquidium monitor for the macOS menu ba
   <img src="docs/screenshots/settings.png" alt="LiquidiumBar Settings" width="390">
 </p>
 
+## Install with Homebrew
+
+LiquidiumBar currently supports Apple Silicon Macs:
+
+```sh
+brew install --cask dylanvanh/tap/liquidiumbar
+```
+
+The current build is not yet notarized by Apple. If macOS blocks the first
+launch, try opening LiquidiumBar and then select **Open Anyway** in **System
+Settings → Privacy & Security**.
+
 ## Run locally
 
 Requires macOS, Node.js 22+, pnpm, Rust, and the Apple build tools.
