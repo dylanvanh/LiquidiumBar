@@ -26,7 +26,11 @@ src-tauri/target/release/bundle/dmg/LiquidiumBar_0.1.0_aarch64.dmg
 
 ## Developer ID signing and notarization
 
-The development Mac used for this build has no valid code-signing identity, so committed configuration is signing-ready but the produced artifact is unsigned and not suitable for public distribution.
+The development Mac used for this build has no Developer ID identity. Release
+builds use Tauri's `-` pseudo-identity to apply a complete ad-hoc signature, so
+downloaded Apple Silicon builds are not rejected as damaged. They are not
+notarized, so users may still need to approve the app in **System Settings →
+Privacy & Security** on first launch.
 
 For distribution outside the Mac App Store:
 
@@ -54,6 +58,9 @@ See Tauri's official [macOS code-signing guide](https://v2.tauri.app/distribute/
 - Toggle **Open at Login**, log out/in, and confirm the packaged installed app starts once.
 - Inspect release WebView traffic and verify the only external origin remains `https://icp-api.io` before changing the CSP.
 - Run `codesign --verify --deep --strict --verbose=2`, `spctl --assess --type execute --verbose=4`, and notarization/stapling checks on the final signed artifact.
+- For an ad-hoc build, confirm `codesign --verify` succeeds before testing the
+  expected first-launch approval from a quarantined download. A damaged-app
+  error is a release failure, not an acceptable unsigned-app warning.
 
 ## Distribution disclaimer
 
