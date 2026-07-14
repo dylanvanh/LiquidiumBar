@@ -228,7 +228,7 @@ describe("portfolio states", () => {
     );
   });
 
-  it("hides balances while leaving unavailable SDK fields explicit", async () => {
+  it("hides balances without showing unsupported collateral flags", async () => {
     const user = userEvent.setup();
     queryMocks.fetchPortfolio.mockResolvedValue(portfolioFixture());
     renderWithQuery(<PortfolioView {...basePortfolioProps} hideBalances />);
@@ -236,8 +236,7 @@ describe("portfolio states", () => {
     const btcLabel = screen.getAllByText("BTC").at(0);
     expect(btcLabel).toBeDefined();
     if (btcLabel) await user.click(btcLabel);
-    expect(screen.getByText("Collateral flag")).toBeVisible();
-    expect(screen.getByText("Unavailable")).toBeVisible();
+    expect(screen.queryByText("Collateral flag")).not.toBeInTheDocument();
   });
 
   it("uses a composition pie for a populated portfolio", async () => {

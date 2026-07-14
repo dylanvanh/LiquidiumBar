@@ -489,7 +489,6 @@ function PositionRow({
         <Detail label="Supply APR" value={formatApr(position.supplyApr)} />
         <Detail label="Borrow APR" value={formatApr(position.borrowApr)} />
         <Detail label="Price" value={formatPrice(position.priceUsd)} />
-        <Detail label="Collateral flag" value="Unavailable" />
         <Detail label="Updated" value={formatDateTime(position.lastUpdated)} />
       </div>
     </details>
