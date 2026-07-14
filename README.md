@@ -39,7 +39,7 @@ macOS tray → Tauri window → React + TanStack Query
                        https://icp-api.io
 ```
 
-The RC dependency is isolated behind `LiquidiumReadAdapter`. The adapter constructs `new LiquidiumClient({ timeoutMs: 30_000 })` and calls only:
+The stable SDK dependency is isolated behind `LiquidiumReadAdapter`. The adapter constructs `new LiquidiumClient({ timeoutMs: 30_000 })` and calls only:
 
 - `client.market.listPools()`
 - `client.market.getAssetPrices()`

@@ -57,4 +57,4 @@ See Tauri's official [macOS code-signing guide](https://v2.tauri.app/distribute/
 
 ## Distribution disclaimer
 
-LiqWatch is unofficial and is not affiliated with, endorsed by, or supported by Liquidium. It is a monitoring convenience, not financial advice or a transaction interface. Release notes should disclose the pinned RC SDK version and known incomplete fields listed in [SDK_CAPABILITIES.md](SDK_CAPABILITIES.md).
+LiqWatch is unofficial and is not affiliated with, endorsed by, or supported by Liquidium. It is a monitoring convenience, not financial advice or a transaction interface. Release notes should disclose the pinned SDK version and known incomplete fields listed in [SDK_CAPABILITIES.md](SDK_CAPABILITIES.md).
