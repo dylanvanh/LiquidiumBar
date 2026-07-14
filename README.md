@@ -19,13 +19,14 @@ The populated portfolio screenshot uses a development-only fixture to demonstrat
 ## What it does
 
 - Runs as a 390×560 borderless macOS menu-bar panel with a monochrome template icon, accessory activation policy, tray-relative positioning, focus-loss hiding, and one reusable window.
+- Shows the compact total borrowed value beside the menu-bar icon, using the cached snapshot immediately at launch and quietly refreshing market data in the background.
 - Shows protocol totals, aggregate utilization, every pool returned by the SDK, and pool details including APR, liquidity, caps, curve parameters, price, frozen state, same-asset borrowing, and timestamps.
 - Adds a compact Insights view with live supplied, borrowed, and available totals plus the market comparison graph. Detailed asset statistics stay on Liquidium's official Insights page, and historical change is omitted because RC.1 does not expose protocol history.
 - Defaults to interactive Dither Kit graphs for pool and reserve value comparisons, with a persistent Graphs/Numbers switch for exact figures.
 - Validates canonical principals, stores local profile labels, and supports profile switching, rename, removal, copy, privacy mode, and empty/error states.
 - Shows supplied and borrowed value, collateral/risk metrics, derived health factor, weighted supply/borrow/net APR, and reserve rows when the SDK supplies the required inputs.
 - Persists settings and versioned normalized snapshots with explicit `bigint` encoding so the last successful data remains available after restart or a refresh failure.
-- Polls only while the panel is open. Query data becomes stale after 30 seconds; selectable polling intervals are 30, 60, 120, or 300 seconds.
+- Market totals refresh in the background for the menu-bar readout. Portfolio polling runs only while the panel is open. Query data becomes stale after 30 seconds; selectable polling intervals are 30, 60, 120, or 300 seconds.
 
 ## Architecture and data boundary
 

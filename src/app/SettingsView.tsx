@@ -90,7 +90,7 @@ export function SettingsView({
         ) : null}
         <SettingRow
           label="Refresh interval"
-          description="Polling runs only while the panel is open."
+          description="Updates the menu-bar total; portfolios poll while open."
         >
           <select
             aria-label="Refresh interval"

@@ -13,6 +13,7 @@ import {
   loadSettings,
   serializeWithBigInt,
 } from "../app/storage";
+import { formatTrayBorrowed } from "../app/useTrayBorrowedTotal";
 import { mapLiquidiumError } from "./errors";
 import { validateProfileId } from "./profile";
 
@@ -24,6 +25,9 @@ describe("application contracts", () => {
       formatApr({ value: 50_000_000_000_000_000_000_000_000n, decimals: 27 })
     ).toBe("5.00%");
     expect(formatBps(7_400n)).toBe("74.00%");
+    expect(formatTrayBorrowed({ value: 803_067_600_000n, decimals: 6 })).toBe(
+      "$803.1K borrowed"
+    );
   });
 
   it("masks balances without masking unavailable fields", () => {

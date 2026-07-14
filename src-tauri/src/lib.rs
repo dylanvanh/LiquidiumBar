@@ -9,6 +9,7 @@ use tauri::{
 use tauri_plugin_positioner::{Position, WindowExt};
 
 const MAIN_WINDOW_LABEL: &str = "main";
+const TRAY_ID: &str = "liqwatch";
 const MENU_OPEN_ID: &str = "open";
 const MENU_QUIT_ID: &str = "quit";
 
@@ -59,6 +60,29 @@ fn log_compatibility(report: CompatibilityLog) {
     log_compatibility_report(&report);
 }
 
+fn validate_tray_title(title: &str) -> Result<&str, &'static str> {
+    let title = title.trim();
+    if title.is_empty() {
+        return Err("tray title cannot be empty");
+    }
+    if title.chars().count() > 24 || title.chars().any(char::is_control) {
+        return Err("tray title is invalid");
+    }
+    Ok(title)
+}
+
+#[tauri::command]
+fn set_tray_borrowed_title(app: tauri::AppHandle, title: String) -> Result<(), String> {
+    let title = validate_tray_title(&title).map_err(str::to_owned)?;
+    let tray = app
+        .tray_by_id(TRAY_ID)
+        .ok_or_else(|| "LiqWatch tray icon is unavailable".to_owned())?;
+    tray.set_title(Some(title))
+        .map_err(|error| error.to_string())?;
+    tray.set_tooltip(Some(format!("LiqWatch · {title}")))
+        .map_err(|error| error.to_string())
+}
+
 fn hide_panel(app: &tauri::AppHandle) -> tauri::Result<()> {
     if let Some(window) = app.get_webview_window(MAIN_WINDOW_LABEL) {
         window.hide()?;
@@ -99,7 +123,7 @@ fn configure_tray(app: &tauri::App) -> tauri::Result<()> {
     let menu = Menu::with_items(app, &[&open, &quit])?;
     let tray_icon = Image::from_bytes(include_bytes!("../icons/tray-template.png"))?;
 
-    TrayIconBuilder::with_id("liqwatch")
+    TrayIconBuilder::with_id(TRAY_ID)
         .icon(tray_icon)
         .icon_as_template(true)
         .tooltip("LiqWatch")
@@ -141,7 +165,10 @@ pub fn run() {
             tauri_plugin_autostart::MacosLauncher::LaunchAgent,
             None,
         ))
-        .invoke_handler(tauri::generate_handler![log_compatibility])
+        .invoke_handler(tauri::generate_handler![
+            log_compatibility,
+            set_tray_borrowed_title
+        ])
         .setup(|app| {
             #[cfg(target_os = "macos")]
             app.set_activation_policy(tauri::ActivationPolicy::Accessory);
@@ -176,7 +203,7 @@ pub fn run() {
 
 #[cfg(test)]
 mod tests {
-    use super::{PanelAction, panel_action};
+    use super::{PanelAction, panel_action, validate_tray_title};
 
     #[test]
     fn tray_click_shows_a_hidden_panel() {
@@ -186,5 +213,16 @@ mod tests {
     #[test]
     fn tray_click_hides_a_visible_panel() {
         assert_eq!(panel_action(true), PanelAction::Hide);
+    }
+
+    #[test]
+    fn tray_titles_are_short_and_single_line() {
+        assert_eq!(
+            validate_tray_title(" $803.1K borrowed "),
+            Ok("$803.1K borrowed")
+        );
+        assert!(validate_tray_title("").is_err());
+        assert!(validate_tray_title("borrowed\n$803K").is_err());
+        assert!(validate_tray_title("a title that is far too long for the menu bar").is_err());
     }
 }

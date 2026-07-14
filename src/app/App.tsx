@@ -15,6 +15,7 @@ import {
   saveSettings,
 } from "./storage";
 import { usePanelLifecycle } from "./usePanelLifecycle";
+import { useTrayBorrowedTotal } from "./useTrayBorrowedTotal";
 
 const sections: ReadonlyArray<{ id: AppSettings["section"]; label: string }> = [
   { id: "markets", label: "Markets" },
@@ -28,6 +29,7 @@ export function App() {
   const [ready, setReady] = useState(false);
   const panelOpen = usePanelLifecycle();
   const queryClient = useQueryClient();
+  useTrayBorrowedTotal(ready, settings.refreshIntervalSeconds);
 
   useEffect(() => {
     let active = true;
