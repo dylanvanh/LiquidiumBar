@@ -1,11 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import type {
-  NormalizedMarket,
-  ScaledAmount,
-  ScaledRatio,
-} from "../liquidium/sdk.types";
+import { isTauri } from "@tauri-apps/api/core";
+import { openUrl } from "@tauri-apps/plugin-opener";
+import type { ScaledAmount, ScaledRatio } from "../liquidium/sdk.types";
 import { MarketValueChart } from "./DitherCharts";
-import { formatAge, formatApr, formatPrice } from "./format";
+import { formatAge } from "./format";
 import { fetchMarkets } from "./queries";
 
 export function InsightsView({
@@ -90,29 +88,20 @@ export function InsightsView({
 
       <MarketValueChart markets={snapshot.markets} />
 
-      <div className="list-heading insights-list-heading">
-        <span>All assets</span>
-        <span>
-          {query.isFetching
-            ? "Refreshing…"
-            : `Updated ${formatAge(snapshot.fetchedAt)}`}
-        </span>
-      </div>
-      <div className="insight-market-list">
-        {snapshot.markets.map((market) => (
-          <InsightMarketRow key={market.id} market={market} />
-        ))}
-      </div>
-
       {!snapshot.pricesComplete ? (
         <p className="data-note">
           USD totals exclude assets without a current SDK price.
         </p>
       ) : null}
-      <p className="insights-disclosure">
-        Live snapshot only. RC.1 does not expose protocol history or period-over-period
-        change.
-      </p>
+      <div className="insights-footer">
+        <p>
+          Live snapshot · Updated {formatAge(snapshot.fetchedAt)}. RC.1 does not expose
+          protocol history.
+        </p>
+        <button type="button" onClick={openOfficialInsights}>
+          View full breakdown <span aria-hidden="true">↗</span>
+        </button>
+      </div>
     </section>
   );
 }
@@ -127,43 +116,6 @@ function InsightTotal({ label, value }: { label: string; value: string }) {
   );
 }
 
-function InsightMarketRow({ market }: { market: NormalizedMarket }) {
-  return (
-    <article className="insight-market-row">
-      <div className="insight-market-header">
-        <div className="insight-market-identity">
-          <span className="asset-avatar" aria-hidden="true">
-            {market.symbol.slice(0, 1)}
-          </span>
-          <span>
-            <strong>{market.symbol}</strong>
-            <small>{market.chain}</small>
-          </span>
-        </div>
-        <span className="insight-market-deposits">
-          <small>Deposits</small>
-          <strong>{formatCompactUsd(market.totalSuppliedUsd)}</strong>
-        </span>
-      </div>
-      <div className="insight-market-data">
-        <InsightDatum label="Price" value={formatPrice(market.priceUsd)} />
-        <InsightDatum label="Supply APR" value={formatApr(market.supplyApr)} />
-        <InsightDatum label="Utilization" value={formatApr(market.utilization)} />
-        <InsightDatum label="Optimal" value={formatApr(market.optimalUtilization)} />
-      </div>
-    </article>
-  );
-}
-
-function InsightDatum({ label, value }: { label: string; value: string }) {
-  return (
-    <span className="insight-datum">
-      <small>{label}</small>
-      <strong>{value}</strong>
-    </span>
-  );
-}
-
 function formatCompactUsd(value: ScaledAmount | undefined): string {
   if (!value) return "—";
   const amount = scaledToNumber(value);
@@ -175,6 +127,12 @@ function formatCompactUsd(value: ScaledAmount | undefined): string {
         maximumFractionDigits: 2,
       }).format(amount)
     : "—";
+}
+
+function openOfficialInsights() {
+  const url = "https://app.liquidium.fi/insights";
+  if (isTauri()) void openUrl(url);
+  else window.open(url, "_blank", "noopener,noreferrer");
 }
 
 function scaledToNumber(value: ScaledAmount | ScaledRatio): number {

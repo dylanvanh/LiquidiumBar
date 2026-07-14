@@ -20,7 +20,7 @@ The populated portfolio screenshot uses a development-only fixture to demonstrat
 
 - Runs as a 390×560 borderless macOS menu-bar panel with a monochrome template icon, accessory activation policy, tray-relative positioning, focus-loss hiding, and one reusable window.
 - Shows protocol totals, aggregate utilization, every pool returned by the SDK, and pool details including APR, liquidity, caps, curve parameters, price, frozen state, same-asset borrowing, and timestamps.
-- Adds a compact Insights view modeled on Liquidium's protocol overview, with live supplied, borrowed, available, price, deposit, APR, utilization, and optimal-utilization figures. It explicitly omits historical change because RC.1 does not expose protocol history.
+- Adds a compact Insights view with live supplied, borrowed, and available totals plus the market comparison graph. Detailed asset statistics stay on Liquidium's official Insights page, and historical change is omitted because RC.1 does not expose protocol history.
 - Defaults to interactive Dither Kit graphs for pool and reserve value comparisons, with a persistent Graphs/Numbers switch for exact figures.
 - Validates canonical principals, stores local profile labels, and supports profile switching, rename, removal, copy, privacy mode, and empty/error states.
 - Shows supplied and borrowed value, collateral/risk metrics, derived health factor, weighted supply/borrow/net APR, and reserve rows when the SDK supplies the required inputs.

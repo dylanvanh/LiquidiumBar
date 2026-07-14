@@ -16,6 +16,7 @@
       "identifier": "opener:allow-open-url",
       "allow": [
         { "url": "https://liquidium.fi/*" },
+        { "url": "https://app.liquidium.fi/*" },
         { "url": "https://github.com/Liquidium-Inc/liquidium-sdk*" }
       ]
     }

@@ -26,7 +26,7 @@ The `main` window receives only:
 - Tauri core defaults required for the window lifecycle
 - Narrow Store get/set/delete/save access
 - Autostart access
-- URL opening restricted to `https://liquidium.fi/*` and the official Liquidium SDK GitHub repository
+- URL opening restricted to `https://liquidium.fi/*`, `https://app.liquidium.fi/*`, and the official Liquidium SDK GitHub repository
 
 There is no shell, command execution, filesystem, process, clipboard, notification, HTTP plugin, or unrestricted opener permission.
 

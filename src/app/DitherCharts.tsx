@@ -2,6 +2,7 @@ import { Bar } from "../components/dither-kit/bar";
 import { BarChart } from "../components/dither-kit/bar-chart";
 import type { ChartConfig } from "../components/dither-kit/chart-context";
 import { Grid } from "../components/dither-kit/grid";
+import { Legend } from "../components/dither-kit/legend";
 import { Tooltip } from "../components/dither-kit/tooltip";
 import { XAxis } from "../components/dither-kit/x-axis";
 import { YAxis } from "../components/dither-kit/y-axis";
@@ -93,28 +94,30 @@ function ValueChart({
         <div>
           <span className="chart-eyebrow">{eyebrow}</span>
           <strong>{title}</strong>
-          <small>{note}</small>
         </div>
-        <div className="chart-key" aria-hidden="true">
-          <span className="supplied">Supplied</span>
-          <span className="borrowed">Borrowed</span>
-        </div>
+        <small>{note}</small>
       </div>
       <p className="sr-only">{accessibleSummary}</p>
       <div className="dither-chart-frame">
         <BarChart
           data={data}
           config={valueConfig}
-          margins={{ top: 8, right: 5, bottom: 23, left: 43 }}
+          margins={{ top: 34, right: 12, bottom: 28, left: 58 }}
           animationDuration={650}
-          bloom="off"
+          bloom="low"
+          bloomOnHover
         >
           <Grid />
-          <XAxis dataKey="label" maxTicks={5} />
-          <YAxis tickCount={3} tickFormatter={formatCompactUsd} />
-          <Bar dataKey="supplied" variant="gradient" />
-          <Bar dataKey="borrowed" variant="dotted" />
-          <Tooltip labelKey="label" valueFormatter={formatTooltipUsd} />
+          <XAxis dataKey="label" />
+          <YAxis tickFormatter={formatCompactUsd} />
+          <Legend isClickable />
+          <Tooltip
+            labelKey="label"
+            valueFormatter={formatTooltipUsd}
+            variant="frosted-glass"
+          />
+          <Bar dataKey="supplied" variant="gradient" isClickable />
+          <Bar dataKey="borrowed" variant="hatched" isClickable />
         </BarChart>
       </div>
     </section>

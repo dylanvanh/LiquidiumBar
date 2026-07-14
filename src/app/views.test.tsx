@@ -105,14 +105,15 @@ describe("display mode", () => {
 });
 
 describe("insights", () => {
-  it("renders live protocol and per-asset statistics without inferred history", async () => {
+  it("keeps protocol insights simple and links to the full breakdown", async () => {
     queryMocks.fetchMarkets.mockResolvedValue(marketSnapshotFixture());
     renderWithQuery(<InsightsView panelOpen refreshIntervalSeconds={300} />);
 
     expect(await screen.findByRole("heading", { name: "Insights" })).toBeVisible();
     expect(screen.getByText("Total supplied")).toBeVisible();
     expect(screen.getByText("Supplied vs borrowed")).toBeVisible();
-    expect(screen.getByText("Supply APR")).toBeVisible();
+    expect(screen.getByRole("button", { name: /View full breakdown/ })).toBeVisible();
+    expect(screen.queryByText("Supply APR")).not.toBeInTheDocument();
     expect(screen.getByText(/does not expose protocol history/)).toBeVisible();
   });
 });
