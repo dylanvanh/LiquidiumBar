@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { invoke, isTauri } from "@tauri-apps/api/core";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import type { MarketSnapshot, ScaledAmount } from "../liquidium/sdk.types";
 import { fetchMarkets } from "./queries";
 import type { MenuBarMetric } from "./storage";
@@ -12,6 +12,7 @@ export function useTrayMarketTotal(
 ): void {
   const runningInTauri = isTauri();
   const showsValue = metric !== "none";
+  const trayUpdateQueue = useRef<Promise<void>>(Promise.resolve());
   const query = useQuery({
     queryKey: ["markets"],
     queryFn: fetchMarkets,
@@ -23,14 +24,16 @@ export function useTrayMarketTotal(
 
   useEffect(() => {
     if (!runningInTauri) return;
-    if (!showsValue) {
-      void invoke("set_tray_market_title", { title: null }).catch(() => undefined);
-      return;
-    }
-    if (!query.data) return;
-    void invoke("set_tray_market_title", {
-      title: formatTrayValue(selectMenuBarAmount(query.data, metric)),
-    }).catch(() => undefined);
+    const title = showsValue
+      ? query.data
+        ? formatTrayValue(selectMenuBarAmount(query.data, metric))
+        : undefined
+      : null;
+    if (title === undefined) return;
+    trayUpdateQueue.current = trayUpdateQueue.current
+      .catch(() => undefined)
+      .then(() => invoke("set_tray_market_title", { title }))
+      .then(() => undefined);
   }, [metric, query.data, runningInTauri, showsValue]);
 }
 
