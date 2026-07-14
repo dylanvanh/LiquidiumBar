@@ -5,6 +5,7 @@ import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { marketSnapshotFixture, portfolioFixture } from "../test/fixtures";
 import { DisplayModeSwitcher } from "./DisplayModeSwitcher";
+import { InsightsView } from "./InsightsView";
 import { MarketsView } from "./MarketsView";
 import { PortfolioView } from "./PortfolioView";
 import type { ProfileRecord } from "./storage";
@@ -15,6 +16,14 @@ const queryMocks = vi.hoisted(() => ({
 }));
 
 vi.mock("./queries", () => queryMocks);
+vi.mock("./DitherCharts", () => ({
+  MarketValueChart: () => (
+    <section aria-label="Supplied vs borrowed">Supplied vs borrowed</section>
+  ),
+  PortfolioValueChart: () => (
+    <section aria-label="Position value">Position value</section>
+  ),
+}));
 
 function renderWithQuery(ui: React.ReactNode, client = createClient()) {
   return {
@@ -92,6 +101,19 @@ describe("display mode", () => {
     );
     await user.click(screen.getByRole("button", { name: "Numbers" }));
     expect(onChange).toHaveBeenCalledWith("numbers");
+  });
+});
+
+describe("insights", () => {
+  it("renders live protocol and per-asset statistics without inferred history", async () => {
+    queryMocks.fetchMarkets.mockResolvedValue(marketSnapshotFixture());
+    renderWithQuery(<InsightsView panelOpen refreshIntervalSeconds={300} />);
+
+    expect(await screen.findByRole("heading", { name: "Insights" })).toBeVisible();
+    expect(screen.getByText("Total supplied")).toBeVisible();
+    expect(screen.getByText("Supplied vs borrowed")).toBeVisible();
+    expect(screen.getByText("Supply APR")).toBeVisible();
+    expect(screen.getByText(/does not expose protocol history/)).toBeVisible();
   });
 });
 

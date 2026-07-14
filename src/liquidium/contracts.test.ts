@@ -52,6 +52,14 @@ describe("application contracts", () => {
     expect((await loadSettings()).displayMode).toBe("graphs");
   });
 
+  it("persists the insights section", async () => {
+    window.localStorage.setItem(
+      "settings",
+      serializeWithBigInt({ ...DEFAULT_SETTINGS, section: "insights" })
+    );
+    expect((await loadSettings()).section).toBe("insights");
+  });
+
   it("detects stale and invalid snapshot timestamps", () => {
     const now = Date.parse("2026-07-14T12:00:31.000Z");
     expect(isSnapshotStale("2026-07-14T12:00:00.000Z", 30_000, now)).toBe(true);

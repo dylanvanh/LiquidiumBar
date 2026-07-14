@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { InsightsView } from "./InsightsView";
 import { MarketsView } from "./MarketsView";
 import { PortfolioView } from "./PortfolioView";
 import { SettingsView } from "./SettingsView";
@@ -17,6 +18,7 @@ import { usePanelLifecycle } from "./usePanelLifecycle";
 
 const sections: ReadonlyArray<{ id: AppSettings["section"]; label: string }> = [
   { id: "markets", label: "Markets" },
+  { id: "insights", label: "Insights" },
   { id: "portfolio", label: "Portfolio" },
   { id: "settings", label: "Settings" },
 ];
@@ -124,6 +126,12 @@ export function App() {
           refreshIntervalSeconds={settings.refreshIntervalSeconds}
           displayMode={settings.displayMode}
           onDisplayModeChange={(displayMode) => update({ displayMode })}
+        />
+      ) : null}
+      {settings.section === "insights" ? (
+        <InsightsView
+          panelOpen={panelOpen}
+          refreshIntervalSeconds={settings.refreshIntervalSeconds}
         />
       ) : null}
       {settings.section === "portfolio" ? (

@@ -7,7 +7,7 @@ import type { MarketSnapshot, NormalizedPortfolio } from "../liquidium/sdk.types
 export const SETTINGS_VERSION = 1;
 export const REFRESH_INTERVALS = [30, 60, 120, 300] as const;
 export type RefreshIntervalSeconds = (typeof REFRESH_INTERVALS)[number];
-export type AppSection = "markets" | "portfolio" | "settings";
+export type AppSection = "markets" | "insights" | "portfolio" | "settings";
 export type DisplayMode = "graphs" | "numbers";
 
 export interface ProfileRecord {
@@ -182,6 +182,7 @@ function normalizeSettings(value: unknown): AppSettings {
     : DEFAULT_SETTINGS.refreshIntervalSeconds;
   const section =
     value.section === "markets" ||
+    value.section === "insights" ||
     value.section === "portfolio" ||
     value.section === "settings"
       ? value.section

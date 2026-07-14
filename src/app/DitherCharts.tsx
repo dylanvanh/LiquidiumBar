@@ -12,8 +12,8 @@ import type {
 } from "../liquidium/sdk.types";
 
 const valueConfig = {
-  supplied: { label: "Supplied", color: "blue" },
-  borrowed: { label: "Borrowed", color: "orange" },
+  supplied: { label: "Supplied", color: "green" },
+  borrowed: { label: "Borrowed", color: "blue" },
 } satisfies ChartConfig;
 
 interface ValueDatum {
@@ -31,8 +31,9 @@ export function MarketValueChart({ markets }: { markets: NormalizedMarket[] }) {
 
   return (
     <ValueChart
-      title="Liquidity by pool"
-      note="USD · scrub for exact values"
+      eyebrow="Capital by market"
+      title="Supplied vs borrowed"
+      note="USD snapshot"
       data={data}
       accessibleSummary={`${markets.length} Liquidium pools compared by supplied and borrowed USD value.`}
     />
@@ -64,8 +65,9 @@ export function PortfolioValueChart({
 
   return (
     <ValueChart
+      eyebrow="Capital by reserve"
       title="Position value"
-      note="USD by reserve · scrub for exact values"
+      note="USD snapshot"
       data={data}
       accessibleSummary={`${positions.length} reserves compared by supplied and borrowed USD value.`}
     />
@@ -73,11 +75,13 @@ export function PortfolioValueChart({
 }
 
 function ValueChart({
+  eyebrow,
   title,
   note,
   data,
   accessibleSummary,
 }: {
+  eyebrow: string;
   title: string;
   note: string;
   data: ValueDatum[];
@@ -87,6 +91,7 @@ function ValueChart({
     <section className="chart-card" aria-label={title}>
       <div className="chart-card-heading">
         <div>
+          <span className="chart-eyebrow">{eyebrow}</span>
           <strong>{title}</strong>
           <small>{note}</small>
         </div>
@@ -107,8 +112,8 @@ function ValueChart({
           <Grid />
           <XAxis dataKey="label" maxTicks={5} />
           <YAxis tickCount={3} tickFormatter={formatCompactUsd} />
-          <Bar dataKey="supplied" variant="dotted" />
-          <Bar dataKey="borrowed" variant="hatched" />
+          <Bar dataKey="supplied" variant="gradient" />
+          <Bar dataKey="borrowed" variant="dotted" />
           <Tooltip labelKey="label" valueFormatter={formatTooltipUsd} />
         </BarChart>
       </div>

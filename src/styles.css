@@ -115,7 +115,7 @@ button {
 
 .section-tabs {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   padding: 6px 10px;
   gap: 3px;
   background: var(--surface-raised);
@@ -238,6 +238,16 @@ button {
   letter-spacing: -0.01em;
 }
 
+.chart-eyebrow {
+  display: block;
+  margin-bottom: 4px;
+  color: #309c5c;
+  font-size: 8px;
+  font-weight: 720;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
 .chart-card-heading small {
   display: block;
   margin-top: 2px;
@@ -266,11 +276,201 @@ button {
 }
 
 .chart-key .supplied::before {
-  background: rgb(53, 143, 243);
+  background: rgb(40, 210, 110);
 }
 
 .chart-key .borrowed::before {
-  background: rgb(255, 150, 50);
+  background: rgb(53, 143, 243);
+}
+
+.insights-heading {
+  margin-bottom: 10px;
+}
+
+.insight-totals {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  overflow: hidden;
+  margin-bottom: 15px;
+  border-radius: 11px;
+  background: var(--surface);
+  box-shadow:
+    0 0 0 1px var(--hairline),
+    0 1px 2px -1px rgba(0, 0, 0, 0.06),
+    0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.insight-totals article {
+  min-width: 0;
+  padding: 10px 9px 9px;
+  border-right: 1px solid var(--hairline);
+}
+
+.insight-totals article:last-child {
+  border-right: 0;
+}
+
+.insight-totals strong,
+.insight-totals span,
+.insight-totals small {
+  display: block;
+}
+
+.insight-totals strong {
+  overflow: hidden;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.025em;
+  text-overflow: ellipsis;
+}
+
+.insight-totals span {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 8px;
+}
+
+.insight-totals small {
+  margin-top: 3px;
+  color: #309c5c;
+  font-size: 6px;
+  font-weight: 680;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.insights-list-heading {
+  margin-top: 1px;
+}
+
+.insight-market-list {
+  overflow: hidden;
+  border-radius: 11px;
+  background: var(--surface);
+  box-shadow:
+    0 0 0 1px var(--hairline),
+    0 1px 2px rgba(0, 0, 0, 0.035);
+}
+
+.insight-market-row {
+  padding: 10px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.insight-market-row:last-child {
+  border-bottom: 0;
+}
+
+.insight-market-header,
+.insight-market-identity {
+  display: flex;
+  align-items: center;
+}
+
+.insight-market-header {
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.insight-market-identity {
+  gap: 7px;
+  min-width: 0;
+}
+
+.insight-market-identity > span:last-child,
+.insight-market-identity strong,
+.insight-market-identity small {
+  display: block;
+  min-width: 0;
+}
+
+.insight-market-deposits {
+  min-width: 0;
+  text-align: right;
+}
+
+.insight-market-deposits small,
+.insight-market-deposits strong {
+  display: block;
+}
+
+.insight-market-deposits small {
+  margin-bottom: 2px;
+  color: var(--muted);
+  font-size: 7px;
+}
+
+.insight-market-deposits strong {
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.insight-market-data {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 9px;
+  padding-top: 8px;
+  border-top: 1px solid var(--hairline);
+}
+
+.insight-market-data .insight-datum:first-child {
+  text-align: left;
+}
+
+.insight-market-identity strong {
+  font-size: 11px;
+}
+
+.insight-market-identity small {
+  margin-top: 2px;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 8px;
+  text-overflow: ellipsis;
+  text-transform: capitalize;
+}
+
+.insight-datum {
+  min-width: 0;
+  text-align: right;
+}
+
+.insight-datum small,
+.insight-datum strong {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.insight-datum small {
+  margin-bottom: 2px;
+  color: var(--muted);
+  font-size: 7px;
+}
+
+.insight-datum strong {
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+}
+
+.insights-disclosure {
+  margin: 10px 2px 0;
+  color: var(--faint);
+  font-size: 8px;
+  line-height: 1.4;
+  text-wrap: pretty;
+}
+
+.skeleton-insight-totals {
+  height: 63px;
+  background: transparent;
+  box-shadow: none;
+}
+
+.skeleton-insight-totals .skeleton {
+  border-radius: 0;
 }
 
 .dither-chart-frame {
