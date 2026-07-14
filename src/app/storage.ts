@@ -192,7 +192,6 @@ function normalizeSettings(value: unknown): AppSettings {
   const legacyDisplayMode = normalizeDisplayMode(value.displayMode);
   const insightsDisplayMode =
     normalizeDisplayMode(value.insightsDisplayMode) ??
-    legacyDisplayMode ??
     DEFAULT_SETTINGS.insightsDisplayMode;
   const portfolioDisplayMode =
     normalizeDisplayMode(value.portfolioDisplayMode) ??

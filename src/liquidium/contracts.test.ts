@@ -64,7 +64,7 @@ describe("application contracts", () => {
     });
   });
 
-  it("migrates the former shared display preference", async () => {
+  it("migrates the former shared preference only to Portfolio", async () => {
     window.localStorage.setItem(
       "settings",
       serializeWithBigInt({
@@ -72,13 +72,13 @@ describe("application contracts", () => {
         section: "insights",
         profiles: [],
         hideBalances: false,
-        displayMode: "numbers",
+        displayMode: "graphs",
         refreshIntervalSeconds: 60,
       })
     );
     expect(await loadSettings()).toMatchObject({
       insightsDisplayMode: "numbers",
-      portfolioDisplayMode: "numbers",
+      portfolioDisplayMode: "graphs",
     });
   });
 
