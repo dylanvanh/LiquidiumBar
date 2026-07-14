@@ -70,11 +70,11 @@ describe("display mode", () => {
     const onChange = vi.fn();
     render(<DisplayModeSwitcher value="graphs" onChange={onChange} />);
 
-    expect(screen.getByRole("button", { name: "Graphs" })).toHaveAttribute(
+    expect(screen.getByRole("button", { name: "Charts" })).toHaveAttribute(
       "aria-pressed",
       "true"
     );
-    await user.click(screen.getByRole("button", { name: "Numbers" }));
+    await user.click(screen.getByRole("button", { name: "Details" }));
     expect(onChange).toHaveBeenCalledWith("numbers");
   });
 });
@@ -160,7 +160,7 @@ describe("insights", () => {
     renderWithQuery(<Harness />);
 
     await screen.findByRole("heading", { name: "Insights" });
-    await user.click(screen.getByRole("button", { name: "Numbers" }));
+    await user.click(screen.getByRole("button", { name: "Details" }));
     expect(screen.getByText("Total supplied")).toBeVisible();
     expect(screen.getByLabelText("Pool totals")).toBeVisible();
     expect(screen.getAllByText("BTC")[0]).toBeVisible();
@@ -250,7 +250,7 @@ describe("portfolio states", () => {
     queryMocks.fetchPortfolio.mockResolvedValue(portfolioFixture());
     renderWithQuery(<PortfolioView {...basePortfolioProps} />);
     expect(await screen.findByLabelText("Portfolio composition")).toBeVisible();
-    expect(screen.getByRole("button", { name: "Graphs" })).toHaveAttribute(
+    expect(screen.getByRole("button", { name: "Charts" })).toHaveAttribute(
       "aria-pressed",
       "true"
     );

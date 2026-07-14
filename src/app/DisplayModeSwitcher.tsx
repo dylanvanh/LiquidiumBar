@@ -15,14 +15,14 @@ export function DisplayModeSwitcher({
         aria-pressed={value === "graphs"}
         onClick={() => onChange("graphs")}
       >
-        Graphs
+        Charts
       </button>
       <button
         type="button"
         aria-pressed={value === "numbers"}
         onClick={() => onChange("numbers")}
       >
-        Numbers
+        Details
       </button>
     </fieldset>
   );
