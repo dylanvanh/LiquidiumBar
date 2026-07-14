@@ -1,0 +1,536 @@
+import { useQuery } from "@tanstack/react-query";
+import { type FormEvent, useState } from "react";
+import { validateProfileId } from "../liquidium/profile";
+import type { NormalizedPortfolio, NormalizedPosition } from "../liquidium/sdk.types";
+import type { ProfileRecord } from "./App";
+import {
+  formatAge,
+  formatApr,
+  formatBps,
+  formatDateTime,
+  formatPrice,
+  formatPrivate,
+  formatRatio,
+  formatToken,
+  formatUsd,
+  truncateProfile,
+} from "./format";
+import { fetchPortfolio } from "./queries";
+
+const DEFAULT_REFRESH_MS = 30_000;
+
+interface PortfolioViewProps {
+  panelOpen: boolean;
+  profiles: ProfileRecord[];
+  selectedProfileId?: string;
+  hideBalances: boolean;
+  onAddProfile(profile: ProfileRecord): void;
+  onSelectProfile(profileId: string): void;
+  onRenameProfile(profileId: string, label: string): void;
+  onRemoveProfile(profileId: string): void;
+  onTogglePrivacy(): void;
+}
+
+export function PortfolioView(props: PortfolioViewProps) {
+  const profile =
+    props.profiles.find((candidate) => candidate.id === props.selectedProfileId) ??
+    props.profiles[0];
+
+  if (!profile) {
+    return (
+      <ProfileOnboarding
+        profileCount={props.profiles.length}
+        onAdd={props.onAddProfile}
+      />
+    );
+  }
+
+  return <PortfolioMonitor {...props} profile={profile} />;
+}
+
+function ProfileOnboarding({
+  profileCount,
+  onAdd,
+}: {
+  profileCount: number;
+  onAdd(profile: ProfileRecord): void;
+}) {
+  const [profileInput, setProfileInput] = useState("");
+  const [label, setLabel] = useState("");
+  const [error, setError] = useState<string>();
+
+  const submit = (event: FormEvent) => {
+    event.preventDefault();
+    const validation = validateProfileId(profileInput);
+    if (!validation.ok) {
+      setError(validation.error.message);
+      return;
+    }
+    setError(undefined);
+    onAdd({
+      id: validation.profileId,
+      label: label.trim() || `Profile ${profileCount + 1}`,
+    });
+  };
+
+  return (
+    <section className="onboarding view" aria-labelledby="profile-title">
+      <div className="onboarding-icon" aria-hidden="true">
+        ◎
+      </div>
+      <p className="eyebrow">Read-only monitoring</p>
+      <h1 id="profile-title">Add a Liquidium profile</h1>
+      <p className="onboarding-copy">
+        Enter a profile principal to monitor public positions. LiqWatch never asks for a
+        wallet or signing permission.
+      </p>
+      <form className="profile-form" onSubmit={submit} noValidate>
+        <label htmlFor="profile-id">Profile principal</label>
+        <input
+          id="profile-id"
+          className="mono-input"
+          value={profileInput}
+          onChange={(event) => {
+            setProfileInput(event.target.value);
+            setError(undefined);
+          }}
+          placeholder="aaaaa-aa"
+          autoComplete="off"
+          spellCheck={false}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? "profile-error" : "profile-help"}
+        />
+        {error ? (
+          <p id="profile-error" className="field-error" role="alert">
+            {error}
+          </p>
+        ) : (
+          <p id="profile-help" className="field-help">
+            Validated locally as an ICP principal.
+          </p>
+        )}
+        <label htmlFor="profile-label">
+          Local label <span>Optional</span>
+        </label>
+        <input
+          id="profile-label"
+          value={label}
+          onChange={(event) => setLabel(event.target.value)}
+          placeholder="Main profile"
+          maxLength={40}
+        />
+        <button type="submit" className="primary-button wide-button">
+          Add profile
+        </button>
+      </form>
+    </section>
+  );
+}
+
+function PortfolioMonitor({
+  profile,
+  panelOpen,
+  profiles,
+  selectedProfileId,
+  hideBalances,
+  onAddProfile,
+  onSelectProfile,
+  onRenameProfile,
+  onRemoveProfile,
+  onTogglePrivacy,
+}: PortfolioViewProps & { profile: ProfileRecord }) {
+  const [managing, setManaging] = useState<"add" | "rename">();
+  const query = useQuery({
+    queryKey: ["portfolio", profile.id],
+    queryFn: () => fetchPortfolio(profile.id),
+    enabled: panelOpen,
+    refetchInterval: panelOpen ? DEFAULT_REFRESH_MS : false,
+  });
+
+  if (managing === "add") {
+    return <ProfileOnboarding profileCount={profiles.length} onAdd={onAddProfile} />;
+  }
+
+  return (
+    <section className="view" aria-labelledby="portfolio-title">
+      <div className="portfolio-toolbar">
+        <label className="sr-only" htmlFor="profile-selector">
+          Selected profile
+        </label>
+        <select
+          id="profile-selector"
+          value={selectedProfileId ?? profile.id}
+          onChange={(event) => {
+            setManaging(undefined);
+            onSelectProfile(event.target.value);
+          }}
+          className="profile-selector"
+        >
+          {profiles.map((item) => (
+            <option key={item.id} value={item.id}>
+              {item.label}
+            </option>
+          ))}
+        </select>
+        <ToolbarButton label="Add profile" onClick={() => setManaging("add")}>
+          ＋
+        </ToolbarButton>
+        <ToolbarButton
+          label="Copy profile principal"
+          onClick={() => void navigator.clipboard.writeText(profile.id)}
+        >
+          ⧉
+        </ToolbarButton>
+        <ToolbarButton
+          label={hideBalances ? "Show balances" : "Hide balances"}
+          onClick={onTogglePrivacy}
+        >
+          {hideBalances ? "◉" : "○"}
+        </ToolbarButton>
+        <ToolbarButton
+          label="More profile actions"
+          onClick={() => setManaging(managing === "rename" ? undefined : "rename")}
+        >
+          •••
+        </ToolbarButton>
+      </div>
+
+      {managing === "rename" ? (
+        <ProfileActions
+          profile={profile}
+          onRename={(label) => {
+            onRenameProfile(profile.id, label);
+            setManaging(undefined);
+          }}
+          onRemove={() => onRemoveProfile(profile.id)}
+        />
+      ) : null}
+
+      <div className="view-heading portfolio-heading">
+        <div>
+          <p className="eyebrow mono-text" title={profile.id}>
+            {truncateProfile(profile.id)}
+          </p>
+          <h1 id="portfolio-title">{profile.label}</h1>
+        </div>
+        <button
+          type="button"
+          className="icon-button"
+          onClick={() => query.refetch()}
+          disabled={query.isFetching}
+          aria-label="Refresh portfolio"
+        >
+          <span className={query.isFetching ? "refresh-icon spinning" : "refresh-icon"}>
+            ↻
+          </span>
+        </button>
+      </div>
+
+      {!query.data && query.isPending ? <PortfolioSkeleton /> : null}
+      {!query.data && query.isError ? (
+        <PortfolioError error={query.error} onRetry={() => query.refetch()} />
+      ) : null}
+      {query.data ? (
+        <PortfolioSnapshotView
+          portfolio={query.data}
+          hideBalances={hideBalances}
+          refreshError={query.error}
+          refreshing={query.isFetching}
+        />
+      ) : null}
+    </section>
+  );
+}
+
+function ProfileActions({
+  profile,
+  onRename,
+  onRemove,
+}: {
+  profile: ProfileRecord;
+  onRename(label: string): void;
+  onRemove(): void;
+}) {
+  const [label, setLabel] = useState(profile.label);
+  return (
+    <div className="profile-actions">
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          const next = label.trim();
+          if (next) onRename(next);
+        }}
+      >
+        <label htmlFor="rename-profile">Profile label</label>
+        <div className="inline-form">
+          <input
+            id="rename-profile"
+            value={label}
+            onChange={(event) => setLabel(event.target.value)}
+            maxLength={40}
+          />
+          <button type="submit">Save</button>
+        </div>
+      </form>
+      <button
+        type="button"
+        className="danger-button"
+        onClick={() => {
+          if (window.confirm(`Remove ${profile.label} and its cached portfolio data?`))
+            onRemove();
+        }}
+      >
+        Remove profile
+      </button>
+    </div>
+  );
+}
+
+function PortfolioSnapshotView({
+  portfolio,
+  hideBalances,
+  refreshError,
+  refreshing,
+}: {
+  portfolio: NormalizedPortfolio;
+  hideBalances: boolean;
+  refreshError: Error | null;
+  refreshing: boolean;
+}) {
+  if (portfolio.positions.length === 0) {
+    return (
+      <div className="empty-state">
+        <span aria-hidden="true">◇</span>
+        <h2>No active positions</h2>
+        <p>This valid principal has no reserves returned by Liquidium RC.1.</p>
+        <small>Updated {formatAge(portfolio.fetchedAt)}</small>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {refreshError ? (
+        <div className="inline-alert" role="status">
+          Refresh failed. Showing data from {formatAge(portfolio.fetchedAt)}.
+        </div>
+      ) : null}
+      <div className="risk-card">
+        <div>
+          <span>Net position</span>
+          <strong>
+            {formatPrivate(formatUsd(portfolio.netPositionUsd), hideBalances)}
+          </strong>
+        </div>
+        <div className={`risk-pill ${portfolio.riskState}`}>
+          {riskLabel(portfolio.riskState)}
+        </div>
+      </div>
+      <section className="metric-grid portfolio-metrics" aria-label="Portfolio totals">
+        <Metric
+          label="Supplied"
+          value={formatPrivate(formatUsd(portfolio.totalSuppliedUsd), hideBalances)}
+        />
+        <Metric
+          label="Borrowed"
+          value={formatPrivate(formatUsd(portfolio.totalBorrowedUsd), hideBalances)}
+        />
+        <Metric
+          label="Available to borrow"
+          value={formatPrivate(formatUsd(portfolio.availableToBorrowUsd), hideBalances)}
+        />
+        <Metric
+          label="Health factor"
+          value={
+            portfolio.healthFactorInfinite ? "∞" : formatRatio(portfolio.healthFactor)
+          }
+        />
+        <Metric
+          label="Weighted supply APR"
+          value={formatApr(portfolio.weightedSupplyApr)}
+        />
+        <Metric
+          label="Weighted borrow APR"
+          value={formatApr(portfolio.weightedBorrowApr)}
+        />
+        <Metric
+          label="Estimated net APR"
+          value={formatApr(portfolio.estimatedNetApr)}
+        />
+        <Metric label="Current LTV" value={formatBps(portfolio.currentLtvBps)} />
+      </section>
+      <div className="list-heading">
+        <span>{portfolio.positions.length} reserves</span>
+        <span>
+          {refreshing ? "Refreshing…" : `Updated ${formatAge(portfolio.fetchedAt)}`}
+        </span>
+      </div>
+      <div className="market-list">
+        {portfolio.positions.map((position) => (
+          <PositionRow
+            key={position.id}
+            position={position}
+            hideBalances={hideBalances}
+          />
+        ))}
+      </div>
+      <p className="data-note">
+        APR is shown as reported. APY, compounding cadence, and per-position collateral
+        flags are unavailable in SDK RC.1.
+      </p>
+    </>
+  );
+}
+
+function PositionRow({
+  position,
+  hideBalances,
+}: {
+  position: NormalizedPosition;
+  hideBalances: boolean;
+}) {
+  return (
+    <details className="market-row position-row">
+      <summary>
+        <span className="asset-avatar" aria-hidden="true">
+          {position.symbol.slice(0, 1)}
+        </span>
+        <span className="market-identity">
+          <strong>{position.symbol}</strong>
+          <small>{position.chain}</small>
+        </span>
+        <Rate
+          label="Supplied"
+          value={formatPrivate(formatUsd(position.suppliedUsd), hideBalances)}
+        />
+        <Rate
+          label="Borrowed"
+          value={formatPrivate(formatUsd(position.borrowedUsd), hideBalances)}
+        />
+        <span className="disclosure" aria-hidden="true">
+          ›
+        </span>
+      </summary>
+      <div className="market-details">
+        <Detail
+          label="Supplied"
+          value={formatPrivate(
+            formatToken(position.supplied, position.symbol),
+            hideBalances
+          )}
+        />
+        <Detail
+          label="Borrowed"
+          value={formatPrivate(
+            formatToken(position.borrowed, position.symbol),
+            hideBalances
+          )}
+        />
+        <Detail
+          label="Earned interest"
+          value={formatPrivate(
+            formatToken(position.earnedInterest, position.symbol),
+            hideBalances
+          )}
+        />
+        <Detail
+          label="Debt interest"
+          value={formatPrivate(
+            formatToken(position.debtInterest, position.symbol),
+            hideBalances
+          )}
+        />
+        <Detail label="Supply APR" value={formatApr(position.supplyApr)} />
+        <Detail label="Borrow APR" value={formatApr(position.borrowApr)} />
+        <Detail label="Price" value={formatPrice(position.priceUsd)} />
+        <Detail label="Collateral flag" value="Unavailable" />
+        <Detail label="Updated" value={formatDateTime(position.lastUpdated)} />
+      </div>
+    </details>
+  );
+}
+
+function Metric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="metric">
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
+  );
+}
+
+function Rate({ label, value }: { label: string; value: string }) {
+  return (
+    <span className="market-rate">
+      <small>{label}</small>
+      <strong>{value}</strong>
+    </span>
+  );
+}
+
+function Detail({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="detail-row">
+      <dt>{label}</dt>
+      <dd>{value}</dd>
+    </div>
+  );
+}
+
+function ToolbarButton({
+  label,
+  onClick,
+  children,
+}: {
+  label: string;
+  onClick(): void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      className="toolbar-button"
+      aria-label={label}
+      title={label}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  );
+}
+
+function PortfolioSkeleton() {
+  return (
+    <section
+      className="portfolio-skeleton"
+      aria-busy="true"
+      aria-label="Loading portfolio"
+    >
+      <span />
+      <span />
+      <span />
+    </section>
+  );
+}
+
+function PortfolioError({ error, onRetry }: { error: Error; onRetry(): void }) {
+  return (
+    <div className="state-panel compact-state" role="alert">
+      <span className="state-symbol" aria-hidden="true">
+        !
+      </span>
+      <h2>Portfolio unavailable</h2>
+      <p>{error.message || "Liquidium could not be reached."}</p>
+      <button type="button" className="primary-button" onClick={onRetry}>
+        Try again
+      </button>
+    </div>
+  );
+}
+
+function riskLabel(state: NormalizedPortfolio["riskState"]): string {
+  if (state === "no-debt") return "No debt";
+  if (state === "at-risk") return "At risk";
+  if (state === "above-threshold") return "Healthy";
+  return "Risk unavailable";
+}

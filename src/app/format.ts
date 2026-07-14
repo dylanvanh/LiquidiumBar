@@ -26,6 +26,10 @@ export function formatUsd(value: ScaledAmount | undefined): string {
   return value ? `$${formatScaled(value, 2)}` : DASH;
 }
 
+export function formatPrivate(value: string, hidden: boolean): string {
+  return hidden && value !== DASH ? "••••••" : value;
+}
+
 export function formatApr(value: ScaledRatio | undefined): string {
   if (!value) return DASH;
   return `${formatScaled({ value: value.value * 100n, decimals: value.decimals }, 2)}%`;
@@ -53,6 +57,19 @@ export function formatDateTime(value: string | undefined): string {
     minute: "2-digit",
     second: "2-digit",
   }).format(date);
+}
+
+export function formatRatio(value: ScaledRatio | undefined): string {
+  return value ? formatScaled(value, 2) : DASH;
+}
+
+export function formatBps(value: bigint | undefined): string {
+  if (value === undefined) return DASH;
+  return `${formatScaled({ value, decimals: 2 }, 2)}%`;
+}
+
+export function truncateProfile(value: string): string {
+  return value.length > 17 ? `${value.slice(0, 8)}…${value.slice(-6)}` : value;
 }
 
 export function formatAge(value: string): string {

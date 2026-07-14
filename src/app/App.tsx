@@ -1,5 +1,7 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { MarketsView } from "./MarketsView";
+import { PortfolioView } from "./PortfolioView";
 import { usePanelLifecycle } from "./usePanelLifecycle";
 
 type AppSection = "markets" | "portfolio" | "settings";
@@ -12,7 +14,37 @@ const sections: ReadonlyArray<{ id: AppSection; label: string }> = [
 
 export function App() {
   const [section, setSection] = useState<AppSection>("markets");
+  const [profiles, setProfiles] = useState<ProfileRecord[]>([]);
+  const [selectedProfileId, setSelectedProfileId] = useState<string>();
+  const [hideBalances, setHideBalances] = useState(false);
   const panelOpen = usePanelLifecycle();
+  const queryClient = useQueryClient();
+
+  const addProfile = (profile: ProfileRecord) => {
+    setProfiles((current) =>
+      current.some((item) => item.id === profile.id) ? current : [...current, profile]
+    );
+    setSelectedProfileId(profile.id);
+  };
+
+  const renameProfile = (profileId: string, label: string) => {
+    setProfiles((current) =>
+      current.map((profile) =>
+        profile.id === profileId ? { ...profile, label } : profile
+      )
+    );
+  };
+
+  const removeProfile = (profileId: string) => {
+    setProfiles((current) => {
+      const next = current.filter((profile) => profile.id !== profileId);
+      setSelectedProfileId((selected) =>
+        selected === profileId ? next[0]?.id : selected
+      );
+      return next;
+    });
+    queryClient.removeQueries({ queryKey: ["portfolio", profileId] });
+  };
 
   return (
     <main className="app-shell">
@@ -40,19 +72,32 @@ export function App() {
         ))}
       </nav>
 
-      {section === "markets" ? (
-        <MarketsView panelOpen={panelOpen} />
-      ) : (
+      {section === "markets" ? <MarketsView panelOpen={panelOpen} /> : null}
+      {section === "portfolio" ? (
+        <PortfolioView
+          panelOpen={panelOpen}
+          profiles={profiles}
+          selectedProfileId={selectedProfileId}
+          hideBalances={hideBalances}
+          onAddProfile={addProfile}
+          onSelectProfile={setSelectedProfileId}
+          onRenameProfile={renameProfile}
+          onRemoveProfile={removeProfile}
+          onTogglePrivacy={() => setHideBalances((hidden) => !hidden)}
+        />
+      ) : null}
+      {section === "settings" ? (
         <section className="coming-soon" aria-live="polite">
           <p className="eyebrow">Next milestone</p>
-          <h1>{section === "portfolio" ? "Portfolio monitoring" : "Preferences"}</h1>
-          <p>
-            {section === "portfolio"
-              ? "Add a Liquidium profile to monitor read-only positions."
-              : "Refresh cadence and startup controls will live here."}
-          </p>
+          <h1>Preferences</h1>
+          <p>Refresh cadence, local storage, and startup controls will live here.</p>
         </section>
-      )}
+      ) : null}
     </main>
   );
+}
+
+export interface ProfileRecord {
+  id: string;
+  label: string;
 }

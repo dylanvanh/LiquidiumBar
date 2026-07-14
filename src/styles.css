@@ -391,6 +391,294 @@ button {
   padding: 30px 22px;
   text-align: center;
 }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.mono-text,
+.mono-input {
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.onboarding {
+  padding-top: 29px;
+  text-align: center;
+}
+
+.onboarding-icon {
+  display: grid;
+  width: 43px;
+  height: 43px;
+  place-items: center;
+  margin: 0 auto 15px;
+  border-radius: 13px;
+  color: var(--accent);
+  background: var(--accent-soft);
+  font-size: 24px;
+}
+
+.onboarding h1 {
+  margin: 4px 0 0;
+  font-size: 21px;
+  letter-spacing: -0.035em;
+}
+
+.onboarding-copy {
+  max-width: 320px;
+  margin: 8px auto 19px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.profile-form {
+  text-align: left;
+}
+
+.profile-form label,
+.profile-actions label {
+  display: flex;
+  justify-content: space-between;
+  margin: 12px 2px 5px;
+  color: var(--text);
+  font-size: 10px;
+  font-weight: 620;
+}
+
+.profile-form label span {
+  color: var(--muted);
+  font-weight: 480;
+}
+
+.profile-form input,
+.profile-actions input,
+.profile-selector {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 10px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 8px;
+  outline: none;
+  color: var(--text);
+  background: var(--surface);
+  font-size: 11px;
+}
+
+.profile-form input:focus,
+.profile-actions input:focus,
+.profile-selector:focus-visible {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.profile-form input[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+.field-help,
+.field-error {
+  margin: 5px 2px 0;
+  font-size: 9px;
+  line-height: 1.35;
+}
+.field-help {
+  color: var(--muted);
+}
+.field-error {
+  color: var(--danger);
+}
+.wide-button {
+  width: 100%;
+  margin-top: 17px;
+}
+
+.portfolio-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) repeat(4, 34px);
+  align-items: center;
+  gap: 3px;
+  margin-bottom: 13px;
+}
+
+.profile-selector {
+  min-height: 34px;
+  padding-right: 24px;
+}
+
+.toolbar-button {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 0;
+  border-radius: 7px;
+  color: var(--muted);
+  background: transparent;
+  cursor: default;
+  font-size: 14px;
+}
+
+.toolbar-button:hover {
+  color: var(--text);
+  background: var(--surface);
+}
+
+.profile-actions {
+  margin: -5px 0 14px;
+  padding: 9px 10px 10px;
+  border: 1px solid var(--hairline);
+  border-radius: 9px;
+  background: var(--surface);
+}
+
+.profile-actions label {
+  margin-top: 0;
+}
+.inline-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 52px;
+  gap: 5px;
+}
+.inline-form input {
+  min-height: 34px;
+}
+.inline-form button,
+.danger-button {
+  min-height: 34px;
+  border: 0;
+  border-radius: 7px;
+  font-size: 10px;
+  font-weight: 620;
+}
+.inline-form button {
+  color: #fff;
+  background: var(--accent);
+}
+.danger-button {
+  width: 100%;
+  margin-top: 8px;
+  color: var(--danger);
+  background: rgba(179, 59, 50, 0.08);
+}
+
+.portfolio-heading {
+  margin-bottom: 12px;
+}
+.risk-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 9px;
+  padding: 11px 12px;
+  border: 1px solid var(--hairline);
+  border-radius: 11px;
+  background: var(--surface);
+}
+.risk-card span {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--muted);
+  font-size: 9px;
+}
+.risk-card strong {
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.025em;
+}
+.risk-pill {
+  padding: 4px 7px;
+  border-radius: 999px;
+  color: #317348;
+  background: rgba(49, 115, 72, 0.1);
+  font-size: 9px;
+  font-weight: 650;
+}
+.risk-pill.at-risk {
+  color: var(--danger);
+  background: rgba(179, 59, 50, 0.1);
+}
+.risk-pill.unknown {
+  color: var(--muted);
+  background: var(--surface-muted);
+}
+.portfolio-metrics .metric:nth-last-child(-n + 2) {
+  border-bottom: 1px solid var(--hairline);
+}
+.portfolio-metrics .metric:nth-last-child(-n + 2):nth-child(n + 7) {
+  border-bottom: 0;
+}
+.position-row summary {
+  grid-template-columns: 31px minmax(64px, 1fr) 78px 78px 12px;
+}
+.position-row .market-rate strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.empty-state {
+  max-width: 290px;
+  margin: 54px auto 0;
+  text-align: center;
+}
+.empty-state > span {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  margin: 0 auto 13px;
+  border-radius: 50%;
+  color: var(--muted);
+  background: var(--surface);
+  font-size: 22px;
+}
+.empty-state h2 {
+  margin: 0;
+  font-size: 16px;
+}
+.empty-state p {
+  margin: 7px 0 10px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.45;
+}
+.empty-state small {
+  color: var(--faint);
+  font-size: 9px;
+}
+
+.portfolio-skeleton {
+  display: grid;
+  gap: 8px;
+}
+.portfolio-skeleton span {
+  display: block;
+  height: 74px;
+  border-radius: 10px;
+  background: linear-gradient(
+    100deg,
+    var(--surface) 20%,
+    var(--surface-muted) 45%,
+    var(--surface) 70%
+  );
+  background-size: 220% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+.compact-state {
+  padding-top: 37px;
+}
+.compact-state h2 {
+  margin: 0;
+  font-size: 16px;
+}
 .state-symbol {
   display: grid;
   width: 36px;
