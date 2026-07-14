@@ -19,7 +19,7 @@ export function AssetIcon({ symbol }: { symbol: string }) {
   return (
     <span className="asset-avatar" aria-hidden="true">
       {Icon ? (
-        <Icon className="asset-icon" variant="background" />
+        <Icon className="asset-icon" variant="branded" />
       ) : (
         <span className="asset-avatar-fallback">{normalizedSymbol.slice(0, 1)}</span>
       )}

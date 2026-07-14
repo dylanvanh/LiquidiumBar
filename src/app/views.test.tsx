@@ -80,9 +80,14 @@ describe("display mode", () => {
 });
 
 describe("asset icons", () => {
-  it("renders branded icons with a fallback for unknown assets", () => {
+  it("renders official-style branded icons with a fallback for unknown assets", () => {
     const { container, rerender } = render(<AssetIcon symbol="BTC" />);
     expect(container.querySelector("svg.asset-icon")).toBeInTheDocument();
+
+    rerender(<AssetIcon symbol="ICP" />);
+    expect(
+      container.querySelector("svg.asset-icon linearGradient")
+    ).toBeInTheDocument();
 
     rerender(<AssetIcon symbol="NEW" />);
     expect(screen.getByText("N")).toBeVisible();
