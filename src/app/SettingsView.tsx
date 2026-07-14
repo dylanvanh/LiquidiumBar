@@ -156,14 +156,7 @@ export function SettingsView({
                 type="button"
                 className="settings-icon-button danger-text"
                 aria-label={`Remove ${profile.label}`}
-                onClick={() => {
-                  if (
-                    window.confirm(
-                      `Remove ${profile.label} and its cached portfolio data?`
-                    )
-                  )
-                    onRemoveProfile(profile.id);
-                }}
+                onClick={() => onRemoveProfile(profile.id)}
               >
                 <Trash2 aria-hidden="true" size={15} />
               </button>

@@ -332,14 +332,7 @@ function ProfileActions({
           <button type="submit">Save</button>
         </div>
       </form>
-      <button
-        type="button"
-        className="danger-button"
-        onClick={() => {
-          if (window.confirm(`Remove ${profile.label} and its cached portfolio data?`))
-            onRemove();
-        }}
-      >
+      <button type="button" className="danger-button" onClick={onRemove}>
         Remove profile
       </button>
     </div>

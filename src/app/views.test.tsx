@@ -123,6 +123,25 @@ describe("settings", () => {
     await user.selectOptions(refreshSelect, "60");
     expect(onRefreshIntervalChange).toHaveBeenCalledWith(60);
   });
+
+  it("removes a saved profile without relying on a browser confirmation", async () => {
+    const user = userEvent.setup();
+    const onRemoveProfile = vi.fn();
+    render(
+      <SettingsView
+        refreshIntervalSeconds={300}
+        menuBarMetric="none"
+        profiles={[{ id: "aaaaa-aa", label: "Main" }]}
+        onRefreshIntervalChange={vi.fn()}
+        onMenuBarMetricChange={vi.fn()}
+        onSelectProfile={vi.fn()}
+        onRemoveProfile={onRemoveProfile}
+      />
+    );
+
+    await user.click(screen.getByRole("button", { name: "Remove Main" }));
+    expect(onRemoveProfile).toHaveBeenCalledWith("aaaaa-aa");
+  });
 });
 
 describe("insights", () => {
@@ -265,6 +284,23 @@ describe("portfolio states", () => {
     );
     renderWithQuery(<PortfolioView {...basePortfolioProps} />);
     expect(await screen.findByText("No active positions")).toBeVisible();
+  });
+
+  it("removes the selected profile from its profile actions", async () => {
+    const user = userEvent.setup();
+    const onRemoveProfile = vi.fn();
+    queryMocks.fetchPortfolio.mockResolvedValue(
+      portfolioFixture({ positions: [], totalSuppliedUsd: undefined })
+    );
+    renderWithQuery(
+      <PortfolioView {...basePortfolioProps} onRemoveProfile={onRemoveProfile} />
+    );
+
+    await screen.findByText("No active positions");
+    await user.click(screen.getByRole("button", { name: "More profile actions" }));
+    await user.click(screen.getByRole("button", { name: "Remove profile" }));
+
+    expect(onRemoveProfile).toHaveBeenCalledWith("aaaaa-aa");
   });
 
   it("switches profiles and changes the query key", async () => {
