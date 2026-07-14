@@ -17,8 +17,17 @@ const queryMocks = vi.hoisted(() => ({
 
 vi.mock("./queries", () => queryMocks);
 vi.mock("./DitherCharts", () => ({
-  MarketValueChart: () => (
-    <section aria-label="Supplied vs borrowed">Supplied vs borrowed</section>
+  MarketCompositionChart: ({ action }: { action?: React.ReactNode }) => (
+    <section aria-label="Share of deposits">
+      Share of deposits
+      {action}
+    </section>
+  ),
+  MarketValueChart: ({ action }: { action?: React.ReactNode }) => (
+    <section aria-label="Supplied vs borrowed">
+      Supplied vs borrowed
+      {action}
+    </section>
   ),
   PortfolioValueChart: () => (
     <section aria-label="Position value">Position value</section>
@@ -106,11 +115,18 @@ describe("display mode", () => {
 
 describe("insights", () => {
   it("keeps protocol insights simple and links to the full breakdown", async () => {
+    const user = userEvent.setup();
     queryMocks.fetchMarkets.mockResolvedValue(marketSnapshotFixture());
     renderWithQuery(<InsightsView panelOpen refreshIntervalSeconds={300} />);
 
     expect(await screen.findByRole("heading", { name: "Insights" })).toBeVisible();
     expect(screen.getByText("Total supplied")).toBeVisible();
+    expect(screen.getByText("Share of deposits")).toBeVisible();
+    expect(screen.getByRole("button", { name: "Share" })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+    await user.click(screen.getByRole("button", { name: "Capital" }));
     expect(screen.getByText("Supplied vs borrowed")).toBeVisible();
     expect(screen.getByRole("button", { name: /View full breakdown/ })).toBeVisible();
     expect(screen.queryByText("Supply APR")).not.toBeInTheDocument();

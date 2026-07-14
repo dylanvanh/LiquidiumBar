@@ -255,6 +255,44 @@ button {
   font-family: "SFMono-Regular", Consolas, monospace;
 }
 
+.insight-chart-switcher {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  padding: 2px;
+  border: 0;
+  margin: 0;
+  border-radius: 8px;
+  background: var(--surface-muted);
+  box-shadow: 0 0 0 1px var(--hairline);
+}
+
+.insight-chart-switcher button {
+  min-width: 52px;
+  min-height: 36px;
+  padding: 0 7px;
+  border: 0;
+  border-radius: 6px;
+  color: var(--muted);
+  background: transparent;
+  font-size: 8px;
+  font-weight: 650;
+  cursor: default;
+  transition-property: color, background-color, box-shadow, scale;
+  transition-duration: 150ms;
+}
+
+.insight-chart-switcher button[aria-pressed="true"] {
+  color: var(--text);
+  background: var(--surface);
+  box-shadow:
+    0 0 0 1px var(--hairline),
+    0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.insight-chart-switcher button:active {
+  scale: 0.96;
+}
+
 .insights-heading {
   margin-bottom: 10px;
 }
@@ -359,6 +397,35 @@ button {
 .dither-chart-frame {
   height: 198px;
   margin-top: 8px;
+}
+
+.composition-chart-frame {
+  position: relative;
+}
+
+.composition-chart-total {
+  position: absolute;
+  top: 56%;
+  left: 50%;
+  display: grid;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  text-align: center;
+}
+
+.composition-chart-total strong {
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.045em;
+}
+
+.composition-chart-total span {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 7px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .private-chart {

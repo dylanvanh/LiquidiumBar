@@ -1,8 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { isTauri } from "@tauri-apps/api/core";
 import { openUrl } from "@tauri-apps/plugin-opener";
+import { useState } from "react";
 import type { ScaledAmount, ScaledRatio } from "../liquidium/sdk.types";
-import { MarketValueChart } from "./DitherCharts";
+import { MarketCompositionChart, MarketValueChart } from "./DitherCharts";
 import { formatAge } from "./format";
 import { fetchMarkets } from "./queries";
 
@@ -13,6 +14,7 @@ export function InsightsView({
   panelOpen: boolean;
   refreshIntervalSeconds: number;
 }) {
+  const [chartMode, setChartMode] = useState<"composition" | "capital">("composition");
   const query = useQuery({
     queryKey: ["markets"],
     queryFn: fetchMarkets,
@@ -86,7 +88,17 @@ export function InsightsView({
         />
       </section>
 
-      <MarketValueChart markets={snapshot.markets} />
+      {chartMode === "composition" ? (
+        <MarketCompositionChart
+          markets={snapshot.markets}
+          action={<InsightChartSwitcher value={chartMode} onChange={setChartMode} />}
+        />
+      ) : (
+        <MarketValueChart
+          markets={snapshot.markets}
+          action={<InsightChartSwitcher value={chartMode} onChange={setChartMode} />}
+        />
+      )}
 
       {!snapshot.pricesComplete ? (
         <p className="data-note">
@@ -103,6 +115,34 @@ export function InsightsView({
         </button>
       </div>
     </section>
+  );
+}
+
+function InsightChartSwitcher({
+  value,
+  onChange,
+}: {
+  value: "composition" | "capital";
+  onChange(value: "composition" | "capital"): void;
+}) {
+  return (
+    <fieldset className="insight-chart-switcher">
+      <legend className="sr-only">Insights chart</legend>
+      <button
+        type="button"
+        aria-pressed={value === "composition"}
+        onClick={() => onChange("composition")}
+      >
+        Share
+      </button>
+      <button
+        type="button"
+        aria-pressed={value === "capital"}
+        onClick={() => onChange("capital")}
+      >
+        Capital
+      </button>
+    </fieldset>
   );
 }
 

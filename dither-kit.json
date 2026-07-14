@@ -4,6 +4,24 @@
   "registry": "https://tripwire.sh",
   "mode": "source",
   "components": {
+    "pie-chart": {
+      "version": "0.1.0",
+      "hash": "sha256:0e87ea19dcf7d4fafa579765b1104924f2f38027e7adaa3ca44d1a51b8300f97",
+      "files": [
+        {
+          "path": "src/components/dither-kit/pie-chart.tsx",
+          "hash": "sha256:c4ff05f7f3589698683b0301de4742b691281ffcd4af0446e1a6eb9faa9c5188"
+        },
+        {
+          "path": "src/components/dither-kit/pie-canvas.tsx",
+          "hash": "sha256:fa51a4ac446a59e480ec58e43c1dfdac37ec73424c5932576132101f01c9aa56"
+        },
+        {
+          "path": "src/components/dither-kit/pie.tsx",
+          "hash": "sha256:bf4b1fbb0b7ba688f0a94524901e01744377b7c424ac658bfd7c89c33855d2ac"
+        }
+      ]
+    },
     "bar-chart": {
       "version": "0.1.0",
       "hash": "sha256:126e0fc18e9b01bafd5fc628c5887d42b1cc83070de8cee3cfe5025f3b93a5b0",
