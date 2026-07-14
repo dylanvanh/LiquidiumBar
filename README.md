@@ -20,7 +20,7 @@ The populated portfolio screenshot uses a development-only fixture to demonstrat
 
 - Runs as a 390×560 borderless macOS menu-bar panel with a monochrome template icon, accessory activation policy, tray-relative positioning, focus-loss hiding, and one reusable window.
 - Shows a user-selected compact Supplied, Borrowed, or Available total beside the menu-bar icon—with no label—using the cached snapshot immediately at launch and quietly refreshing market data in the background.
-- Opens directly to a compact Insights view with a Numbers mode for protocol totals and per-pool USD values. Graphs mode stacks the same totals, supplied-versus-borrowed bars, and a supplied-market composition donut. Detailed statistics stay on Liquidium's official Insights page.
+- Opens directly to a compact Insights view with a Numbers mode for protocol totals and per-pool USD values. Graphs mode leads with supplied-versus-borrowed bars, followed by the same totals and a supplied-market composition donut. Detailed statistics stay on Liquidium's official Insights page.
 - Uses a supplied-position composition pie for portfolios, with the persistent Graphs/Numbers switch exposing exact risk and APR figures when needed.
 - Validates canonical principals, stores local profile labels, and supports profile switching, rename, removal, copy, privacy mode, and empty/error states.
 - Shows supplied and borrowed value, collateral/risk metrics, derived health factor, weighted supply/borrow/net APR, and reserve rows when the SDK supplies the required inputs.

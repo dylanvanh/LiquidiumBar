@@ -134,8 +134,8 @@ function InsightsGraphs({
 }) {
   return (
     <div className="insights-graphs">
-      <ProtocolTotals supplied={supplied} borrowed={borrowed} available={available} />
       <MarketValueChart markets={markets} />
+      <ProtocolTotals supplied={supplied} borrowed={borrowed} available={available} />
       <MarketCompositionChart markets={markets} />
     </div>
   );
