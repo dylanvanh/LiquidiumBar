@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { type FormEvent, useState } from "react";
 import { validateProfileId } from "../liquidium/profile";
 import type { NormalizedPortfolio, NormalizedPosition } from "../liquidium/sdk.types";
-import type { ProfileRecord } from "./App";
 import {
   formatAge,
   formatApr,
@@ -16,11 +15,11 @@ import {
   truncateProfile,
 } from "./format";
 import { fetchPortfolio } from "./queries";
-
-const DEFAULT_REFRESH_MS = 30_000;
+import type { ProfileRecord } from "./storage";
 
 interface PortfolioViewProps {
   panelOpen: boolean;
+  refreshIntervalSeconds: number;
   profiles: ProfileRecord[];
   selectedProfileId?: string;
   hideBalances: boolean;
@@ -130,6 +129,7 @@ function ProfileOnboarding({
 function PortfolioMonitor({
   profile,
   panelOpen,
+  refreshIntervalSeconds,
   profiles,
   selectedProfileId,
   hideBalances,
@@ -144,7 +144,7 @@ function PortfolioMonitor({
     queryKey: ["portfolio", profile.id],
     queryFn: () => fetchPortfolio(profile.id),
     enabled: panelOpen,
-    refetchInterval: panelOpen ? DEFAULT_REFRESH_MS : false,
+    refetchInterval: panelOpen ? refreshIntervalSeconds * 1_000 : false,
   });
 
   if (managing === "add") {

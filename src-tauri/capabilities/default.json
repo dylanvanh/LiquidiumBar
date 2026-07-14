@@ -5,8 +5,19 @@
   "windows": ["main"],
   "permissions": [
     "core:default",
-    "store:default",
+    "store:allow-load",
+    "store:allow-get-store",
+    "store:allow-set",
+    "store:allow-get",
+    "store:allow-delete",
+    "store:allow-save",
     "autostart:default",
-    "opener:default"
+    {
+      "identifier": "opener:allow-open-url",
+      "allow": [
+        { "url": "https://liquidium.fi/*" },
+        { "url": "https://github.com/Liquidium-Inc/liquidium-sdk*" }
+      ]
+    }
   ]
 }

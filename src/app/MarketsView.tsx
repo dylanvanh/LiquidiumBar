@@ -10,14 +10,18 @@ import {
 } from "./format";
 import { fetchMarkets } from "./queries";
 
-const DEFAULT_REFRESH_MS = 30_000;
-
-export function MarketsView({ panelOpen }: { panelOpen: boolean }) {
+export function MarketsView({
+  panelOpen,
+  refreshIntervalSeconds,
+}: {
+  panelOpen: boolean;
+  refreshIntervalSeconds: number;
+}) {
   const query = useQuery({
     queryKey: ["markets"],
     queryFn: fetchMarkets,
     enabled: panelOpen,
-    refetchInterval: panelOpen ? DEFAULT_REFRESH_MS : false,
+    refetchInterval: panelOpen ? refreshIntervalSeconds * 1_000 : false,
   });
   const snapshot = query.data;
 

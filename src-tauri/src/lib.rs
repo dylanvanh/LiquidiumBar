@@ -1,4 +1,5 @@
 use serde::Deserialize;
+use std::sync::atomic::{AtomicBool, Ordering};
 use tauri::{
     Emitter, Manager,
     image::Image,
@@ -10,6 +11,11 @@ use tauri_plugin_positioner::{Position, WindowExt};
 const MAIN_WINDOW_LABEL: &str = "main";
 const MENU_OPEN_ID: &str = "open";
 const MENU_QUIT_ID: &str = "quit";
+
+#[derive(Default)]
+struct PanelState {
+    focused_after_show: AtomicBool,
+}
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -63,7 +69,12 @@ fn hide_panel(app: &tauri::AppHandle) -> tauri::Result<()> {
 
 fn show_panel(app: &tauri::AppHandle) -> tauri::Result<()> {
     if let Some(window) = app.get_webview_window(MAIN_WINDOW_LABEL) {
-        window.move_window_constrained(Position::TrayCenter)?;
+        app.state::<PanelState>()
+            .focused_after_show
+            .store(false, Ordering::Release);
+        // Positioning can fail transiently while displays or full-screen spaces change.
+        // Showing the panel is more important than perfect placement in that one frame.
+        let _ = window.move_window_constrained(Position::TrayCenter);
         window.show()?;
         window.set_focus()?;
         window.emit("panel-opened", ())?;
@@ -122,6 +133,7 @@ fn configure_tray(app: &tauri::App) -> tauri::Result<()> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .manage(PanelState::default())
         .plugin(tauri_plugin_positioner::init())
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_opener::init())
@@ -134,14 +146,28 @@ pub fn run() {
             #[cfg(target_os = "macos")]
             app.set_activation_policy(tauri::ActivationPolicy::Accessory);
             configure_tray(app)?;
+            #[cfg(debug_assertions)]
+            if std::env::var_os("LIQWATCH_OPEN_PANEL").is_some() {
+                show_panel(app.handle())?;
+            }
             Ok(())
         })
         .on_window_event(|window, event| {
-            if window.label() == MAIN_WINDOW_LABEL
-                && matches!(event, tauri::WindowEvent::Focused(false))
-            {
-                let _ = window.hide();
-                let _ = window.emit("panel-closed", ());
+            if window.label() != MAIN_WINDOW_LABEL {
+                return;
+            }
+            let state = window.state::<PanelState>();
+            match event {
+                tauri::WindowEvent::Focused(true) => {
+                    state.focused_after_show.store(true, Ordering::Release);
+                }
+                tauri::WindowEvent::Focused(false)
+                    if state.focused_after_show.swap(false, Ordering::AcqRel) =>
+                {
+                    let _ = window.hide();
+                    let _ = window.emit("panel-closed", ());
+                }
+                _ => {}
             }
         })
         .run(tauri::generate_context!())

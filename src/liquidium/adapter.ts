@@ -124,11 +124,13 @@ function normalizeMarket(pool: Pool, priceUsd?: number): NormalizedMarket {
     supplyApr: ratio(pool.lendingRate, rateDecimals),
     borrowApr: ratio(pool.borrowingRate, rateDecimals),
     utilization: ratio(pool.utilizationRate, rateDecimals),
-    maxLtv: ratio(pool.maxLtv, rateDecimals),
-    liquidationThreshold: ratio(pool.liquidationThreshold, rateDecimals),
-    liquidationBonus: ratio(pool.liquidationBonus, rateDecimals),
-    protocolLiquidationFee: ratio(pool.protocolLiquidationFee, rateDecimals),
-    reserveFactor: ratio(pool.reserveFactor, rateDecimals),
+    // RC.1 runtime values and quote constraints use basis points for these fields,
+    // despite the generated Pool comments claiming the 27-decimal rate scale.
+    maxLtv: basisPoints(pool.maxLtv),
+    liquidationThreshold: basisPoints(pool.liquidationThreshold),
+    liquidationBonus: basisPoints(pool.liquidationBonus),
+    protocolLiquidationFee: basisPoints(pool.protocolLiquidationFee),
+    reserveFactor: basisPoints(pool.reserveFactor),
     baseRate: ratio(pool.baseRate, rateDecimals),
     optimalUtilization: ratio(pool.optimalUtilizationRate, rateDecimals),
     rateSlopeBefore: ratio(pool.rateSlopeBefore, rateDecimals),
@@ -287,6 +289,10 @@ function amount(value: bigint, decimals: number): ScaledAmount {
 
 function ratio(value: bigint, decimals: number): ScaledRatio {
   return { value, decimals };
+}
+
+function basisPoints(value: bigint): ScaledRatio {
+  return { value, decimals: 4 };
 }
 
 function validPrice(value: number | undefined): number | undefined {

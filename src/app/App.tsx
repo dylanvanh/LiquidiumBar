@@ -1,49 +1,96 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MarketsView } from "./MarketsView";
 import { PortfolioView } from "./PortfolioView";
+import { SettingsView } from "./SettingsView";
+import {
+  type AppSettings,
+  DEFAULT_SETTINGS,
+  deletePortfolioSnapshot,
+  hydrateSnapshots,
+  loadSettings,
+  type ProfileRecord,
+  type RefreshIntervalSeconds,
+  saveSettings,
+} from "./storage";
 import { usePanelLifecycle } from "./usePanelLifecycle";
 
-type AppSection = "markets" | "portfolio" | "settings";
-
-const sections: ReadonlyArray<{ id: AppSection; label: string }> = [
+const sections: ReadonlyArray<{ id: AppSettings["section"]; label: string }> = [
   { id: "markets", label: "Markets" },
   { id: "portfolio", label: "Portfolio" },
   { id: "settings", label: "Settings" },
 ];
 
 export function App() {
-  const [section, setSection] = useState<AppSection>("markets");
-  const [profiles, setProfiles] = useState<ProfileRecord[]>([]);
-  const [selectedProfileId, setSelectedProfileId] = useState<string>();
-  const [hideBalances, setHideBalances] = useState(false);
+  const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
+  const [ready, setReady] = useState(false);
   const panelOpen = usePanelLifecycle();
   const queryClient = useQueryClient();
 
-  const addProfile = (profile: ProfileRecord) => {
-    setProfiles((current) =>
-      current.some((item) => item.id === profile.id) ? current : [...current, profile]
+  useEffect(() => {
+    let active = true;
+    void loadSettings()
+      .then(async (storedSettings) => {
+        await hydrateSnapshots(queryClient, storedSettings.profiles);
+        if (active) setSettings(storedSettings);
+      })
+      .catch(() => undefined)
+      .finally(() => {
+        if (active) setReady(true);
+      });
+    return () => {
+      active = false;
+    };
+  }, [queryClient]);
+
+  useEffect(() => {
+    if (ready) void saveSettings(settings).catch(() => undefined);
+  }, [ready, settings]);
+
+  if (!ready) {
+    return (
+      <section className="app-bootstrap" aria-label="Loading LiqWatch">
+        <span />
+      </section>
     );
-    setSelectedProfileId(profile.id);
+  }
+
+  const update = (patch: Partial<AppSettings>) =>
+    setSettings((current) => ({ ...current, ...patch }));
+
+  const addProfile = (profile: ProfileRecord) => {
+    setSettings((current) => ({
+      ...current,
+      profiles: current.profiles.some((item) => item.id === profile.id)
+        ? current.profiles
+        : [...current.profiles, profile],
+      selectedProfileId: profile.id,
+    }));
   };
 
   const renameProfile = (profileId: string, label: string) => {
-    setProfiles((current) =>
-      current.map((profile) =>
+    setSettings((current) => ({
+      ...current,
+      profiles: current.profiles.map((profile) =>
         profile.id === profileId ? { ...profile, label } : profile
-      )
-    );
+      ),
+    }));
   };
 
   const removeProfile = (profileId: string) => {
-    setProfiles((current) => {
-      const next = current.filter((profile) => profile.id !== profileId);
-      setSelectedProfileId((selected) =>
-        selected === profileId ? next[0]?.id : selected
-      );
-      return next;
+    setSettings((current) => {
+      const profiles = current.profiles.filter((profile) => profile.id !== profileId);
+      return {
+        ...current,
+        profiles,
+        selectedProfileId:
+          current.selectedProfileId === profileId
+            ? profiles[0]?.id
+            : current.selectedProfileId,
+      };
     });
     queryClient.removeQueries({ queryKey: ["portfolio", profileId] });
+    void deletePortfolioSnapshot(profileId).catch(() => undefined);
   };
 
   return (
@@ -57,47 +104,53 @@ export function App() {
         </div>
         <span className="read-only-badge">Read only</span>
       </header>
-
       <nav className="section-tabs" aria-label="LiqWatch sections">
         {sections.map(({ id, label }) => (
           <button
             key={id}
             type="button"
-            className={section === id ? "section-tab active" : "section-tab"}
-            aria-current={section === id ? "page" : undefined}
-            onClick={() => setSection(id)}
+            className={settings.section === id ? "section-tab active" : "section-tab"}
+            aria-current={settings.section === id ? "page" : undefined}
+            onClick={() => update({ section: id })}
           >
             {label}
           </button>
         ))}
       </nav>
 
-      {section === "markets" ? <MarketsView panelOpen={panelOpen} /> : null}
-      {section === "portfolio" ? (
-        <PortfolioView
+      {settings.section === "markets" ? (
+        <MarketsView
           panelOpen={panelOpen}
-          profiles={profiles}
-          selectedProfileId={selectedProfileId}
-          hideBalances={hideBalances}
-          onAddProfile={addProfile}
-          onSelectProfile={setSelectedProfileId}
-          onRenameProfile={renameProfile}
-          onRemoveProfile={removeProfile}
-          onTogglePrivacy={() => setHideBalances((hidden) => !hidden)}
+          refreshIntervalSeconds={settings.refreshIntervalSeconds}
         />
       ) : null}
-      {section === "settings" ? (
-        <section className="coming-soon" aria-live="polite">
-          <p className="eyebrow">Next milestone</p>
-          <h1>Preferences</h1>
-          <p>Refresh cadence, local storage, and startup controls will live here.</p>
-        </section>
+      {settings.section === "portfolio" ? (
+        <PortfolioView
+          panelOpen={panelOpen}
+          refreshIntervalSeconds={settings.refreshIntervalSeconds}
+          profiles={settings.profiles}
+          selectedProfileId={settings.selectedProfileId}
+          hideBalances={settings.hideBalances}
+          onAddProfile={addProfile}
+          onSelectProfile={(selectedProfileId) => update({ selectedProfileId })}
+          onRenameProfile={renameProfile}
+          onRemoveProfile={removeProfile}
+          onTogglePrivacy={() => update({ hideBalances: !settings.hideBalances })}
+        />
+      ) : null}
+      {settings.section === "settings" ? (
+        <SettingsView
+          refreshIntervalSeconds={settings.refreshIntervalSeconds}
+          profiles={settings.profiles}
+          onRefreshIntervalChange={(refreshIntervalSeconds: RefreshIntervalSeconds) =>
+            update({ refreshIntervalSeconds })
+          }
+          onSelectProfile={(selectedProfileId) =>
+            update({ selectedProfileId, section: "portfolio" })
+          }
+          onRemoveProfile={removeProfile}
+        />
       ) : null}
     </main>
   );
-}
-
-export interface ProfileRecord {
-  id: string;
-  label: string;
 }
