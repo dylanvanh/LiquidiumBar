@@ -130,7 +130,7 @@ button {
 
 .section-tabs {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   margin: 6px 10px 7px;
   padding: 3px;
   gap: 3px;
@@ -271,46 +271,22 @@ button {
   font-family: "SFMono-Regular", Consolas, monospace;
 }
 
-.insight-chart-switcher {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  padding: 2px;
-  border: 0;
-  margin: 0;
-  border-radius: 8px;
-  background: var(--surface-muted);
-  box-shadow: 0 0 0 1px var(--hairline);
-}
-
-.insight-chart-switcher button {
-  min-width: 52px;
-  min-height: 36px;
-  padding: 0 7px;
-  border: 0;
-  border-radius: 6px;
-  color: var(--muted);
-  background: transparent;
-  font-size: 8px;
-  font-weight: 650;
-  cursor: default;
-  transition-property: color, background-color, box-shadow, scale;
-  transition-duration: 150ms;
-}
-
-.insight-chart-switcher button[aria-pressed="true"] {
-  color: var(--text);
-  background: var(--surface);
-  box-shadow:
-    0 0 0 1px var(--hairline),
-    0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-.insight-chart-switcher button:active {
-  scale: 0.96;
-}
-
 .insights-heading {
   margin-bottom: 10px;
+}
+
+.insight-number-row {
+  display: grid;
+  min-height: 57px;
+  grid-template-columns: 31px minmax(70px, 1fr) 78px 78px;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 9px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.insight-number-row:last-child {
+  border-bottom: 0;
 }
 
 .insight-totals {
@@ -489,6 +465,49 @@ button {
   letter-spacing: -0.035em;
 }
 
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  overflow: hidden;
+  margin-bottom: 15px;
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow:
+    0 0 0 1px var(--hairline),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+.metric {
+  min-width: 0;
+  padding: 10px 11px;
+  border-right: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline);
+}
+
+.metric:nth-child(2n) {
+  border-right: 0;
+}
+
+.metric:nth-last-child(-n + 2) {
+  border-bottom: 0;
+}
+
+.metric span {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.metric strong {
+  display: block;
+  overflow: hidden;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  text-overflow: ellipsis;
+}
+
 .icon-button {
   display: grid;
   width: 40px;
@@ -515,47 +534,6 @@ button {
 }
 .refresh-icon.spinning {
   animation: spin 0.85s linear infinite;
-}
-
-.metric-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  overflow: hidden;
-  margin-bottom: 15px;
-  border: 0;
-  border-radius: 12px;
-  background: var(--surface);
-  box-shadow:
-    0 0 0 1px var(--hairline),
-    inset 0 1px 0 rgba(255, 255, 255, 0.16);
-}
-
-.metric {
-  min-width: 0;
-  padding: 10px 11px;
-  border-right: 1px solid var(--hairline);
-  border-bottom: 1px solid var(--hairline);
-}
-
-.metric:nth-child(2n) {
-  border-right: 0;
-}
-.metric:nth-last-child(-n + 2) {
-  border-bottom: 0;
-}
-.metric span {
-  display: block;
-  margin-bottom: 3px;
-  color: var(--muted);
-  font-size: 10px;
-}
-.metric strong {
-  display: block;
-  overflow: hidden;
-  font-size: 14px;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.01em;
-  text-overflow: ellipsis;
 }
 
 .list-heading {
@@ -944,12 +922,6 @@ button {
   color: var(--muted);
   background: var(--surface-muted);
 }
-.portfolio-metrics .metric:nth-last-child(-n + 2) {
-  border-bottom: 1px solid var(--hairline);
-}
-.portfolio-metrics .metric:nth-last-child(-n + 2):nth-child(n + 7) {
-  border-bottom: 0;
-}
 .position-row summary {
   grid-template-columns: 31px minmax(64px, 1fr) 78px 78px 12px;
 }
@@ -1243,12 +1215,6 @@ button {
   font-weight: 620;
 }
 
-.skeleton-grid {
-  height: 92px;
-  gap: 1px;
-  background: var(--hairline);
-}
-.skeleton-block,
 .skeleton-row {
   display: block;
   background: linear-gradient(

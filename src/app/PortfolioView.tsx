@@ -3,7 +3,7 @@ import { type FormEvent, useState } from "react";
 import { validateProfileId } from "../liquidium/profile";
 import type { NormalizedPortfolio, NormalizedPosition } from "../liquidium/sdk.types";
 import { DisplayModeSwitcher } from "./DisplayModeSwitcher";
-import { PortfolioValueChart } from "./DitherCharts";
+import { PortfolioCompositionChart } from "./DitherCharts";
 import {
   formatAge,
   formatApr,
@@ -349,7 +349,10 @@ function PortfolioSnapshotView({
         </div>
       </div>
       {displayMode === "graphs" && panelOpen ? (
-        <PortfolioValueChart positions={portfolio.positions} hidden={hideBalances} />
+        <PortfolioCompositionChart
+          positions={portfolio.positions}
+          hidden={hideBalances}
+        />
       ) : (
         <section
           className="metric-grid portfolio-metrics"
@@ -482,21 +485,21 @@ function PositionRow({
   );
 }
 
-function Metric({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="metric">
-      <span>{label}</span>
-      <strong>{value}</strong>
-    </div>
-  );
-}
-
 function Rate({ label, value }: { label: string; value: string }) {
   return (
     <span className="market-rate">
       <small>{label}</small>
       <strong>{value}</strong>
     </span>
+  );
+}
+
+function Metric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="metric">
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
   );
 }
 

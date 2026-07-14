@@ -6,7 +6,6 @@ import { describe, expect, it, vi } from "vitest";
 import { marketSnapshotFixture, portfolioFixture } from "../test/fixtures";
 import { DisplayModeSwitcher } from "./DisplayModeSwitcher";
 import { InsightsView } from "./InsightsView";
-import { MarketsView } from "./MarketsView";
 import { PortfolioView } from "./PortfolioView";
 import { SettingsView } from "./SettingsView";
 import type { ProfileRecord } from "./storage";
@@ -18,20 +17,11 @@ const queryMocks = vi.hoisted(() => ({
 
 vi.mock("./queries", () => queryMocks);
 vi.mock("./DitherCharts", () => ({
-  MarketCompositionChart: ({ action }: { action?: React.ReactNode }) => (
-    <section aria-label="Share of deposits">
-      Share of deposits
-      {action}
-    </section>
+  MarketValueChart: () => (
+    <section aria-label="Supplied vs borrowed">Supplied vs borrowed</section>
   ),
-  MarketValueChart: ({ action }: { action?: React.ReactNode }) => (
-    <section aria-label="Supplied vs borrowed">
-      Supplied vs borrowed
-      {action}
-    </section>
-  ),
-  PortfolioValueChart: () => (
-    <section aria-label="Position value">Position value</section>
+  PortfolioCompositionChart: () => (
+    <section aria-label="Portfolio composition">Portfolio composition</section>
   ),
 }));
 
@@ -54,7 +44,7 @@ const basePortfolioProps = {
   profiles: [{ id: "aaaaa-aa", label: "Main" }],
   selectedProfileId: "aaaaa-aa",
   hideBalances: false,
-  displayMode: "numbers" as const,
+  displayMode: "graphs" as const,
   onAddProfile: vi.fn(),
   onSelectProfile: vi.fn(),
   onRenameProfile: vi.fn(),
@@ -63,41 +53,12 @@ const basePortfolioProps = {
   onDisplayModeChange: vi.fn(),
 };
 
-const marketViewProps = {
+const insightViewProps = {
   panelOpen: true,
   refreshIntervalSeconds: 300,
-  displayMode: "numbers" as const,
+  displayMode: "graphs" as const,
   onDisplayModeChange: vi.fn(),
 };
-
-describe("market states", () => {
-  it("renders a loading state", () => {
-    queryMocks.fetchMarkets.mockReturnValue(new Promise(() => undefined));
-    renderWithQuery(<MarketsView {...marketViewProps} />);
-    expect(screen.getByLabelText("Loading markets")).toHaveAttribute(
-      "aria-busy",
-      "true"
-    );
-  });
-
-  it("renders partial pricing disclosure", async () => {
-    queryMocks.fetchMarkets.mockResolvedValue(
-      marketSnapshotFixture({ pricesComplete: false })
-    );
-    renderWithQuery(<MarketsView {...marketViewProps} />);
-    expect((await screen.findAllByText("BTC"))[0]).toBeVisible();
-    expect(screen.getByText(/Totals exclude pools/)).toBeVisible();
-  });
-
-  it("retains cached data when a refresh fails", async () => {
-    const client = createClient();
-    client.setQueryData(["markets"], marketSnapshotFixture());
-    queryMocks.fetchMarkets.mockRejectedValue(new Error("offline"));
-    renderWithQuery(<MarketsView {...marketViewProps} />, client);
-    expect(await screen.findByText(/Refresh failed\. Showing data/)).toBeVisible();
-    expect(screen.getAllByText("BTC")[0]).toBeVisible();
-  });
-});
 
 describe("display mode", () => {
   it("switches between graphs and exact numbers", async () => {
@@ -136,23 +97,47 @@ describe("settings", () => {
 });
 
 describe("insights", () => {
-  it("keeps protocol insights simple and links to the full breakdown", async () => {
-    const user = userEvent.setup();
+  it("defaults to the protocol capital graph and links to the full breakdown", async () => {
     queryMocks.fetchMarkets.mockResolvedValue(marketSnapshotFixture());
-    renderWithQuery(<InsightsView panelOpen refreshIntervalSeconds={300} />);
+    renderWithQuery(<InsightsView {...insightViewProps} />);
 
     expect(await screen.findByRole("heading", { name: "Insights" })).toBeVisible();
-    expect(screen.getByText("Total supplied")).toBeVisible();
-    expect(screen.getByText("Share of deposits")).toBeVisible();
-    expect(screen.getByRole("button", { name: "Share" })).toHaveAttribute(
-      "aria-pressed",
-      "true"
-    );
-    await user.click(screen.getByRole("button", { name: "Capital" }));
     expect(screen.getByText("Supplied vs borrowed")).toBeVisible();
+    expect(screen.queryByText("Total supplied")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /View full breakdown/ })).toBeVisible();
-    expect(screen.queryByText("Supply APR")).not.toBeInTheDocument();
+  });
+
+  it("shows compact protocol and pool totals in numbers mode", async () => {
+    const user = userEvent.setup();
+    queryMocks.fetchMarkets.mockResolvedValue(marketSnapshotFixture());
+    function Harness() {
+      const [displayMode, setDisplayMode] = useState<"graphs" | "numbers">("graphs");
+      return (
+        <InsightsView
+          {...insightViewProps}
+          displayMode={displayMode}
+          onDisplayModeChange={setDisplayMode}
+        />
+      );
+    }
+    renderWithQuery(<Harness />);
+
+    await screen.findByRole("heading", { name: "Insights" });
+    await user.click(screen.getByRole("button", { name: "Numbers" }));
+    expect(screen.getByText("Total supplied")).toBeVisible();
+    expect(screen.getByLabelText("Pool totals")).toBeVisible();
+    expect(screen.getAllByText("BTC")[0]).toBeVisible();
+    expect(screen.queryByText("Supplied vs borrowed")).not.toBeInTheDocument();
     expect(screen.getByText(/does not expose protocol history/)).toBeVisible();
+  });
+
+  it("retains cached insights when a refresh fails", async () => {
+    const client = createClient();
+    client.setQueryData(["markets"], marketSnapshotFixture());
+    queryMocks.fetchMarkets.mockRejectedValue(new Error("offline"));
+    renderWithQuery(<InsightsView {...insightViewProps} />, client);
+    expect(await screen.findByText(/Refresh failed\. Showing data/)).toBeVisible();
+    expect(screen.getByText("Supplied vs borrowed")).toBeVisible();
   });
 });
 
@@ -223,5 +208,15 @@ describe("portfolio states", () => {
     if (btcLabel) await user.click(btcLabel);
     expect(screen.getByText("Collateral flag")).toBeVisible();
     expect(screen.getByText("Unavailable")).toBeVisible();
+  });
+
+  it("uses a composition pie for a populated portfolio", async () => {
+    queryMocks.fetchPortfolio.mockResolvedValue(portfolioFixture());
+    renderWithQuery(<PortfolioView {...basePortfolioProps} />);
+    expect(await screen.findByLabelText("Portfolio composition")).toBeVisible();
+    expect(screen.getByRole("button", { name: "Graphs" })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
   });
 });

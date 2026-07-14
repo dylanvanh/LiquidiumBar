@@ -1,20 +1,28 @@
 import { useQuery } from "@tanstack/react-query";
 import { isTauri } from "@tauri-apps/api/core";
 import { openUrl } from "@tauri-apps/plugin-opener";
-import { useState } from "react";
-import type { ScaledAmount, ScaledRatio } from "../liquidium/sdk.types";
-import { MarketCompositionChart, MarketValueChart } from "./DitherCharts";
+import type {
+  NormalizedMarket,
+  ScaledAmount,
+  ScaledRatio,
+} from "../liquidium/sdk.types";
+import { DisplayModeSwitcher } from "./DisplayModeSwitcher";
+import { MarketValueChart } from "./DitherCharts";
 import { formatAge } from "./format";
 import { fetchMarkets } from "./queries";
+import type { DisplayMode } from "./storage";
 
 export function InsightsView({
   panelOpen,
   refreshIntervalSeconds,
+  displayMode,
+  onDisplayModeChange,
 }: {
   panelOpen: boolean;
   refreshIntervalSeconds: number;
+  displayMode: DisplayMode;
+  onDisplayModeChange(value: DisplayMode): void;
 }) {
-  const [chartMode, setChartMode] = useState<"composition" | "capital">("composition");
   const query = useQuery({
     queryKey: ["markets"],
     queryFn: fetchMarkets,
@@ -53,18 +61,23 @@ export function InsightsView({
           <p className="eyebrow">Protocol pulse</p>
           <h1 id="insights-title">Insights</h1>
         </div>
-        <button
-          type="button"
-          className="icon-button"
-          onClick={() => query.refetch()}
-          disabled={query.isFetching}
-          aria-label="Refresh insights"
-          title="Refresh insights"
-        >
-          <span className={query.isFetching ? "refresh-icon spinning" : "refresh-icon"}>
-            ↻
-          </span>
-        </button>
+        <div className="view-actions">
+          <DisplayModeSwitcher value={displayMode} onChange={onDisplayModeChange} />
+          <button
+            type="button"
+            className="icon-button"
+            onClick={() => query.refetch()}
+            disabled={query.isFetching}
+            aria-label="Refresh insights"
+            title="Refresh insights"
+          >
+            <span
+              className={query.isFetching ? "refresh-icon spinning" : "refresh-icon"}
+            >
+              ↻
+            </span>
+          </button>
+        </div>
       </div>
 
       {query.error ? (
@@ -73,30 +86,14 @@ export function InsightsView({
         </div>
       ) : null}
 
-      <section className="insight-totals" aria-label="Protocol totals">
-        <InsightTotal
-          label="Total supplied"
-          value={formatCompactUsd(snapshot.totalSuppliedUsd)}
-        />
-        <InsightTotal
-          label="Active loans"
-          value={formatCompactUsd(snapshot.totalBorrowedUsd)}
-        />
-        <InsightTotal
-          label="Available"
-          value={formatCompactUsd(snapshot.availableLiquidityUsd)}
-        />
-      </section>
-
-      {chartMode === "composition" ? (
-        <MarketCompositionChart
-          markets={snapshot.markets}
-          action={<InsightChartSwitcher value={chartMode} onChange={setChartMode} />}
-        />
+      {displayMode === "graphs" && panelOpen ? (
+        <MarketValueChart markets={snapshot.markets} />
       ) : (
-        <MarketValueChart
+        <InsightsNumbers
           markets={snapshot.markets}
-          action={<InsightChartSwitcher value={chartMode} onChange={setChartMode} />}
+          supplied={snapshot.totalSuppliedUsd}
+          borrowed={snapshot.totalBorrowedUsd}
+          available={snapshot.availableLiquidityUsd}
         />
       )}
 
@@ -118,31 +115,59 @@ export function InsightsView({
   );
 }
 
-function InsightChartSwitcher({
-  value,
-  onChange,
+function InsightsNumbers({
+  markets,
+  supplied,
+  borrowed,
+  available,
 }: {
-  value: "composition" | "capital";
-  onChange(value: "composition" | "capital"): void;
+  markets: NormalizedMarket[];
+  supplied: ScaledAmount | undefined;
+  borrowed: ScaledAmount | undefined;
+  available: ScaledAmount | undefined;
 }) {
   return (
-    <fieldset className="insight-chart-switcher">
-      <legend className="sr-only">Insights chart</legend>
-      <button
-        type="button"
-        aria-pressed={value === "composition"}
-        onClick={() => onChange("composition")}
-      >
-        Share
-      </button>
-      <button
-        type="button"
-        aria-pressed={value === "capital"}
-        onClick={() => onChange("capital")}
-      >
-        Capital
-      </button>
-    </fieldset>
+    <div className="insights-numbers">
+      <section className="insight-totals" aria-label="Protocol totals">
+        <InsightTotal label="Total supplied" value={formatCompactUsd(supplied)} />
+        <InsightTotal label="Active loans" value={formatCompactUsd(borrowed)} />
+        <InsightTotal label="Available" value={formatCompactUsd(available)} />
+      </section>
+      <div className="list-heading">
+        <span>{markets.length} pools</span>
+        <span>USD snapshot</span>
+      </div>
+      <section className="market-list" aria-label="Pool totals">
+        {markets.map((market) => (
+          <div className="insight-number-row" key={market.id}>
+            <span className="asset-avatar" aria-hidden="true">
+              {market.symbol.slice(0, 1)}
+            </span>
+            <span className="market-identity">
+              <strong>{market.symbol}</strong>
+              <small>{market.chain}</small>
+            </span>
+            <NumberValue label="Supplied" value={market.totalSuppliedUsd} />
+            <NumberValue label="Borrowed" value={market.totalBorrowedUsd} />
+          </div>
+        ))}
+      </section>
+    </div>
+  );
+}
+
+function NumberValue({
+  label,
+  value,
+}: {
+  label: string;
+  value: ScaledAmount | undefined;
+}) {
+  return (
+    <span className="market-rate">
+      <small>{label}</small>
+      <strong>{formatCompactUsd(value)}</strong>
+    </span>
   );
 }
 

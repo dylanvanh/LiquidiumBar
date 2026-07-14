@@ -42,6 +42,7 @@ describe("application contracts", () => {
   });
 
   it("defaults new and legacy settings to graph mode", async () => {
+    expect(DEFAULT_SETTINGS.section).toBe("insights");
     expect(DEFAULT_SETTINGS.displayMode).toBe("graphs");
     expect(DEFAULT_SETTINGS.menuBarMetric).toBe("borrowed");
     window.localStorage.setItem(
@@ -55,6 +56,7 @@ describe("application contracts", () => {
       })
     );
     expect(await loadSettings()).toMatchObject({
+      section: "insights",
       displayMode: "graphs",
       menuBarMetric: "borrowed",
     });

@@ -60,17 +60,27 @@ export function MarketValueChart({
   );
 }
 
-export function MarketCompositionChart({
-  markets,
-  action,
+export function PortfolioCompositionChart({
+  positions,
+  hidden,
 }: {
-  markets: NormalizedMarket[];
-  action?: ReactNode;
+  positions: NormalizedPosition[];
+  hidden: boolean;
 }) {
-  const data = markets
-    .map((market) => ({
-      asset: market.symbol,
-      suppliedUsd: chartAmount(market.totalSuppliedUsd),
+  if (hidden) {
+    return (
+      <section className="chart-card private-chart" aria-label="Portfolio graph hidden">
+        <span aria-hidden="true">◌</span>
+        <strong>Graph hidden</strong>
+        <small>Turn off privacy mode to view supplied-position composition.</small>
+      </section>
+    );
+  }
+
+  const data = positions
+    .map((position) => ({
+      asset: position.symbol,
+      suppliedUsd: chartAmount(position.suppliedUsd),
     }))
     .filter(({ suppliedUsd }) => suppliedUsd > 0)
     .sort((a, b) => compositionRank(a.asset) - compositionRank(b.asset));
@@ -88,16 +98,16 @@ export function MarketCompositionChart({
   const total = data.reduce((sum, item) => sum + item.suppliedUsd, 0);
 
   return (
-    <section className="chart-card composition-card" aria-label="Share of deposits">
+    <section className="chart-card composition-card" aria-label="Portfolio composition">
       <div className="chart-card-heading">
         <div>
-          <span className="chart-eyebrow">Market composition</span>
-          <strong>Share of deposits</strong>
+          <span className="chart-eyebrow">Portfolio composition</span>
+          <strong>Share of supplied positions</strong>
         </div>
-        {action}
+        <small>USD snapshot</small>
       </div>
       <p className="sr-only">
-        Share of total supplied USD value across {data.length} Liquidium markets.
+        Share of supplied USD value across {data.length} portfolio reserves.
       </p>
       <div className="dither-chart-frame composition-chart-frame">
         <PieChart
@@ -120,40 +130,6 @@ export function MarketCompositionChart({
         </div>
       </div>
     </section>
-  );
-}
-
-export function PortfolioValueChart({
-  positions,
-  hidden,
-}: {
-  positions: NormalizedPosition[];
-  hidden: boolean;
-}) {
-  if (hidden) {
-    return (
-      <section className="chart-card private-chart" aria-label="Portfolio graph hidden">
-        <span aria-hidden="true">◌</span>
-        <strong>Graph hidden</strong>
-        <small>Turn off privacy mode to compare position values.</small>
-      </section>
-    );
-  }
-
-  const data = positions.map((position) => ({
-    label: position.symbol,
-    supplied: chartAmount(position.suppliedUsd),
-    borrowed: chartAmount(position.borrowedUsd),
-  }));
-
-  return (
-    <ValueChart
-      eyebrow="Capital by reserve"
-      title="Position value"
-      note="USD snapshot"
-      data={data}
-      accessibleSummary={`${positions.length} reserves compared by supplied and borrowed USD value.`}
-    />
   );
 }
 
