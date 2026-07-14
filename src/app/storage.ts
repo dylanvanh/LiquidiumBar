@@ -4,12 +4,13 @@ import { load, type Store } from "@tauri-apps/plugin-store";
 import { validateProfileId } from "../liquidium/profile";
 import type { MarketSnapshot, NormalizedPortfolio } from "../liquidium/sdk.types";
 
-export const SETTINGS_VERSION = 1;
+export const SETTINGS_VERSION = 2;
+const SNAPSHOT_VERSION = 1;
 export const REFRESH_INTERVALS = [60, 120, 300] as const;
 export type RefreshIntervalSeconds = (typeof REFRESH_INTERVALS)[number];
 export type AppSection = "insights" | "portfolio" | "settings";
 export type DisplayMode = "graphs" | "numbers";
-export type MenuBarMetric = "supplied" | "borrowed" | "available";
+export type MenuBarMetric = "none" | "supplied" | "borrowed" | "available";
 
 export interface ProfileRecord {
   id: string;
@@ -35,7 +36,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   hideBalances: false,
   insightsDisplayMode: "numbers",
   portfolioDisplayMode: "graphs",
-  menuBarMetric: "borrowed",
+  menuBarMetric: "none",
   refreshIntervalSeconds: 300,
 };
 
@@ -84,7 +85,7 @@ export async function saveSettings(settings: AppSettings): Promise<void> {
 export async function saveMarketSnapshot(snapshot: MarketSnapshot): Promise<void> {
   await writeValue(
     MARKET_SNAPSHOT_KEY,
-    serializeWithBigInt({ version: SETTINGS_VERSION, kind: "markets", data: snapshot })
+    serializeWithBigInt({ version: SNAPSHOT_VERSION, kind: "markets", data: snapshot })
   );
 }
 
@@ -95,7 +96,7 @@ export async function savePortfolioSnapshot(
   await writeValue(
     portfolioSnapshotKey(profileId),
     serializeWithBigInt({
-      version: SETTINGS_VERSION,
+      version: SNAPSHOT_VERSION,
       kind: "portfolio",
       data: snapshot,
     })
@@ -114,7 +115,7 @@ export async function hydrateSnapshots(
   if (marketRaw) {
     try {
       const stored = deserializeWithBigInt<StoredSnapshot<MarketSnapshot>>(marketRaw);
-      if (stored.version === SETTINGS_VERSION && stored.kind === "markets") {
+      if (stored.version === SNAPSHOT_VERSION && stored.kind === "markets") {
         const snapshot = stored.data;
         queryClient.setQueryData(["markets"], snapshot, {
           updatedAt: Date.parse(snapshot.fetchedAt),
@@ -131,7 +132,7 @@ export async function hydrateSnapshots(
       if (!raw) return;
       try {
         const stored = deserializeWithBigInt<StoredSnapshot<NormalizedPortfolio>>(raw);
-        if (stored.version !== SETTINGS_VERSION || stored.kind !== "portfolio") return;
+        if (stored.version !== SNAPSHOT_VERSION || stored.kind !== "portfolio") return;
         const snapshot = stored.data;
         if (snapshot.profileId !== id) return;
         queryClient.setQueryData(["portfolio", id], snapshot, {
@@ -154,7 +155,9 @@ export function isSnapshotStale(
 }
 
 function normalizeSettings(value: unknown): AppSettings {
-  if (!isRecord(value) || value.version !== SETTINGS_VERSION) return DEFAULT_SETTINGS;
+  if (!isRecord(value) || (value.version !== 1 && value.version !== SETTINGS_VERSION)) {
+    return DEFAULT_SETTINGS;
+  }
   const profiles = Array.isArray(value.profiles)
     ? value.profiles.flatMap((item) => {
         if (
@@ -201,9 +204,14 @@ function normalizeSettings(value: unknown): AppSettings {
     legacyDisplayMode ??
     DEFAULT_SETTINGS.portfolioDisplayMode;
   const menuBarMetric: MenuBarMetric =
-    value.menuBarMetric === "supplied" || value.menuBarMetric === "available"
-      ? value.menuBarMetric
-      : "borrowed";
+    value.version === 1
+      ? "none"
+      : value.menuBarMetric === "none" ||
+          value.menuBarMetric === "supplied" ||
+          value.menuBarMetric === "borrowed" ||
+          value.menuBarMetric === "available"
+        ? value.menuBarMetric
+        : DEFAULT_SETTINGS.menuBarMetric;
 
   return {
     version: SETTINGS_VERSION,

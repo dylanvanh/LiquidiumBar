@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import liquidiumMark from "../assets/liquidium-mark.svg";
 import { InsightsView } from "./InsightsView";
 import { PortfolioView } from "./PortfolioView";
 import { SettingsView } from "./SettingsView";
@@ -99,9 +100,7 @@ export function App() {
     <main className="app-shell">
       <header className="titlebar">
         <div className="wordmark">
-          <span className="wordmark-glyph" aria-hidden="true">
-            L
-          </span>
+          <img className="wordmark-glyph" src={liquidiumMark} alt="" />
           <span>LiqWatch</span>
         </div>
       </header>

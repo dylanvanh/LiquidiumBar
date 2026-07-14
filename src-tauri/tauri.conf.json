@@ -44,6 +44,7 @@
   "bundle": {
     "active": true,
     "targets": ["app", "dmg"],
+    "icon": ["icons/icon.png", "icons/icon.icns"],
     "category": "Finance",
     "shortDescription": "Liquidium from your menu bar",
     "longDescription": "A read-only Liquidium market and portfolio monitor for the macOS menu bar.",

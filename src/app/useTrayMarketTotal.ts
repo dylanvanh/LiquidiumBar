@@ -11,26 +11,34 @@ export function useTrayMarketTotal(
   metric: MenuBarMetric
 ): void {
   const runningInTauri = isTauri();
+  const showsValue = metric !== "none";
   const query = useQuery({
     queryKey: ["markets"],
     queryFn: fetchMarkets,
-    enabled: enabled && runningInTauri,
-    refetchInterval: enabled && runningInTauri ? refreshIntervalSeconds * 1_000 : false,
+    enabled: enabled && runningInTauri && showsValue,
+    refetchInterval:
+      enabled && runningInTauri && showsValue ? refreshIntervalSeconds * 1_000 : false,
     refetchIntervalInBackground: true,
   });
 
   useEffect(() => {
-    if (!runningInTauri || !query.data) return;
+    if (!runningInTauri) return;
+    if (!showsValue) {
+      void invoke("set_tray_market_title", { title: null }).catch(() => undefined);
+      return;
+    }
+    if (!query.data) return;
     void invoke("set_tray_market_title", {
       title: formatTrayValue(selectMenuBarAmount(query.data, metric)),
     }).catch(() => undefined);
-  }, [metric, query.data, runningInTauri]);
+  }, [metric, query.data, runningInTauri, showsValue]);
 }
 
 export function selectMenuBarAmount(
   snapshot: MarketSnapshot,
   metric: MenuBarMetric
 ): ScaledAmount | undefined {
+  if (metric === "none") return undefined;
   if (metric === "supplied") return snapshot.totalSuppliedUsd;
   if (metric === "available") return snapshot.availableLiquidityUsd;
   return snapshot.totalBorrowedUsd;

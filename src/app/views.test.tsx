@@ -102,7 +102,7 @@ describe("settings", () => {
     render(
       <SettingsView
         refreshIntervalSeconds={300}
-        menuBarMetric="borrowed"
+        menuBarMetric="none"
         profiles={[]}
         onRefreshIntervalChange={onRefreshIntervalChange}
         onMenuBarMetricChange={onMenuBarMetricChange}
@@ -111,7 +111,9 @@ describe("settings", () => {
       />
     );
 
-    await user.selectOptions(screen.getByLabelText("Menu-bar value"), "available");
+    const menuBarSelect = screen.getByLabelText("Menu-bar value");
+    expect(menuBarSelect).toHaveValue("none");
+    await user.selectOptions(menuBarSelect, "available");
     expect(onMenuBarMetricChange).toHaveBeenCalledWith("available");
 
     const refreshSelect = screen.getByLabelText("Refresh interval");

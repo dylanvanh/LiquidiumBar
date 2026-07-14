@@ -72,15 +72,25 @@ fn validate_tray_title(title: &str) -> Result<&str, &'static str> {
 }
 
 #[tauri::command]
-fn set_tray_market_title(app: tauri::AppHandle, title: String) -> Result<(), String> {
-    let title = validate_tray_title(&title).map_err(str::to_owned)?;
+fn set_tray_market_title(app: tauri::AppHandle, title: Option<String>) -> Result<(), String> {
     let tray = app
         .tray_by_id(TRAY_ID)
         .ok_or_else(|| "LiqWatch tray icon is unavailable".to_owned())?;
-    tray.set_title(Some(title))
-        .map_err(|error| error.to_string())?;
-    tray.set_tooltip(Some(format!("LiqWatch · {title}")))
-        .map_err(|error| error.to_string())
+    match title {
+        Some(title) => {
+            let title = validate_tray_title(&title).map_err(str::to_owned)?;
+            tray.set_title(Some(title))
+                .map_err(|error| error.to_string())?;
+            tray.set_tooltip(Some(format!("LiqWatch · {title}")))
+                .map_err(|error| error.to_string())
+        }
+        None => {
+            tray.set_title(None::<&str>)
+                .map_err(|error| error.to_string())?;
+            tray.set_tooltip(Some("LiqWatch"))
+                .map_err(|error| error.to_string())
+        }
+    }
 }
 
 fn hide_panel(app: &tauri::AppHandle) -> tauri::Result<()> {

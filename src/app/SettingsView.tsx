@@ -104,6 +104,7 @@ export function SettingsView({
               onMenuBarMetricChange(event.target.value as MenuBarMetric)
             }
           >
+            <option value="none">None</option>
             <option value="supplied">Supplied</option>
             <option value="borrowed">Borrowed</option>
             <option value="available">Available</option>

@@ -45,7 +45,7 @@ describe("application contracts", () => {
     expect(DEFAULT_SETTINGS.section).toBe("insights");
     expect(DEFAULT_SETTINGS.insightsDisplayMode).toBe("numbers");
     expect(DEFAULT_SETTINGS.portfolioDisplayMode).toBe("graphs");
-    expect(DEFAULT_SETTINGS.menuBarMetric).toBe("borrowed");
+    expect(DEFAULT_SETTINGS.menuBarMetric).toBe("none");
     expect(DEFAULT_SETTINGS.refreshIntervalSeconds).toBe(300);
     window.localStorage.setItem(
       "settings",
@@ -61,7 +61,7 @@ describe("application contracts", () => {
       section: "insights",
       insightsDisplayMode: "numbers",
       portfolioDisplayMode: "graphs",
-      menuBarMetric: "borrowed",
+      menuBarMetric: "none",
     });
   });
 
@@ -74,6 +74,21 @@ describe("application contracts", () => {
       })
     );
     expect((await loadSettings()).refreshIntervalSeconds).toBe(60);
+  });
+
+  it("migrates the former menu-bar total default to no value", async () => {
+    window.localStorage.setItem(
+      "settings",
+      serializeWithBigInt({
+        ...DEFAULT_SETTINGS,
+        version: 1,
+        menuBarMetric: "borrowed",
+      })
+    );
+    expect(await loadSettings()).toMatchObject({
+      version: 2,
+      menuBarMetric: "none",
+    });
   });
 
   it("migrates the former shared preference only to Portfolio", async () => {
@@ -96,6 +111,7 @@ describe("application contracts", () => {
 
   it("selects the configured menu-bar market total", () => {
     const snapshot = marketSnapshotFixture();
+    expect(selectMenuBarAmount(snapshot, "none")).toBeUndefined();
     expect(selectMenuBarAmount(snapshot, "supplied")).toBe(snapshot.totalSuppliedUsd);
     expect(selectMenuBarAmount(snapshot, "borrowed")).toBe(snapshot.totalBorrowedUsd);
     expect(selectMenuBarAmount(snapshot, "available")).toBe(
