@@ -79,7 +79,7 @@ button {
   display: flex;
   min-height: 44px;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   padding: 8px 14px 5px;
   background: transparent;
   border-bottom: 1px solid var(--hairline);
@@ -106,26 +106,6 @@ button {
   background: var(--accent);
   font-size: 12px;
   font-weight: 760;
-}
-
-.read-only-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 3px 0;
-  color: var(--muted);
-  font-size: 9px;
-  font-weight: 620;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-}
-
-.status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #34c759;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
 }
 
 .section-tabs {

@@ -104,10 +104,6 @@ export function App() {
           </span>
           <span>LiqWatch</span>
         </div>
-        <span className="read-only-badge">
-          <span className="status-dot" aria-hidden="true" />
-          Read only
-        </span>
       </header>
       <nav className="section-tabs" aria-label="LiqWatch sections">
         {sections.map(({ id, label }) => (
