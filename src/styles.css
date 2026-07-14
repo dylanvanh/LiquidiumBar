@@ -1,0 +1,132 @@
+:root {
+  color-scheme: light dark;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  font-synthesis: none;
+  color: #1d1d1f;
+  background: #f5f5f7;
+  -webkit-font-smoothing: antialiased;
+  --surface: rgba(255, 255, 255, 0.88);
+  --muted: #6e6e73;
+  --accent: #5d57d9;
+  --hairline: rgba(0, 0, 0, 0.08);
+  --surface-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  min-width: 320px;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+.app-shell {
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 2px 18px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.app-header h1,
+.placeholder-panel h2 {
+  margin: 0;
+  text-wrap: balance;
+}
+
+.app-header h1 {
+  font-size: 18px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.app-header p,
+.placeholder-panel p {
+  color: var(--muted);
+  text-wrap: pretty;
+}
+
+.app-header p {
+  margin: 2px 0 0;
+  font-size: 12px;
+}
+
+.brand-mark {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--accent);
+  box-shadow: var(--surface-shadow);
+}
+
+.brand-mark span {
+  width: 10px;
+  height: 16px;
+  border: 2px solid white;
+  border-radius: 7px 7px 8px 8px;
+  transform: rotate(18deg);
+}
+
+.placeholder-panel {
+  margin-top: 18px;
+  padding: 18px;
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--surface-shadow);
+}
+
+.placeholder-panel h2 {
+  max-width: 280px;
+  font-size: 22px;
+  letter-spacing: -0.03em;
+}
+
+.placeholder-panel p:last-child {
+  margin-bottom: 0;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.placeholder-panel .eyebrow {
+  margin: 0 0 8px;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color: #f5f5f7;
+    background: #1c1c1e;
+    --surface: rgba(44, 44, 46, 0.9);
+    --muted: #a1a1a6;
+    --accent: #8580ff;
+    --hairline: rgba(255, 255, 255, 0.1);
+    --surface-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+  }
+}

@@ -1,0 +1,9 @@
+node_modules/
+dist/
+coverage/
+.DS_Store
+*.log
+src-tauri/target/
+src-tauri/gen/
+screenshots/*.png
+!screenshots/.gitkeep

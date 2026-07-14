@@ -1,0 +1,12 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Minimal LiqWatch desktop permissions",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "store:default",
+    "autostart:default",
+    "opener:default"
+  ]
+}
