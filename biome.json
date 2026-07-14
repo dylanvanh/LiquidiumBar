@@ -1,7 +1,7 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.4.15/schema.json",
   "files": {
-    "includes": ["**", "!src-tauri/target", "!dist", "!coverage"]
+    "includes": ["**", "!src-tauri/target", "!src-tauri/gen", "!dist", "!coverage"]
   },
   "formatter": {
     "enabled": true,

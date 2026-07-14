@@ -110,6 +110,58 @@ select {
   line-height: 1.45;
 }
 
+.compatibility-list {
+  margin: 18px 0 0;
+}
+
+.compatibility-row {
+  display: flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid var(--hairline);
+  font-size: 13px;
+}
+
+.compatibility-row:last-child {
+  border-bottom: 0;
+}
+
+.compatibility-row dt {
+  font-weight: 560;
+}
+
+.compatibility-row dd {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: right;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #d14d41;
+  box-shadow: 0 0 0 3px rgba(209, 77, 65, 0.12);
+}
+
+.status-dot.ready {
+  background: #2f8f5b;
+  box-shadow: 0 0 0 3px rgba(47, 143, 91, 0.12);
+}
+
+.compatibility-footnote {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--hairline);
+}
+
 .placeholder-panel .eyebrow {
   margin: 0 0 8px;
   color: var(--accent);
