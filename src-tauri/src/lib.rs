@@ -1,7 +1,10 @@
 use serde::Deserialize;
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{
+    Mutex,
+    atomic::{AtomicBool, Ordering},
+};
 use tauri::{
-    Emitter, Manager,
+    Emitter, Manager, PhysicalPosition,
     image::Image,
     menu::{Menu, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
@@ -16,6 +19,66 @@ const MENU_QUIT_ID: &str = "quit";
 #[derive(Default)]
 struct PanelState {
     focused_after_show: AtomicBool,
+    tray_anchor: Mutex<Option<TrayAnchor>>,
+}
+
+#[derive(Clone, Copy)]
+struct TrayAnchor {
+    x: f64,
+    y: f64,
+    width: f64,
+    height: f64,
+}
+
+impl TrayAnchor {
+    fn from_event(event: &TrayIconEvent) -> Option<Self> {
+        let TrayIconEvent::Click { rect, .. } = event else {
+            return None;
+        };
+        let position = rect.position.to_physical::<f64>(1.0);
+        let size = rect.size.to_physical::<f64>(1.0);
+
+        Some(Self {
+            x: position.x,
+            y: position.y,
+            width: size.width,
+            height: size.height,
+        })
+    }
+
+    fn center(self) -> PhysicalPosition<f64> {
+        PhysicalPosition::new(self.x + self.width / 2.0, self.y + self.height / 2.0)
+    }
+
+    fn panel_position(
+        self,
+        panel_width: f64,
+        monitor_x: f64,
+        monitor_width: f64,
+    ) -> PhysicalPosition<i32> {
+        let centered_x = self.center().x - panel_width / 2.0;
+        let rightmost_x = (monitor_x + monitor_width - panel_width).max(monitor_x);
+        let x = centered_x.clamp(monitor_x, rightmost_x);
+        let y = self.y + self.height;
+
+        PhysicalPosition::new(x.round() as i32, y.round() as i32)
+    }
+}
+
+impl PanelState {
+    fn tray_anchor(&self) -> Option<TrayAnchor> {
+        *self
+            .tray_anchor
+            .lock()
+            .expect("panel state mutex is poisoned")
+    }
+
+    fn remember_tray_anchor(&self, anchor: TrayAnchor) {
+        *self
+            .tray_anchor
+            .lock()
+            .expect("panel state mutex is poisoned") = Some(anchor);
+    }
 }
 
 #[derive(Debug, Deserialize)]
@@ -105,18 +168,54 @@ fn hide_panel(app: &tauri::AppHandle) -> tauri::Result<()> {
     Ok(())
 }
 
-fn show_panel(app: &tauri::AppHandle) -> tauri::Result<()> {
-    if let Some(window) = app.get_webview_window(MAIN_WINDOW_LABEL) {
-        app.state::<PanelState>()
-            .focused_after_show
-            .store(false, Ordering::Release);
-        // Positioning can fail transiently while displays or full-screen spaces change.
-        // Showing the panel is more important than perfect placement in that one frame.
-        let _ = window.move_window_constrained(Position::TrayCenter);
-        window.show()?;
-        window.set_focus()?;
-        window.emit("panel-opened", ())?;
+fn remember_tray_anchor(app: &tauri::AppHandle, event: &TrayIconEvent) {
+    if let Some(anchor) = TrayAnchor::from_event(event) {
+        app.state::<PanelState>().remember_tray_anchor(anchor);
     }
+}
+
+fn place_panel_below_tray<R: tauri::Runtime>(
+    window: &tauri::WebviewWindow<R>,
+    anchor: TrayAnchor,
+) -> tauri::Result<()> {
+    let panel_width = window.outer_size()?.width as f64;
+    let anchor_center = anchor.center();
+    let monitor = window
+        .monitor_from_point(anchor_center.x, anchor_center.y)?
+        .ok_or_else(|| std::io::Error::other("tray monitor is unavailable"))?;
+    let monitor_position = monitor.position();
+    let monitor_size = monitor.size();
+    let panel_position = anchor.panel_position(
+        panel_width,
+        monitor_position.x as f64,
+        monitor_size.width as f64,
+    );
+
+    window.set_position(panel_position)
+}
+
+fn place_panel<R: tauri::Runtime>(window: &tauri::WebviewWindow<R>, anchor: Option<TrayAnchor>) {
+    if let Some(anchor) = anchor {
+        if place_panel_below_tray(window, anchor).is_ok() {
+            return;
+        }
+    }
+
+    let _ = window.move_window_constrained(Position::TrayCenter);
+}
+
+fn show_panel(app: &tauri::AppHandle) -> tauri::Result<()> {
+    let Some(window) = app.get_webview_window(MAIN_WINDOW_LABEL) else {
+        return Ok(());
+    };
+    let state = app.state::<PanelState>();
+    state.focused_after_show.store(false, Ordering::Release);
+
+    place_panel(&window, state.tray_anchor());
+    window.show()?;
+    window.set_focus()?;
+    window.emit("panel-opened", ())?;
+
     Ok(())
 }
 
@@ -152,6 +251,7 @@ fn configure_tray(app: &tauri::App) -> tauri::Result<()> {
         })
         .on_tray_icon_event(|tray, event| {
             tauri_plugin_positioner::on_tray_event(tray.app_handle(), &event);
+            remember_tray_anchor(tray.app_handle(), &event);
             if matches!(
                 event,
                 TrayIconEvent::Click {
@@ -217,7 +317,7 @@ pub fn run() {
 
 #[cfg(test)]
 mod tests {
-    use super::{PanelAction, normalize_tray_title, panel_action, validate_tray_title};
+    use super::{PanelAction, TrayAnchor, normalize_tray_title, panel_action, validate_tray_title};
 
     #[test]
     fn tray_click_shows_a_hidden_panel() {
@@ -227,6 +327,30 @@ mod tests {
     #[test]
     fn tray_click_hides_a_visible_panel() {
         assert_eq!(panel_action(true), PanelAction::Hide);
+    }
+
+    #[test]
+    fn panel_is_centered_below_the_menu_bar_tray_icon() {
+        let anchor = TrayAnchor {
+            x: 900.0,
+            y: 4.0,
+            width: 100.0,
+            height: 24.0,
+        };
+
+        assert_eq!(anchor.panel_position(390.0, 0.0, 1920.0), (755, 28).into());
+    }
+
+    #[test]
+    fn panel_x_is_constrained_to_the_tray_monitor() {
+        let anchor = TrayAnchor {
+            x: 10.0,
+            y: 4.0,
+            width: 40.0,
+            height: 24.0,
+        };
+
+        assert_eq!(anchor.panel_position(390.0, 0.0, 1920.0), (0, 28).into());
     }
 
     #[test]
