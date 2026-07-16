@@ -21,16 +21,15 @@ The active bundle targets are `app` and `dmg`. Outputs are written below:
 
 ```text
 src-tauri/target/release/bundle/macos/LiquidiumBar.app
-src-tauri/target/release/bundle/dmg/LiquidiumBar_0.1.1_aarch64.dmg
+src-tauri/target/release/bundle/dmg/LiquidiumBar_0.1.2_aarch64.dmg
 ```
 
 ## Developer ID signing and notarization
 
-The development Mac used for this build has no Developer ID identity. Release
-builds use Tauri's `-` pseudo-identity to apply a complete ad-hoc signature, so
-downloaded Apple Silicon builds are not rejected as damaged. They are not
-notarized, so users may still need to approve the app in **System Settings →
-Privacy & Security** on first launch.
+Local builds use Tauri's `-` pseudo-identity to apply an ad-hoc signature.
+Official release builds override it with `APPLE_SIGNING_IDENTITY`, use a
+**Developer ID Application** identity, and are submitted to Apple's notary
+service before publication.
 
 For distribution outside the Mac App Store:
 
