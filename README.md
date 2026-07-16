@@ -68,7 +68,7 @@ The `.app` and `.dmg` are written to `src-tauri/target/release/bundle/`.
 
 ## Project notes
 
-- Liquidium SDK: `@liquidium/client@0.5.0`
+- Liquidium SDK: `@liquidium/client@0.5.1`
 - [SDK capabilities](docs/SDK_CAPABILITIES.md)
 - [Compatibility results](docs/COMPATIBILITY.md)
 - [Security and local storage](docs/SECURITY.md)

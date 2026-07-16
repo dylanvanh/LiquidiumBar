@@ -111,7 +111,7 @@ export function InsightsView({
       ) : null}
       <div className="insights-footer">
         <p>
-          Live snapshot · Updated {formatAge(snapshot.fetchedAt)}. SDK 0.5.0 does not
+          Live snapshot · Updated {formatAge(snapshot.fetchedAt)}. SDK 0.5.1 does not
           expose protocol history.
         </p>
         <button type="button" onClick={openOfficialInsights}>

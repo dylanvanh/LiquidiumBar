@@ -2,11 +2,11 @@
 
 ## Version and inspection basis
 
-LiquidiumBar pins `@liquidium/client@0.5.0` exactly. The adapter was implemented against the installed package declarations and runtime, with source cross-checks in:
+LiquidiumBar pins `@liquidium/client@0.5.1` exactly. The adapter was implemented against the installed package declarations and runtime, with source cross-checks in:
 
 `/Users/dylan/liquidium/repos/liquidium-cross-chain-app/external`
 
-That local source checkout reported commit `e53daf1` and a package version of `0.5.0`. The installed package declarations and stable source agree on LiquidiumBar's four read methods; the installed release remains authoritative for the application build.
+That local source checkout reported commit `e53daf1` and a package version of `0.5.0`. The installed 0.5.1 package declarations and the source checkout agree on LiquidiumBar's read methods; the installed release remains authoritative for the application build.
 
 ## Used surface
 
@@ -34,7 +34,7 @@ Wallet-address profile lookup is a public, read-only canister query. No wallet a
 - Weighted supply, borrow, and net APR require complete prices and rates. If any required input is absent, the metric is unavailable rather than estimated.
 - Derived health factor uses `liquidationThresholdBps / currentLtvBps`. Zero debt is represented as no finite risk ratio rather than an invented number.
 
-SDK 0.5.0 runtime risk fields are represented in basis points despite some generated comments implying the general rate scale. The adapter confines that discrepancy by normalizing current LTV, maximum LTV, and liquidation threshold explicitly as basis points.
+SDK 0.5.1 runtime risk fields are represented in basis points despite some generated comments implying the general rate scale. The adapter confines that discrepancy by normalizing current LTV, maximum LTV, and liquidation threshold explicitly as basis points.
 
 ## Unsupported or incomplete fields
 
@@ -49,4 +49,4 @@ SDK 0.5.0 runtime risk fields are represented in basis points despite some gener
 
 ## Principal validation
 
-The SDK exports no profile validator in version 0.5.0. LiquidiumBar pins `@icp-sdk/core@5.4.0` and uses `Principal.fromText`, then compares the canonical `toText()` result. Invalid or non-canonical input is rejected before a network query.
+The SDK exports no profile validator in version 0.5.1. LiquidiumBar pins `@icp-sdk/core@5.4.0` and uses `Principal.fromText`, then compares the canonical `toText()` result. Invalid or non-canonical input is rejected before a network query.

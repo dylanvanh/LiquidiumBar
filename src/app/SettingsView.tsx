@@ -184,7 +184,7 @@ export function SettingsView({
           <span className="setting-value">0.1.0</span>
         </SettingRow>
         <SettingRow label="Liquidium SDK" description="Pinned read adapter.">
-          <span className="setting-value mono-text">0.5.0</span>
+          <span className="setting-value mono-text">0.5.1</span>
         </SettingRow>
         <ExternalLink label="Liquidium website" url="https://liquidium.fi/" />
         <ExternalLink
