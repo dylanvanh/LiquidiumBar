@@ -45,9 +45,8 @@ LiquidiumBar currently supports Apple Silicon Macs:
 brew install --cask dylanvanh/tap/liquidiumbar
 ```
 
-The current build is not yet notarized by Apple. If macOS blocks the first
-launch, try opening LiquidiumBar and then select **Open Anyway** in **System
-Settings → Privacy & Security**.
+Current releases use Developer ID signing and Apple notarization. Homebrew
+installs pass Gatekeeper without the previous **Open Anyway** workaround.
 
 ## Run locally
 

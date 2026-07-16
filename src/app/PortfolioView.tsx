@@ -200,7 +200,15 @@ function PortfolioMonitor({
   });
 
   if (managing === "add") {
-    return <ProfileOnboarding profileCount={profiles.length} onAdd={onAddProfile} />;
+    return (
+      <ProfileOnboarding
+        profileCount={profiles.length}
+        onAdd={(nextProfile) => {
+          onAddProfile(nextProfile);
+          setManaging(undefined);
+        }}
+      />
+    );
   }
 
   return (
@@ -254,7 +262,10 @@ function PortfolioMonitor({
             onRenameProfile(profile.id, label);
             setManaging(undefined);
           }}
-          onRemove={() => onRemoveProfile(profile.id)}
+          onRemove={() => {
+            onRemoveProfile(profile.id);
+            setManaging(undefined);
+          }}
         />
       ) : null}
 

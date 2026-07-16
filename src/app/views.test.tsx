@@ -253,6 +253,52 @@ describe("portfolio states", () => {
     expect(queryMocks.resolveProfileInput).toHaveBeenCalledWith(walletAddress);
   });
 
+  it("closes the add form and selects a second profile", async () => {
+    const user = userEvent.setup();
+    const firstProfile = { id: "aaaaa-aa", label: "Main" };
+    const secondProfileId = "rrkah-fqaaa-aaaaa-aaaaq-cai";
+    queryMocks.resolveProfileInput.mockResolvedValue(secondProfileId);
+    queryMocks.fetchPortfolio.mockImplementation(async (profileId: string) =>
+      portfolioFixture({ profileId, positions: [] })
+    );
+
+    function Harness() {
+      const [profiles, setProfiles] = useState<ProfileRecord[]>([firstProfile]);
+      const [selectedProfileId, setSelectedProfileId] = useState(firstProfile.id);
+
+      return (
+        <PortfolioView
+          {...basePortfolioProps}
+          profiles={profiles}
+          selectedProfileId={selectedProfileId}
+          onAddProfile={(profile) => {
+            setProfiles((current) => [...current, profile]);
+            setSelectedProfileId(profile.id);
+          }}
+          onSelectProfile={setSelectedProfileId}
+        />
+      );
+    }
+
+    renderWithQuery(<Harness />);
+    await screen.findByText("No active positions");
+    await user.click(screen.getByRole("button", { name: "Add profile" }));
+    await user.type(
+      screen.getByLabelText("Profile principal or wallet address"),
+      secondProfileId
+    );
+    await user.type(screen.getByLabelText(/Local label/), "Second");
+    await user.click(screen.getByRole("button", { name: "Add profile" }));
+
+    await waitFor(() =>
+      expect(screen.getByLabelText("Selected profile")).toHaveValue(secondProfileId)
+    );
+    expect(
+      screen.queryByLabelText("Profile principal or wallet address")
+    ).not.toBeInTheDocument();
+    expect(queryMocks.fetchPortfolio).toHaveBeenCalledWith(secondProfileId);
+  });
+
   it("explains when a wallet has no linked Liquidium profile", async () => {
     const user = userEvent.setup();
     queryMocks.resolveProfileInput.mockRejectedValue({
@@ -288,19 +334,51 @@ describe("portfolio states", () => {
 
   it("removes the selected profile from its profile actions", async () => {
     const user = userEvent.setup();
-    const onRemoveProfile = vi.fn();
-    queryMocks.fetchPortfolio.mockResolvedValue(
-      portfolioFixture({ positions: [], totalSuppliedUsd: undefined })
+    const mainProfile = { id: "aaaaa-aa", label: "Main" };
+    const removedProfile = {
+      id: "rrkah-fqaaa-aaaaa-aaaaq-cai",
+      label: "Phantom 3",
+    };
+    queryMocks.fetchPortfolio.mockImplementation(async (profileId: string) =>
+      portfolioFixture({ profileId, positions: [] })
     );
-    renderWithQuery(
-      <PortfolioView {...basePortfolioProps} onRemoveProfile={onRemoveProfile} />
-    );
+
+    function Harness() {
+      const [profiles, setProfiles] = useState<ProfileRecord[]>([
+        mainProfile,
+        removedProfile,
+      ]);
+      const [selectedProfileId, setSelectedProfileId] = useState(removedProfile.id);
+
+      return (
+        <PortfolioView
+          {...basePortfolioProps}
+          profiles={profiles}
+          selectedProfileId={selectedProfileId}
+          onSelectProfile={setSelectedProfileId}
+          onRemoveProfile={(profileId) => {
+            const nextProfiles = profiles.filter(({ id }) => id !== profileId);
+            setProfiles(nextProfiles);
+            if (selectedProfileId === profileId) {
+              setSelectedProfileId(nextProfiles[0]?.id ?? "");
+            }
+          }}
+        />
+      );
+    }
+
+    renderWithQuery(<Harness />);
 
     await screen.findByText("No active positions");
     await user.click(screen.getByRole("button", { name: "More profile actions" }));
+    expect(screen.getByLabelText("Profile label")).toHaveValue("Phantom 3");
     await user.click(screen.getByRole("button", { name: "Remove profile" }));
 
-    expect(onRemoveProfile).toHaveBeenCalledWith("aaaaa-aa");
+    await waitFor(() =>
+      expect(screen.getByLabelText("Selected profile")).toHaveValue(mainProfile.id)
+    );
+    expect(screen.queryByLabelText("Profile label")).not.toBeInTheDocument();
+    expect(screen.queryByRole("option", { name: "Phantom 3" })).not.toBeInTheDocument();
   });
 
   it("switches profiles and changes the query key", async () => {
