@@ -74,7 +74,7 @@ export function InsightsView({
           >
             <RefreshCw
               aria-hidden="true"
-              size={18}
+              size={14}
               strokeWidth={1.8}
               className={query.isFetching ? "refresh-icon spinning" : "refresh-icon"}
             />
@@ -115,7 +115,7 @@ export function InsightsView({
           expose protocol history.
         </p>
         <button type="button" onClick={openOfficialInsights}>
-          View full breakdown <ExternalLink aria-hidden="true" size={13} />
+          View full breakdown <ExternalLink aria-hidden="true" size={14} />
         </button>
       </div>
     </section>

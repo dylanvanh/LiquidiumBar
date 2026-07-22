@@ -99,7 +99,7 @@ function ProfileOnboarding({
   return (
     <section className="onboarding view" aria-labelledby="profile-title">
       <div className="onboarding-icon" aria-hidden="true">
-        <UserRoundPlus size={23} strokeWidth={1.7} />
+        <UserRoundPlus size={20} strokeWidth={1.7} />
       </div>
       <p className="eyebrow">Read-only monitoring</p>
       <h1 id="profile-title">Add a Liquidium profile</h1>
@@ -233,25 +233,25 @@ function PortfolioMonitor({
           ))}
         </select>
         <ToolbarButton label="Add profile" onClick={() => setManaging("add")}>
-          <Plus size={17} />
+          <Plus size={14} />
         </ToolbarButton>
         <ToolbarButton
           label="Copy profile principal"
           onClick={() => void navigator.clipboard.writeText(profile.id)}
         >
-          <Copy size={16} />
+          <Copy size={14} />
         </ToolbarButton>
         <ToolbarButton
           label={hideBalances ? "Show balances" : "Hide balances"}
           onClick={onTogglePrivacy}
         >
-          {hideBalances ? <Eye size={17} /> : <EyeOff size={17} />}
+          {hideBalances ? <Eye size={14} /> : <EyeOff size={14} />}
         </ToolbarButton>
         <ToolbarButton
           label="More profile actions"
           onClick={() => setManaging(managing === "rename" ? undefined : "rename")}
         >
-          <MoreHorizontal size={18} />
+          <MoreHorizontal size={14} />
         </ToolbarButton>
       </div>
 
@@ -287,7 +287,7 @@ function PortfolioMonitor({
           >
             <RefreshCw
               aria-hidden="true"
-              size={18}
+              size={14}
               strokeWidth={1.8}
               className={query.isFetching ? "refresh-icon spinning" : "refresh-icon"}
             />
@@ -368,7 +368,7 @@ function PortfolioSnapshotView({
   if (portfolio.positions.length === 0) {
     return (
       <div className="empty-state">
-        <WalletCards aria-hidden="true" size={24} strokeWidth={1.6} />
+        <WalletCards aria-hidden="true" size={20} strokeWidth={1.6} />
         <h2>No active positions</h2>
         <p>This valid principal has no reserves returned by Liquidium 0.5.1.</p>
         <small>Updated {formatAge(portfolio.fetchedAt)}</small>
@@ -487,7 +487,7 @@ function PositionRow({
           value={formatPrivate(formatUsd(position.borrowedUsd), hideBalances)}
         />
         <span className="disclosure" aria-hidden="true">
-          <ChevronRight size={16} strokeWidth={1.8} />
+          <ChevronRight size={14} strokeWidth={1.8} />
         </span>
       </summary>
       <div className="market-details">

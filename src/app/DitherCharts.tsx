@@ -93,7 +93,7 @@ export function PortfolioCompositionChart({
   if (hidden) {
     return (
       <section className="chart-card private-chart" aria-label="Portfolio graph hidden">
-        <EyeOff aria-hidden="true" size={24} strokeWidth={1.6} />
+        <EyeOff aria-hidden="true" size={20} strokeWidth={1.6} />
         <strong>Graph hidden</strong>
         <small>Turn off privacy mode to view supplied-position composition.</small>
       </section>

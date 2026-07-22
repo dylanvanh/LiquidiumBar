@@ -150,7 +150,7 @@ export function SettingsView({
                 aria-label={`Copy ${profile.label} principal`}
                 onClick={() => void navigator.clipboard.writeText(profile.id)}
               >
-                <Copy aria-hidden="true" size={15} />
+                <Copy aria-hidden="true" size={14} />
               </button>
               <button
                 type="button"
@@ -158,7 +158,7 @@ export function SettingsView({
                 aria-label={`Remove ${profile.label}`}
                 onClick={() => onRemoveProfile(profile.id)}
               >
-                <Trash2 aria-hidden="true" size={15} />
+                <Trash2 aria-hidden="true" size={14} />
               </button>
             </div>
           ))
