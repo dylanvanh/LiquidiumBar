@@ -8,7 +8,6 @@ import {
   RefreshCw,
   ShieldAlert,
 } from "lucide-react";
-import { useState } from "react";
 import type {
   MarketSnapshot,
   NormalizedProtocolActivityEntry,
@@ -18,18 +17,6 @@ import type {
 import { AssetIcon } from "./AssetIcon";
 import { formatAge, formatScaled } from "./format";
 import { fetchMarkets, fetchProtocolActivity } from "./queries";
-
-const ACTIVITY_FILTERS: ReadonlyArray<{
-  id: ProtocolActivityOperation | "all";
-  label: string;
-}> = [
-  { id: "all", label: "All" },
-  { id: "deposit", label: "Supply" },
-  { id: "borrow", label: "Borrow" },
-  { id: "repayment", label: "Repay" },
-  { id: "withdrawal", label: "Withdraw" },
-  { id: "liquidation", label: "Liquidation" },
-];
 
 const OPERATION_PRESENTATION: Record<
   ProtocolActivityOperation,
@@ -54,9 +41,6 @@ export function ActivityView({
   panelOpen: boolean;
   refreshIntervalSeconds: number;
 }) {
-  const [activeFilter, setActiveFilter] = useState<ProtocolActivityOperation | "all">(
-    "all"
-  );
   const query = useQuery({
     queryKey: ["protocol-activity"],
     queryFn: fetchProtocolActivity,
@@ -95,10 +79,6 @@ export function ActivityView({
   }
 
   const chainByMarketId = buildChainLookup(marketsQuery.data);
-  const entries =
-    activeFilter === "all"
-      ? snapshot.entries
-      : snapshot.entries.filter((entry) => entry.operation === activeFilter);
 
   return (
     <section className="view activity-view" aria-labelledby="activity-title">
@@ -131,27 +111,11 @@ export function ActivityView({
         </div>
       ) : null}
 
-      <fieldset className="activity-filters" aria-label="Filter activity">
-        {ACTIVITY_FILTERS.map(({ id, label }) => (
-          <button
-            key={id}
-            type="button"
-            className={
-              activeFilter === id ? "activity-filter active" : "activity-filter"
-            }
-            aria-pressed={activeFilter === id}
-            onClick={() => setActiveFilter(id)}
-          >
-            {label}
-          </button>
-        ))}
-      </fieldset>
-
-      {entries.length === 0 ? (
-        <p className="data-note">No recent protocol activity for this filter.</p>
+      {snapshot.entries.length === 0 ? (
+        <p className="data-note">No recent protocol activity.</p>
       ) : (
         <section className="market-list" aria-label="Recent protocol activity">
-          {entries.map((entry) => (
+          {snapshot.entries.map((entry) => (
             <ActivityRow
               key={entry.id}
               entry={entry}

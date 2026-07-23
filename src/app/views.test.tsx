@@ -22,8 +22,14 @@ const queryMocks = vi.hoisted(() => ({
   fetchProtocolActivity: vi.fn(),
   resolveProfileInput: vi.fn(),
 }));
+const tauriMocks = vi.hoisted(() => ({
+  isTauri: vi.fn(() => true),
+  openUrl: vi.fn(),
+}));
 
 vi.mock("./queries", () => queryMocks);
+vi.mock("@tauri-apps/api/core", () => ({ isTauri: tauriMocks.isTauri }));
+vi.mock("@tauri-apps/plugin-opener", () => ({ openUrl: tauriMocks.openUrl }));
 vi.mock("./DitherCharts", () => ({
   MarketValueChart: () => (
     <section aria-label="Supplied vs borrowed">Supplied vs borrowed</section>
@@ -249,18 +255,31 @@ describe("activity", () => {
     expect(screen.getByText("3755.9187")).toBeVisible();
   });
 
-  it("filters activity by operation", async () => {
+  it("opens ICP ledger transactions in the Internet Computer dashboard", async () => {
+    // given
     const user = userEvent.setup();
-    queryMocks.fetchProtocolActivity.mockResolvedValue(protocolActivityFixture());
+    const ICP_LEDGER_TRANSACTION_ID = "37572175";
+    const activitySnapshot = protocolActivityFixture();
+    const firstActivity = activitySnapshot.entries[0];
+    if (!firstActivity) throw new Error("Expected an activity fixture entry");
+    activitySnapshot.entries[0] = {
+      ...firstActivity,
+      txids: [ICP_LEDGER_TRANSACTION_ID],
+    };
+    queryMocks.fetchProtocolActivity.mockResolvedValue(activitySnapshot);
     queryMocks.fetchMarkets.mockResolvedValue(marketSnapshotFixture());
+    tauriMocks.openUrl.mockClear();
+
+    // when
     renderWithQuery(<ActivityView {...activityViewProps} />);
+    await user.click(
+      await screen.findByRole("button", { name: ICP_LEDGER_TRANSACTION_ID })
+    );
 
-    await screen.findByText(/Repaid 38.5 USDC/);
-    await user.click(screen.getByRole("button", { name: "Repay" }));
-
-    expect(screen.getByText(/Repaid 38.5 USDC/)).toBeVisible();
-    expect(screen.queryByText(/Withdrawn 20.14 BTC/)).not.toBeInTheDocument();
-    expect(screen.queryByText(/Supplied 9,900 BTC/)).not.toBeInTheDocument();
+    // then
+    expect(tauriMocks.openUrl).toHaveBeenCalledWith(
+      `https://dashboard.internetcomputer.org/transaction/${ICP_LEDGER_TRANSACTION_ID}`
+    );
   });
 
   it("keeps the asset logo aligned when an activity has no transaction ID", async () => {

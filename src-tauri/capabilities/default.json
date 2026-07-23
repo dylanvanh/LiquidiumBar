@@ -17,7 +17,10 @@
       "allow": [
         { "url": "https://liquidium.fi/*" },
         { "url": "https://app.liquidium.fi/*" },
-        { "url": "https://github.com/Liquidium-Inc/liquidium-sdk*" }
+        { "url": "https://github.com/Liquidium-Inc/liquidium-sdk*" },
+        { "url": "https://dashboard.internetcomputer.org/transaction/*" },
+        { "url": "https://etherscan.io/tx/*" },
+        { "url": "https://mempool.space/tx/*" }
       ]
     }
   ]
