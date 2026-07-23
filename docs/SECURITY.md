@@ -1,6 +1,6 @@
 # Security, network, and local data
 
-LiquidiumBar is intentionally read-only. It has no wallet connection, private-key handling, signing, transactions, backend service, analytics, or telemetry.
+LiquidiumBar is intentionally read-only. It has no wallet connection, private-key handling, signing, transactions, app-operated backend service, analytics, or telemetry. Protocol activity is read from the public Liquidium SDK API.
 
 ## Content Security Policy
 
@@ -8,7 +8,7 @@ The production policy is defined in `src-tauri/tauri.conf.json`:
 
 ```text
 default-src 'self';
-connect-src 'self' ipc: http://ipc.localhost https://icp-api.io;
+connect-src 'self' ipc: http://ipc.localhost https://icp-api.io https://app.liquidium.fi;
 img-src 'self' asset: http://asset.localhost data:;
 style-src 'self' 'unsafe-inline';
 font-src 'self';
@@ -17,7 +17,7 @@ base-uri 'none';
 frame-ancestors 'none'
 ```
 
-Production permits local bundled assets, Tauri IPC, and the sole observed SDK origin. Inline styles are allowed because Dither Kit positions and sizes its canvas layers dynamically; scripts remain restricted to bundled local assets. It permits no remote scripts or styles, `eval`, frames, plugins, or arbitrary connections. Development has a separate `devCsp` for Vite assets, React refresh, and the local HMR socket; its HMR exceptions are not present in release builds.
+Production permits local bundled assets, Tauri IPC, the IC API used for canister reads, and the Liquidium SDK API used for protocol activity. Inline styles are allowed because Dither Kit positions and sizes its canvas layers dynamically; scripts remain restricted to bundled local assets. It permits no remote scripts or styles, `eval`, frames, plugins, or arbitrary connections. Development has a separate `devCsp` for Vite assets, React refresh, and the local HMR socket; its HMR exceptions are not present in release builds.
 
 ## Tauri permissions
 

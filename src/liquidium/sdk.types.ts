@@ -92,6 +92,28 @@ export interface NormalizedPortfolio {
   fetchedAt: string;
 }
 
+export type ProtocolActivityOperation =
+  | "deposit"
+  | "borrow"
+  | "repayment"
+  | "withdrawal"
+  | "liquidation";
+
+export interface NormalizedProtocolActivityEntry {
+  id: string;
+  operation: ProtocolActivityOperation;
+  marketId: string;
+  symbol: string;
+  amount: ScaledAmount;
+  timestamp: string;
+  txids: string[];
+}
+
+export interface ProtocolActivitySnapshot {
+  entries: NormalizedProtocolActivityEntry[];
+  fetchedAt: string;
+}
+
 export type LiquidiumAppError =
   | { type: "invalid-profile"; message: string; cause?: unknown }
   | { type: "network"; message: string; cause?: unknown }

@@ -1,4 +1,8 @@
-import type { MarketSnapshot, NormalizedPortfolio } from "../liquidium/sdk.types";
+import type {
+  MarketSnapshot,
+  NormalizedPortfolio,
+  ProtocolActivitySnapshot,
+} from "../liquidium/sdk.types";
 import { saveMarketSnapshot, savePortfolioSnapshot } from "./storage";
 
 export async function fetchMarkets(): Promise<MarketSnapshot> {
@@ -20,6 +24,11 @@ export async function fetchPortfolio(profileId: string): Promise<NormalizedPortf
   const snapshot = await liquidiumAdapter.getPortfolio(profileId);
   void savePortfolioSnapshot(profileId, snapshot).catch(() => undefined);
   return snapshot;
+}
+
+export async function fetchProtocolActivity(): Promise<ProtocolActivitySnapshot> {
+  const { liquidiumAdapter } = await import("../liquidium/adapter");
+  return liquidiumAdapter.getProtocolActivity();
 }
 
 export async function resolveProfileInput(input: string): Promise<string> {

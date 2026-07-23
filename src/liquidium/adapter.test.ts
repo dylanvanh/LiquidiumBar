@@ -6,7 +6,7 @@ import {
   SdkLiquidiumReadAdapter,
 } from "./adapter";
 
-describe("Liquidium 0.5.1 normalization", () => {
+describe("Liquidium 0.7.0 normalization", () => {
   it("normalizes rates and observed basis-point risk fields", () => {
     const market = normalizeMarket(poolFixture, 100);
     expect(market.supplyApr).toEqual({
@@ -45,6 +45,58 @@ describe("Liquidium 0.5.1 normalization", () => {
     expect(portfolio.pricesComplete).toBe(false);
     expect(portfolio.weightedSupplyApr).toBeUndefined();
     expect(portfolio.estimatedNetApr).toBeUndefined();
+  });
+});
+
+describe("Liquidium protocol activity", () => {
+  it("normalizes feed entries into app types", async () => {
+    // given
+    const getProtocolActivity = vi.fn().mockResolvedValue([
+      {
+        id: "inflow:supply-1",
+        operation: "deposit",
+        poolId: poolFixture.id,
+        asset: "BTC",
+        decimals: 8,
+        amount: 2_014_000_000n,
+        timestamp: "2026-07-14T12:00:00.000Z",
+        txids: ["3755.9187"],
+      },
+      {
+        id: "outflow:borrow-1",
+        operation: "borrow",
+        poolId: "usdc-pool",
+        asset: "USDC",
+        decimals: 6,
+        amount: 500_000_000n,
+        timestamp: "2026-07-14T11:00:00.000Z",
+      },
+    ]);
+    const client = {
+      history: { getProtocolActivity },
+    } as unknown as LiquidiumClient;
+    const adapter = new SdkLiquidiumReadAdapter(client);
+
+    // when
+    const snapshot = await adapter.getProtocolActivity();
+
+    // then
+    const EXPECTED_FEED_LIMIT = 50;
+    expect(getProtocolActivity).toHaveBeenCalledWith({
+      limit: EXPECTED_FEED_LIMIT,
+    });
+    expect(snapshot.entries).toHaveLength(2);
+    expect(snapshot.entries[0]).toEqual({
+      id: "inflow:supply-1",
+      operation: "deposit",
+      marketId: poolFixture.id,
+      symbol: "BTC",
+      amount: { value: 2_014_000_000n, decimals: 8 },
+      timestamp: "2026-07-14T12:00:00.000Z",
+      txids: ["3755.9187"],
+    });
+    expect(snapshot.entries[1]?.txids).toEqual([]);
+    expect(Number.isNaN(Date.parse(snapshot.fetchedAt))).toBe(false);
   });
 });
 

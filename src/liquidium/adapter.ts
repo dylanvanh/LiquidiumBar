@@ -1,6 +1,7 @@
 import {
   LiquidiumClient,
   type Pool,
+  type ProtocolActivityEntry,
   type UserPositionSummary,
   type UserReserve,
 } from "@liquidium/client";
@@ -22,14 +23,19 @@ import type {
   NormalizedMarket,
   NormalizedPortfolio,
   NormalizedPosition,
+  NormalizedProtocolActivityEntry,
   PortfolioRiskState,
+  ProtocolActivitySnapshot,
   ScaledAmount,
   ScaledRatio,
 } from "./sdk.types";
 
+const PROTOCOL_ACTIVITY_FEED_LIMIT = 50;
+
 export interface LiquidiumReadAdapter {
   getMarkets(): Promise<MarketSnapshot>;
   getPortfolio(profileId: string): Promise<NormalizedPortfolio>;
+  getProtocolActivity(): Promise<ProtocolActivitySnapshot>;
   resolveProfileId(profileOrWallet: string): Promise<string>;
 }
 
@@ -91,6 +97,21 @@ export class SdkLiquidiumReadAdapter implements LiquidiumReadAdapter {
       if (isLiquidiumAppError(error)) {
         throw error;
       }
+      throw mapLiquidiumError(error);
+    }
+  }
+
+  async getProtocolActivity(): Promise<ProtocolActivitySnapshot> {
+    try {
+      const entries = await this.client.history.getProtocolActivity({
+        limit: PROTOCOL_ACTIVITY_FEED_LIMIT,
+      });
+
+      return {
+        entries: entries.map(normalizeProtocolActivityEntry),
+        fetchedAt: new Date().toISOString(),
+      };
+    } catch (error) {
       throw mapLiquidiumError(error);
     }
   }
@@ -176,7 +197,7 @@ export function normalizeMarket(pool: Pool, priceUsd?: number): NormalizedMarket
     supplyApr: ratio(pool.lendingRate, rateDecimals),
     borrowApr: ratio(pool.borrowingRate, rateDecimals),
     utilization: ratio(pool.utilizationRate, rateDecimals),
-    // SDK 0.5.1 runtime values and quote constraints use basis points for these fields,
+    // SDK runtime values and quote constraints use basis points for these fields,
     // despite the generated Pool comments claiming the 27-decimal rate scale.
     maxLtv: basisPoints(pool.maxLtv),
     liquidationThreshold: basisPoints(pool.liquidationThreshold),
@@ -308,6 +329,26 @@ function normalizePosition(reserve: UserReserve): NormalizedPosition {
     supplyApr: ratio(reserve.pool.lendingRate, rateDecimals),
     borrowApr: ratio(reserve.pool.borrowingRate, rateDecimals),
     lastUpdated: new Date(Number(reserve.position.lastUpdate) * 1_000).toISOString(),
+  };
+}
+
+function normalizeProtocolActivityEntry(
+  entry: ProtocolActivityEntry
+): NormalizedProtocolActivityEntry {
+  return {
+    id: entry.id,
+    operation: entry.operation,
+    marketId: entry.poolId,
+    symbol: entry.asset,
+    amount: {
+      value: entry.amount,
+      decimals: toSafeDecimals(
+        BigInt(entry.decimals),
+        `${entry.asset} activity amount`
+      ),
+    },
+    timestamp: entry.timestamp,
+    txids: entry.txids ?? [],
   };
 }
 

@@ -5,6 +5,7 @@ import type { MarketSnapshot, NormalizedPortfolio } from "../liquidium/sdk.types
 export const poolFixture: Pool = {
   id: "hkmli-faaaa-aaaar-qb4ba-cai",
   asset: "BTC",
+  displayName: "Bitcoin",
   chain: "BTC",
   decimals: 8n,
   frozen: false,
@@ -20,7 +21,9 @@ export const poolFixture: Pool = {
   reserveFactor: 1_500n,
   rateDecimals: 27n,
   lendingRate: 50_000_000_000_000_000_000_000_000n,
+  estimatedLendingApy: 51_271_096_376_024_039_697_517_637n,
   borrowingRate: 100_000_000_000_000_000_000_000_000n,
+  estimatedBorrowingApy: 105_155_781_616_227_756_968_930_795n,
   utilizationRate: 250_000_000_000_000_000_000_000_000n,
   baseRate: 10_000_000_000_000_000_000_000_000n,
   optimalUtilizationRate: 800_000_000_000_000_000_000_000_000n,
@@ -43,6 +46,7 @@ export const summaryFixture: UserPositionSummary = {
   weightedMaxLtvBps: 6_500n,
   weightedLiquidationThresholdBps: 7_400n,
   healthFactor: 999_999_999n,
+  healthFactorDecimals: 3n,
 };
 
 export const reserveFixture: UserReserve = {

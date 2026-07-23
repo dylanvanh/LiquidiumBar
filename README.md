@@ -13,7 +13,7 @@ LiquidiumBar is an unofficial, read-only Liquidium monitor for the macOS menu ba
 - Monitors a Liquidium profile from its principal or a linked Ethereum/Bitcoin address.
 - Shows portfolio composition, balances, APR, LTV, and health factor.
 - Optionally places a compact market total beside the macOS menu-bar icon.
-- Stores settings and cached snapshots locally. No backend, analytics, telemetry, or transactions.
+- Stores settings and cached snapshots locally. No LiquidiumBar backend, analytics, telemetry, or transactions.
 
 ## Screenshots
 
@@ -67,7 +67,7 @@ The `.app` and `.dmg` are written to `src-tauri/target/release/bundle/`.
 
 ## Project notes
 
-- Liquidium SDK: `@liquidium/client@0.5.1`
+- Liquidium SDK: `@liquidium/client@0.7.0`
 - [SDK capabilities](docs/SDK_CAPABILITIES.md)
 - [Compatibility results](docs/COMPATIBILITY.md)
 - [Security and local storage](docs/SECURITY.md)

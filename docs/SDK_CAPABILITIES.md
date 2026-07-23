@@ -2,11 +2,7 @@
 
 ## Version and inspection basis
 
-LiquidiumBar pins `@liquidium/client@0.5.1` exactly. The adapter was implemented against the installed package declarations and runtime, with source cross-checks in:
-
-`/Users/dylan/liquidium/repos/liquidium-cross-chain-app/external`
-
-That local source checkout reported commit `e53daf1` and a package version of `0.5.0`. The installed 0.5.1 package declarations and the source checkout agree on LiquidiumBar's read methods; the installed release remains authoritative for the application build.
+LiquidiumBar uses `@liquidium/client@0.7.0` for read-only market, portfolio, profile, and protocol activity data.
 
 ## Used surface
 
@@ -19,6 +15,7 @@ client.market.getAssetPrices()
 client.positions.getUserPositionSummary(profileId)
 client.positions.getUserReserves(profileId)
 client.accounts.getProfileId(walletAddress)
+client.history.getProtocolActivity({ limit: 50 })
 ```
 
 Wallet-address profile lookup is a public, read-only canister query. No wallet adapter, profile mutation, signing, approval, borrowing, lending, repayment, withdrawal, or other transaction API is imported or called.
@@ -34,19 +31,19 @@ Wallet-address profile lookup is a public, read-only canister query. No wallet a
 - Weighted supply, borrow, and net APR require complete prices and rates. If any required input is absent, the metric is unavailable rather than estimated.
 - Derived health factor uses `liquidationThresholdBps / currentLtvBps`. Zero debt is represented as no finite risk ratio rather than an invented number.
 
-SDK 0.5.1 runtime risk fields are represented in basis points despite some generated comments implying the general rate scale. The adapter confines that discrepancy by normalizing current LTV, maximum LTV, and liquidation threshold explicitly as basis points.
+SDK runtime risk fields are represented in basis points despite some generated comments implying the general rate scale. The adapter confines that discrepancy by normalizing current LTV, maximum LTV, and liquidation threshold explicitly as basis points.
 
 ## Unsupported or incomplete fields
 
 | Field | LiquidiumBar behavior |
 | --- | --- |
-| APY | Not derived or displayed; compounding cadence is unavailable. |
+| Estimated APY | Returned by the SDK but not displayed; LiquidiumBar shows current APR. |
 | Per-position collateral flags | Not inferred from aggregate collateral data. |
 | Price timestamps | No timestamp is attached to SDK prices, so only the LiquidiumBar fetch time is shown. |
-| Market names and icons | Asset symbols are used; missing presentation metadata is not guessed. |
+| Market names and icons | LiquidiumBar uses asset symbols and app-owned icons instead of SDK display names. |
 | Raw SDK health factor | Ignored because its scale is not documented reliably. |
-| Profile existence | A syntactically valid empty profile cannot be distinguished from an unregistered profile. |
+| Profile existence | Not queried; a syntactically valid empty profile is displayed like an unregistered profile. |
 
 ## Principal validation
 
-The SDK exports no profile validator in version 0.5.1. LiquidiumBar pins `@icp-sdk/core@5.4.0` and uses `Principal.fromText`, then compares the canonical `toText()` result. Invalid or non-canonical input is rejected before a network query.
+The SDK exports no profile validator. LiquidiumBar pins `@icp-sdk/core@5.4.0` and uses `Principal.fromText`, then compares the canonical `toText()` result. Invalid or non-canonical input is rejected before a network query.

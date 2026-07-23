@@ -1,4 +1,4 @@
 packages:
   - .
 minimumReleaseAgeExclude:
-  - '@liquidium/client@0.5.1'
+  - '@liquidium/client@0.7.0'

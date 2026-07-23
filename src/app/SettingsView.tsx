@@ -170,9 +170,10 @@ export function SettingsView({
       <SettingsGroup title="Data & privacy">
         <p className="disclosure-copy">
           Live read-only market and public profile data comes directly from Liquidium
-          through <span className="mono-text">icp-api.io</span>. Settings and versioned
-          snapshots stay in Tauri’s private app-data store on this Mac. No wallet,
-          backend, analytics, or telemetry is used.
+          through <span className="mono-text">icp-api.io</span>, while protocol activity
+          comes from the Liquidium SDK API. Settings and versioned snapshots stay in
+          Tauri’s private app-data store on this Mac. No wallet, LiquidiumBar backend,
+          analytics, or telemetry is used.
         </p>
       </SettingsGroup>
 
@@ -184,7 +185,7 @@ export function SettingsView({
           <span className="setting-value">0.1.3</span>
         </SettingRow>
         <SettingRow label="Liquidium SDK" description="Pinned read adapter.">
-          <span className="setting-value mono-text">0.5.1</span>
+          <span className="setting-value mono-text">0.7.0</span>
         </SettingRow>
         <ExternalLink label="Liquidium website" url="https://liquidium.fi/" />
         <ExternalLink
