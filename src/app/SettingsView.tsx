@@ -182,7 +182,7 @@ export function SettingsView({
           label="LiquidiumBar"
           description="Unofficial Liquidium monitoring client."
         >
-          <span className="setting-value">0.1.3</span>
+          <span className="setting-value">0.1.4</span>
         </SettingRow>
         <SettingRow label="Liquidium SDK" description="Pinned read adapter.">
           <span className="setting-value mono-text">0.7.0</span>
