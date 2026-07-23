@@ -8,7 +8,7 @@ export const SETTINGS_VERSION = 2;
 const SNAPSHOT_VERSION = 1;
 export const REFRESH_INTERVALS = [60, 120, 300] as const;
 export type RefreshIntervalSeconds = (typeof REFRESH_INTERVALS)[number];
-export type AppSection = "insights" | "portfolio" | "settings";
+export type AppSection = "insights" | "activity" | "portfolio" | "settings";
 export type DisplayMode = "graphs" | "numbers";
 export type MenuBarMetric = "none" | "supplied" | "borrowed" | "available";
 
@@ -35,7 +35,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   profiles: [],
   hideBalances: false,
   insightsDisplayMode: "numbers",
-  portfolioDisplayMode: "graphs",
+  portfolioDisplayMode: "numbers",
   menuBarMetric: "none",
   refreshIntervalSeconds: 300,
 };
@@ -192,7 +192,9 @@ function normalizeSettings(value: unknown): AppSettings {
         ? (value.refreshIntervalSeconds as RefreshIntervalSeconds)
         : DEFAULT_SETTINGS.refreshIntervalSeconds;
   const section =
-    value.section === "portfolio" || value.section === "settings"
+    value.section === "activity" ||
+    value.section === "portfolio" ||
+    value.section === "settings"
       ? value.section
       : DEFAULT_SETTINGS.section;
   const legacyDisplayMode = normalizeDisplayMode(value.displayMode);

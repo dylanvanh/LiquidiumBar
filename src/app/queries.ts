@@ -13,10 +13,8 @@ export async function fetchMarkets(): Promise<MarketSnapshot> {
 }
 
 export async function fetchPortfolio(profileId: string): Promise<NormalizedPortfolio> {
-  if (
-    import.meta.env.DEV &&
-    new URLSearchParams(window.location.search).get("demo") === "portfolio"
-  ) {
+  const demo = new URLSearchParams(window.location.search).get("demo");
+  if (import.meta.env.DEV && (demo === "portfolio" || demo === "all")) {
     const { demoPortfolioSnapshot } = await import("./screenshotDemo");
     return demoPortfolioSnapshot(profileId);
   }

@@ -3,7 +3,12 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { marketSnapshotFixture, portfolioFixture } from "../test/fixtures";
+import {
+  marketSnapshotFixture,
+  portfolioFixture,
+  protocolActivityFixture,
+} from "../test/fixtures";
+import { ActivityView } from "./ActivityView";
 import { AssetIcon } from "./AssetIcon";
 import { DisplayModeSwitcher } from "./DisplayModeSwitcher";
 import { InsightsView } from "./InsightsView";
@@ -14,6 +19,7 @@ import type { ProfileRecord } from "./storage";
 const queryMocks = vi.hoisted(() => ({
   fetchMarkets: vi.fn(),
   fetchPortfolio: vi.fn(),
+  fetchProtocolActivity: vi.fn(),
   resolveProfileInput: vi.fn(),
 }));
 
@@ -66,31 +72,58 @@ const insightViewProps = {
 };
 
 describe("display mode", () => {
-  it("switches between graphs and exact numbers", async () => {
+  it("shows details first and switches to charts", async () => {
+    // given
     const user = userEvent.setup();
     const onChange = vi.fn();
-    render(<DisplayModeSwitcher value="graphs" onChange={onChange} />);
+    render(<DisplayModeSwitcher value="numbers" onChange={onChange} />);
 
-    expect(screen.getByRole("button", { name: "Charts" })).toHaveAttribute(
+    // when
+    const displayModeButtons = screen.getAllByRole("button");
+    await user.click(screen.getByRole("button", { name: "Charts" }));
+
+    // then
+    expect(displayModeButtons.map((button) => button.textContent)).toEqual([
+      "Details",
+      "Charts",
+    ]);
+    expect(screen.getByRole("button", { name: "Details" })).toHaveAttribute(
       "aria-pressed",
       "true"
     );
-    await user.click(screen.getByRole("button", { name: "Details" }));
-    expect(onChange).toHaveBeenCalledWith("numbers");
+    expect(onChange).toHaveBeenCalledWith("graphs");
   });
 });
 
 describe("asset icons", () => {
-  it("renders official-style branded icons with a fallback for unknown assets", () => {
-    const { container, rerender } = render(<AssetIcon symbol="BTC" />);
-    expect(container.querySelector("svg.asset-icon")).toBeInTheDocument();
+  it("renders local Liquidium logos for supported assets", () => {
+    // given
+    const supportedSymbols = ["BTC", "ETH", "ICP", "USDC", "USDT"];
+    const initialSupportedSymbol = "BTC";
 
-    rerender(<AssetIcon symbol="ICP" />);
-    expect(
-      container.querySelector("svg.asset-icon linearGradient")
-    ).toBeInTheDocument();
+    // when
+    const { container, rerender } = render(
+      <AssetIcon symbol={initialSupportedSymbol} />
+    );
 
-    rerender(<AssetIcon symbol="NEW" />);
+    // then
+    for (const supportedSymbol of supportedSymbols) {
+      rerender(<AssetIcon symbol={supportedSymbol} />);
+      expect(container.querySelector("img.asset-icon")).toHaveAttribute(
+        "src",
+        expect.stringMatching(/^(data:image\/svg\+xml|.*\.svg$)/)
+      );
+    }
+  });
+
+  it("renders an initial for an unknown asset", () => {
+    // given
+    const unknownSymbol = "NEW";
+
+    // when
+    render(<AssetIcon symbol={unknownSymbol} />);
+
+    // then
     expect(screen.getByText("N")).toBeVisible();
   });
 });
@@ -185,7 +218,7 @@ describe("insights", () => {
     expect(screen.getByLabelText("Pool totals")).toBeVisible();
     expect(screen.getAllByText("BTC")[0]).toBeVisible();
     expect(screen.queryByText("Supplied vs borrowed")).not.toBeInTheDocument();
-    expect(screen.getByText(/does not expose protocol history/)).toBeVisible();
+    expect(screen.getByText(/activity now has its own tab/)).toBeVisible();
   });
 
   it("retains cached insights when a refresh fails", async () => {
@@ -195,6 +228,64 @@ describe("insights", () => {
     renderWithQuery(<InsightsView {...insightViewProps} />, client);
     expect(await screen.findByText(/Refresh failed\. Showing data/)).toBeVisible();
     expect(screen.getByText("Supplied vs borrowed")).toBeVisible();
+  });
+});
+
+describe("activity", () => {
+  const activityViewProps = {
+    panelOpen: true,
+    refreshIntervalSeconds: 300,
+  };
+
+  it("lists recent protocol activity with amounts and relative ages", async () => {
+    queryMocks.fetchProtocolActivity.mockResolvedValue(protocolActivityFixture());
+    queryMocks.fetchMarkets.mockResolvedValue(marketSnapshotFixture());
+    renderWithQuery(<ActivityView {...activityViewProps} />);
+
+    expect(await screen.findByRole("heading", { name: "Activity" })).toBeVisible();
+    expect(screen.getByText(/Withdrawn 20.14 BTC/)).toBeVisible();
+    expect(screen.getByText(/Repaid 38.5 USDC/)).toBeVisible();
+    expect(screen.getByText(/Supplied 9,900 BTC/)).toBeVisible();
+    expect(screen.getByText("3755.9187")).toBeVisible();
+  });
+
+  it("filters activity by operation", async () => {
+    const user = userEvent.setup();
+    queryMocks.fetchProtocolActivity.mockResolvedValue(protocolActivityFixture());
+    queryMocks.fetchMarkets.mockResolvedValue(marketSnapshotFixture());
+    renderWithQuery(<ActivityView {...activityViewProps} />);
+
+    await screen.findByText(/Repaid 38.5 USDC/);
+    await user.click(screen.getByRole("button", { name: "Repay" }));
+
+    expect(screen.getByText(/Repaid 38.5 USDC/)).toBeVisible();
+    expect(screen.queryByText(/Withdrawn 20.14 BTC/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Supplied 9,900 BTC/)).not.toBeInTheDocument();
+  });
+
+  it("keeps the asset logo aligned when an activity has no transaction ID", async () => {
+    // given
+    queryMocks.fetchProtocolActivity.mockResolvedValue(protocolActivityFixture());
+    queryMocks.fetchMarkets.mockResolvedValue(marketSnapshotFixture());
+
+    // when
+    renderWithQuery(<ActivityView {...activityViewProps} />);
+    const activitySummary = await screen.findByText(/Supplied 9,900 BTC/);
+    const activityRow = activitySummary.closest(".activity-row");
+
+    // then
+    expect(
+      activityRow?.querySelector(".activity-txid-placeholder")
+    ).toBeInTheDocument();
+    expect(activityRow?.querySelector(".asset-avatar")).toBeInTheDocument();
+  });
+
+  it("shows an error state when the feed cannot be loaded", async () => {
+    queryMocks.fetchProtocolActivity.mockRejectedValue(new Error("offline"));
+    queryMocks.fetchMarkets.mockResolvedValue(marketSnapshotFixture());
+    renderWithQuery(<ActivityView {...activityViewProps} />);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Activity unavailable");
   });
 });
 

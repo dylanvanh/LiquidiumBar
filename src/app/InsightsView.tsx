@@ -111,8 +111,8 @@ export function InsightsView({
       ) : null}
       <div className="insights-footer">
         <p>
-          Live snapshot · Updated {formatAge(snapshot.fetchedAt)}. SDK 0.5.1 does not
-          expose protocol history.
+          Live snapshot · Updated {formatAge(snapshot.fetchedAt)}. Recent protocol
+          activity now has its own tab.
         </p>
         <button type="button" onClick={openOfficialInsights}>
           View full breakdown <ExternalLink aria-hidden="true" size={14} />

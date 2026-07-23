@@ -3,13 +3,14 @@
 LiquidiumBar is an unofficial, read-only Liquidium monitor for the macOS menu bar. See protocol liquidity at a glance and monitor public positions without connecting a wallet or signing anything.
 
 <p align="center">
-  <img src="docs/liquidiumbar-demo.gif" alt="LiquidiumBar switching between Insights, Portfolio, and Settings" width="390">
+  <img src="docs/liquidiumbar-demo.gif" alt="LiquidiumBar switching between Insights, Activity, Portfolio, and Settings" width="390">
 </p>
 
 ## What it does
 
 - Shows supplied, borrowed, and available liquidity across Liquidium markets.
 - Displays market composition and supplied-versus-borrowed charts.
+- Shows recent protocol supply, borrow, repay, withdraw, and liquidation activity.
 - Monitors a Liquidium profile from its principal or a linked Ethereum/Bitcoin address.
 - Shows portfolio composition, balances, APR, LTV, and health factor.
 - Optionally places a compact market total beside the macOS menu-bar icon.
@@ -22,6 +23,12 @@ LiquidiumBar is an unofficial, read-only Liquidium monitor for the macOS menu ba
 <p align="center">
   <img src="docs/screenshots/insights.png" alt="LiquidiumBar Insights charts" width="47%">
   <img src="docs/screenshots/insights-details.png" alt="LiquidiumBar Insights details" width="47%">
+</p>
+
+### Activity
+
+<p align="center">
+  <img src="docs/screenshots/activity.png" alt="LiquidiumBar recent protocol activity" width="390">
 </p>
 
 ### Portfolio

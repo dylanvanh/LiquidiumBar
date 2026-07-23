@@ -1,6 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import liquidiumMark from "../assets/liquidium-mark.svg";
+import { ActivityView } from "./ActivityView";
 import { InsightsView } from "./InsightsView";
 import { PortfolioView } from "./PortfolioView";
 import { SettingsView } from "./SettingsView";
@@ -19,6 +20,7 @@ import { useTrayMarketTotal } from "./useTrayMarketTotal";
 
 const sections: ReadonlyArray<{ id: AppSettings["section"]; label: string }> = [
   { id: "insights", label: "Insights" },
+  { id: "activity", label: "Activity" },
   { id: "portfolio", label: "Portfolio" },
   { id: "settings", label: "Settings" },
 ];
@@ -124,6 +126,12 @@ export function App() {
           refreshIntervalSeconds={settings.refreshIntervalSeconds}
           displayMode={settings.insightsDisplayMode}
           onDisplayModeChange={(insightsDisplayMode) => update({ insightsDisplayMode })}
+        />
+      ) : null}
+      {settings.section === "activity" ? (
+        <ActivityView
+          panelOpen={panelOpen}
+          refreshIntervalSeconds={settings.refreshIntervalSeconds}
         />
       ) : null}
       {settings.section === "portfolio" ? (

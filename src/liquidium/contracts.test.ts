@@ -42,10 +42,10 @@ describe("application contracts", () => {
     expect(deserializeWithBigInt(serializeWithBigInt(input))).toEqual(input);
   });
 
-  it("defaults Insights to numbers and Portfolio to graphs", async () => {
+  it("defaults Insights and Portfolio to details", async () => {
     expect(DEFAULT_SETTINGS.section).toBe("insights");
     expect(DEFAULT_SETTINGS.insightsDisplayMode).toBe("numbers");
-    expect(DEFAULT_SETTINGS.portfolioDisplayMode).toBe("graphs");
+    expect(DEFAULT_SETTINGS.portfolioDisplayMode).toBe("numbers");
     expect(DEFAULT_SETTINGS.menuBarMetric).toBe("none");
     expect(DEFAULT_SETTINGS.refreshIntervalSeconds).toBe(300);
     window.localStorage.setItem(
@@ -61,7 +61,7 @@ describe("application contracts", () => {
     expect(await loadSettings()).toMatchObject({
       section: "insights",
       insightsDisplayMode: "numbers",
-      portfolioDisplayMode: "graphs",
+      portfolioDisplayMode: "numbers",
       menuBarMetric: "none",
     });
   });

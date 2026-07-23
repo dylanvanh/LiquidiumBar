@@ -1,6 +1,10 @@
 import type { Pool, UserPositionSummary, UserReserve } from "@liquidium/client";
 import { normalizeMarket, normalizePortfolio } from "../liquidium/adapter";
-import type { MarketSnapshot, NormalizedPortfolio } from "../liquidium/sdk.types";
+import type {
+  MarketSnapshot,
+  NormalizedPortfolio,
+  ProtocolActivitySnapshot,
+} from "../liquidium/sdk.types";
 
 export const poolFixture: Pool = {
   id: "hkmli-faaaa-aaaar-qb4ba-cai",
@@ -81,6 +85,44 @@ export function marketSnapshotFixture(
     activeMarketCount: 1,
     pricesComplete: true,
     fetchedAt: "2026-07-14T12:00:00.000Z",
+    ...overrides,
+  };
+}
+
+export function protocolActivityFixture(
+  overrides: Partial<ProtocolActivitySnapshot> = {}
+): ProtocolActivitySnapshot {
+  return {
+    entries: [
+      {
+        id: "outflow:withdraw-1",
+        operation: "withdrawal",
+        marketId: poolFixture.id,
+        symbol: "BTC",
+        amount: { value: 2_014_000_000n, decimals: 8 },
+        timestamp: new Date(Date.now() - 19 * 60_000).toISOString(),
+        txids: ["3755.9187"],
+      },
+      {
+        id: "inflow:repay-1",
+        operation: "repayment",
+        marketId: "usdc-pool",
+        symbol: "USDC",
+        amount: { value: 38_500_000n, decimals: 6 },
+        timestamp: new Date(Date.now() - 20 * 60_000).toISOString(),
+        txids: ["0xb55f0c1a4e2d9f8b7a6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f78"],
+      },
+      {
+        id: "inflow:supply-1",
+        operation: "deposit",
+        marketId: poolFixture.id,
+        symbol: "BTC",
+        amount: { value: 990_000_000_000n, decimals: 8 },
+        timestamp: new Date(Date.now() - 2 * 3_600_000).toISOString(),
+        txids: [],
+      },
+    ],
+    fetchedAt: new Date().toISOString(),
     ...overrides,
   };
 }
