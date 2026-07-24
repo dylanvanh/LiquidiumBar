@@ -224,7 +224,7 @@ pnpm updater:manifest \
   "$RELEASE_NOTES"
 
 gh release create "v${VERSION}" \
-  "$DMG#Download LiquidiumBar ${VERSION} for macOS" \
+  "$DMG" \
   "$UPDATER_ARCHIVE#Automatic updater payload" \
   "$LATEST_JSON#Automatic updater metadata" \
   --repo dylanvanh/LiquidiumBar \
