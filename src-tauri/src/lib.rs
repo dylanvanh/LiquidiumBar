@@ -195,10 +195,10 @@ fn place_panel_below_tray<R: tauri::Runtime>(
 }
 
 fn place_panel<R: tauri::Runtime>(window: &tauri::WebviewWindow<R>, anchor: Option<TrayAnchor>) {
-    if let Some(anchor) = anchor {
-        if place_panel_below_tray(window, anchor).is_ok() {
-            return;
-        }
+    if let Some(anchor) = anchor
+        && place_panel_below_tray(window, anchor).is_ok()
+    {
+        return;
     }
 
     let _ = window.move_window_constrained(Position::TrayCenter);

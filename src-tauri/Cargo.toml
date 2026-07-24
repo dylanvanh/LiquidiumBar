@@ -1,10 +1,10 @@
 [package]
 name = "liquidiumbar"
-version = "0.1.6"
+version = "0.1.7"
 description = "Liquidium from your menu bar"
 authors = ["LiquidiumBar contributors"]
 edition = "2024"
-rust-version = "1.85"
+rust-version = "1.88"
 
 [lib]
 name = "liquidiumbar_lib"

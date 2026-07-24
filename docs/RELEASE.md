@@ -27,7 +27,7 @@ Run these commands from the LiquidiumBar repository root. Change `VERSION` to
 the version being released.
 
 ```sh
-VERSION=0.1.6
+VERSION=0.1.7
 IDENTITY="Developer ID Application: DYLAN PETER VAN HEERDEN (5PP5X9G9B3)"
 KEYCHAIN="$HOME/Library/Keychains/login.keychain-db"
 APP="src-tauri/target/release/bundle/macos/LiquidiumBar.app"
@@ -224,10 +224,9 @@ pnpm updater:manifest \
   "$RELEASE_NOTES"
 
 gh release create "v${VERSION}" \
-  "$DMG" \
-  "$UPDATER_ARCHIVE" \
-  "$UPDATER_SIGNATURE" \
-  "$LATEST_JSON" \
+  "$DMG#Download LiquidiumBar ${VERSION} for macOS" \
+  "$UPDATER_ARCHIVE#Automatic updater payload" \
+  "$LATEST_JSON#Automatic updater metadata" \
   --repo dylanvanh/LiquidiumBar \
   --title "LiquidiumBar v${VERSION}" \
   --notes-file "$RELEASE_NOTES"
@@ -245,14 +244,13 @@ gh release download "v${VERSION}" \
   --clobber
 shasum -a 256 "/tmp/liquidiumbar-${VERSION}-published/LiquidiumBar_${VERSION}_aarch64.dmg"
 shasum -a 256 "/tmp/liquidiumbar-${VERSION}-published/LiquidiumBar.app.tar.gz"
-cmp "$UPDATER_SIGNATURE" \
-  "/tmp/liquidiumbar-${VERSION}-published/LiquidiumBar.app.tar.gz.sig"
 cmp "$LATEST_JSON" \
   "/tmp/liquidiumbar-${VERSION}-published/latest.json"
 ```
 
-Compare both checksums with the final local artifacts. Stop if any checksum,
-signature, or manifest differs.
+Compare both checksums with the final local artifacts. Stop if any checksum or
+manifest differs. The detached `.sig` remains a local release artifact because its
+contents are embedded in `latest.json`; do not upload it separately.
 
 ## 11. Update the Homebrew cask
 
