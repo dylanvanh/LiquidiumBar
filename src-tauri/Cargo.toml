@@ -1,6 +1,6 @@
 [package]
 name = "liquidiumbar"
-version = "0.1.5"
+version = "0.1.6"
 description = "Liquidium from your menu bar"
 authors = ["LiquidiumBar contributors"]
 edition = "2024"
@@ -20,4 +20,6 @@ tauri = { version = "2.11.5", features = ["macos-private-api", "tray-icon", "ima
 tauri-plugin-autostart = "2.5.1"
 tauri-plugin-opener = "2.5.4"
 tauri-plugin-positioner = { version = "2.3.3", features = ["tray-icon"] }
+tauri-plugin-process = "2.3.1"
 tauri-plugin-store = "2.4.3"
+tauri-plugin-updater = "2.10.1"

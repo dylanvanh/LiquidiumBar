@@ -17,7 +17,7 @@ base-uri 'none';
 frame-ancestors 'none'
 ```
 
-Production permits local bundled assets, Tauri IPC, the IC API used for canister reads, and the Liquidium SDK API used for protocol activity. Inline styles are allowed because Dither Kit positions and sizes its canvas layers dynamically; scripts remain restricted to bundled local assets. It permits no remote scripts or styles, `eval`, frames, plugins, or arbitrary connections. Development has a separate `devCsp` for Vite assets, React refresh, and the local HMR socket; its HMR exceptions are not present in release builds.
+Production permits local bundled assets, Tauri IPC, the IC API used for canister reads, and the Liquidium SDK API used for protocol activity. Update checks and signed archive downloads run through Tauri's Rust updater plugin rather than the WebView, so GitHub is not added to `connect-src`. Inline styles are allowed because Dither Kit positions and sizes its canvas layers dynamically; scripts remain restricted to bundled local assets. It permits no remote scripts or styles, `eval`, frames, plugins, or arbitrary WebView connections. Development has a separate `devCsp` for Vite assets, React refresh, and the local HMR socket; its HMR exceptions are not present in release builds.
 
 ## Tauri permissions
 
@@ -26,9 +26,11 @@ The `main` window receives only:
 - Tauri core defaults required for the window lifecycle
 - Narrow Store get/set/delete/save access
 - Autostart access
-- URL opening restricted to `https://liquidium.fi/*`, `https://app.liquidium.fi/*`, and the official Liquidium SDK GitHub repository
+- Signed update checking, downloading, and installation through Tauri Updater
+- Relaunch permission after a successfully installed update
+- URL opening restricted to `https://liquidium.fi/*`, `https://app.liquidium.fi/*`, the official Liquidium SDK GitHub repository, and supported transaction explorers
 
-There is no shell, command execution, filesystem, process, clipboard, notification, HTTP plugin, or unrestricted opener permission.
+There is no shell, command execution, filesystem, arbitrary process, clipboard, notification, HTTP plugin, or unrestricted opener permission. The updater public key is bundled with the app. Its encrypted private key and password exist only in the release environment and are never shipped.
 
 ## Local storage
 

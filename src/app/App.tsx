@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { isTauri } from "@tauri-apps/api/core";
+import { useEffect, useRef, useState } from "react";
 import liquidiumMark from "../assets/liquidium-mark.svg";
 import { ActivityView } from "./ActivityView";
 import { InsightsView } from "./InsightsView";
@@ -15,6 +16,16 @@ import {
   type RefreshIntervalSeconds,
   saveSettings,
 } from "./storage";
+import {
+  UpdateAvailableButton,
+  type UpdateButtonStatus,
+} from "./UpdateAvailableButton";
+import {
+  checkForUpdate,
+  type InstallableUpdate,
+  installUpdate,
+  UPDATE_CHECK_INTERVAL_MS,
+} from "./updates";
 import { usePanelLifecycle } from "./usePanelLifecycle";
 import { useTrayMarketTotal } from "./useTrayMarketTotal";
 
@@ -28,6 +39,11 @@ const sections: ReadonlyArray<{ id: AppSettings["section"]; label: string }> = [
 export function App() {
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [ready, setReady] = useState(false);
+  const [availableUpdate, setAvailableUpdate] = useState<InstallableUpdate>();
+  const [updateStatus, setUpdateStatus] = useState<UpdateButtonStatus>("available");
+  const [updateProgress, setUpdateProgress] = useState<number>();
+  const [updateError, setUpdateError] = useState<string>();
+  const updateInProgress = useRef(false);
   const panelOpen = usePanelLifecycle();
   const queryClient = useQueryClient();
   useTrayMarketTotal(ready, settings.refreshIntervalSeconds, settings.menuBarMetric);
@@ -51,6 +67,58 @@ export function App() {
   useEffect(() => {
     if (ready) void saveSettings(settings).catch(() => undefined);
   }, [ready, settings]);
+
+  useEffect(() => {
+    if (!isTauri()) return;
+
+    let active = true;
+    const refreshUpdateAvailability = () => {
+      if (updateInProgress.current) return;
+      void checkForUpdate()
+        .then((update) => {
+          if (!active) return;
+          setAvailableUpdate(update);
+          if (update) {
+            setUpdateStatus("available");
+            setUpdateProgress(undefined);
+            setUpdateError(undefined);
+          }
+        })
+        .catch(() => undefined);
+    };
+
+    refreshUpdateAvailability();
+    const interval = window.setInterval(
+      refreshUpdateAvailability,
+      UPDATE_CHECK_INTERVAL_MS
+    );
+    return () => {
+      active = false;
+      window.clearInterval(interval);
+    };
+  }, []);
+
+  const startUpdate = async () => {
+    if (!availableUpdate || updateInProgress.current) return;
+
+    updateInProgress.current = true;
+    setUpdateStatus("downloading");
+    setUpdateProgress(undefined);
+    setUpdateError(undefined);
+    try {
+      await installUpdate(availableUpdate, (progress) => {
+        setUpdateStatus(progress.phase);
+        setUpdateProgress(
+          progress.phase === "downloading" ? progress.percentage : undefined
+        );
+      });
+    } catch {
+      updateInProgress.current = false;
+      setUpdateStatus("error");
+      setUpdateProgress(undefined);
+      setUpdateError("Update could not be installed. Try again.");
+    }
+  };
 
   if (!ready) {
     return (
@@ -105,6 +173,15 @@ export function App() {
           <img className="wordmark-glyph" src={liquidiumMark} alt="" />
           <span>LiquidiumBar</span>
         </div>
+        {availableUpdate ? (
+          <UpdateAvailableButton
+            update={availableUpdate}
+            status={updateStatus}
+            progress={updateProgress}
+            error={updateError}
+            onInstall={() => void startUpdate()}
+          />
+        ) : null}
       </header>
       <nav className="section-tabs" aria-label="LiquidiumBar sections">
         {sections.map(({ id, label }) => (

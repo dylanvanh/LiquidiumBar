@@ -15,6 +15,7 @@ import { InsightsView } from "./InsightsView";
 import { PortfolioView } from "./PortfolioView";
 import { SettingsView } from "./SettingsView";
 import type { ProfileRecord } from "./storage";
+import { UpdateAvailableButton } from "./UpdateAvailableButton";
 
 const queryMocks = vi.hoisted(() => ({
   fetchMarkets: vi.fn(),
@@ -135,6 +136,44 @@ describe("asset icons", () => {
 });
 
 describe("settings", () => {
+  it("starts an in-app installation when an update is available", async () => {
+    const user = userEvent.setup();
+    const onInstall = vi.fn();
+    render(
+      <UpdateAvailableButton
+        update={{
+          version: "0.1.6",
+          downloadAndInstall: vi.fn(),
+        }}
+        status="available"
+        onInstall={onInstall}
+      />
+    );
+
+    await user.click(
+      screen.getByRole("button", {
+        name: "LiquidiumBar 0.1.6 is available. Install update",
+      })
+    );
+    expect(onInstall).toHaveBeenCalledOnce();
+  });
+
+  it("shows download progress and prevents duplicate installations", () => {
+    render(
+      <UpdateAvailableButton
+        update={{
+          version: "0.1.6",
+          downloadAndInstall: vi.fn(),
+        }}
+        status="downloading"
+        progress={42}
+        onInstall={vi.fn()}
+      />
+    );
+
+    expect(screen.getByRole("button", { name: "Downloading 42%" })).toBeDisabled();
+  });
+
   it("offers one-to-five-minute refresh intervals", async () => {
     const user = userEvent.setup();
     const onMenuBarMetricChange = vi.fn();

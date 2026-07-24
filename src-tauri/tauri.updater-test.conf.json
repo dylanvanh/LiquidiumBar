@@ -1,0 +1,10 @@
+{
+  "productName": "LiquidiumBarUpdaterTest",
+  "identifier": "app.liquidiumbar.desktop.updater-test",
+  "plugins": {
+    "updater": {
+      "endpoints": ["http://127.0.0.1:4187/latest.json"],
+      "dangerousInsecureTransportProtocol": true
+    }
+  }
+}

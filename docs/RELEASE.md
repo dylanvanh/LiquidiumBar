@@ -5,6 +5,10 @@ already has:
 
 - the Developer ID Application identity in the login Keychain
 - the `liquidiumbar-notary` notary profile
+- the encrypted updater key at
+  `~/Library/Application Support/LiquidiumBar Release/updater.key`
+- the updater-key password in macOS Keychain under
+  `liquidiumbar-updater-signing-password`
 - GitHub CLI authentication
 - the Homebrew tap at `/Users/dylan/Development/homebrew-tap`
 
@@ -23,11 +27,21 @@ Run these commands from the LiquidiumBar repository root. Change `VERSION` to
 the version being released.
 
 ```sh
-VERSION=0.1.3
+VERSION=0.1.6
 IDENTITY="Developer ID Application: DYLAN PETER VAN HEERDEN (5PP5X9G9B3)"
 KEYCHAIN="$HOME/Library/Keychains/login.keychain-db"
 APP="src-tauri/target/release/bundle/macos/LiquidiumBar.app"
 DMG="src-tauri/target/release/bundle/dmg/LiquidiumBar_${VERSION}_aarch64.dmg"
+APP_ZIP="/tmp/LiquidiumBar_${VERSION}_app.zip"
+UPDATER_ARCHIVE="src-tauri/target/release/bundle/macos/LiquidiumBar.app.tar.gz"
+UPDATER_SIGNATURE="${UPDATER_ARCHIVE}.sig"
+UPDATER_KEY="$HOME/Library/Application Support/LiquidiumBar Release/updater.key"
+UPDATER_PASSWORD="$(security find-generic-password \
+  -a "$USER" \
+  -s liquidiumbar-updater-signing-password \
+  -w)"
+RELEASE_NOTES="/tmp/liquidiumbar-release-notes.md"
+LATEST_JSON="/tmp/latest.json"
 ```
 
 ## 2. Update version markers
@@ -38,7 +52,6 @@ Set the new version in:
 - `src-tauri/Cargo.toml`
 - the `liquidiumbar` package entry in `src-tauri/Cargo.lock`
 - `src-tauri/tauri.conf.json`
-- the About value in `src/app/SettingsView.tsx`
 
 Leave `signingIdentity` set to `-`.
 
@@ -65,8 +78,8 @@ Commit the version changes before building. Push after Apple accepts the DMG.
 
 ```sh
 git diff --check
-git add package.json src-tauri/Cargo.toml src-tauri/Cargo.lock \
-  src-tauri/tauri.conf.json src/app/SettingsView.tsx
+git add package.json pnpm-lock.yaml src-tauri/Cargo.toml src-tauri/Cargo.lock \
+  src-tauri/tauri.conf.json
 git commit -m "Prepare LiquidiumBar ${VERSION} release"
 ```
 
@@ -74,6 +87,8 @@ git commit -m "Prepare LiquidiumBar ${VERSION} release"
 
 ```sh
 security unlock-keychain "$KEYCHAIN"
+export TAURI_SIGNING_PRIVATE_KEY="$UPDATER_KEY"
+export TAURI_SIGNING_PRIVATE_KEY_PASSWORD="$UPDATER_PASSWORD"
 APPLE_SIGNING_IDENTITY="$IDENTITY" pnpm tauri build --bundles app,dmg
 ```
 
@@ -88,6 +103,8 @@ The build must produce:
 
 ```text
 src-tauri/target/release/bundle/macos/LiquidiumBar.app
+src-tauri/target/release/bundle/macos/LiquidiumBar.app.tar.gz
+src-tauri/target/release/bundle/macos/LiquidiumBar.app.tar.gz.sig
 src-tauri/target/release/bundle/dmg/LiquidiumBar_VERSION_aarch64.dmg
 ```
 
@@ -114,9 +131,14 @@ flags=0x10000(runtime)
 Both signatures need a secure timestamp. The runtime flag confirms Hardened
 Runtime.
 
-## 7. Submit the DMG to Apple
+## 7. Notarize the app and DMG
 
 ```sh
+ditto -c -k --keepParent "$APP" "$APP_ZIP"
+xcrun notarytool submit "$APP_ZIP" \
+  --keychain-profile "liquidiumbar-notary" \
+  --keychain "$KEYCHAIN" \
+  --wait
 xcrun notarytool submit "$DMG" \
   --keychain-profile "liquidiumbar-notary" \
   --keychain "$KEYCHAIN" \
@@ -140,16 +162,35 @@ xcrun notarytool log SUBMISSION_ID \
 Fix the reported issue and rebuild. Do not submit the rejected DMG again after
 changing its contents.
 
-## 8. Staple the ticket and calculate the checksum
+Staple the app before creating the final updater archive. The updater must
+contain the exact notarized app that users will run. Recreate and re-sign the
+archive because stapling changes the app bundle after Tauri's initial build:
+
+```sh
+xcrun stapler staple "$APP"
+xcrun stapler validate "$APP"
+COPYFILE_DISABLE=1 tar -czf "$UPDATER_ARCHIVE" \
+  -C "$(dirname "$APP")" \
+  "$(basename "$APP")"
+./node_modules/.bin/tauri signer sign \
+  --private-key-path "$UPDATER_KEY" \
+  "$UPDATER_ARCHIVE"
+test -s "$UPDATER_SIGNATURE"
+```
+
+## 8. Staple tickets and calculate checksums
 
 ```sh
 xcrun stapler staple "$DMG"
 xcrun stapler validate "$DMG"
+codesign --verify --deep --strict --verbose=4 "$APP"
+spctl --assess --type execute --verbose=4 "$APP"
 codesign --verify --strict --verbose=4 "$DMG"
 spctl --assess --type open --context context:primary-signature \
   --verbose=4 "$DMG"
 hdiutil verify "$DMG"
 shasum -a 256 "$DMG"
+shasum -a 256 "$UPDATER_ARCHIVE"
 ```
 
 Gatekeeper must report:
@@ -159,8 +200,8 @@ accepted
 source=Notarized Developer ID
 ```
 
-Save the SHA-256 output. Stapling changes the DMG bytes, so use this checksum
-for GitHub and Homebrew verification.
+Save both SHA-256 outputs. Stapling changes the bytes, so only use the final
+DMG checksum for Homebrew and the final archive checksum for GitHub verification.
 
 ## 9. Push, tag, and create the GitHub release
 
@@ -170,17 +211,29 @@ git tag -a "v${VERSION}" -m "LiquidiumBar v${VERSION}"
 git push origin "v${VERSION}"
 ```
 
-Write release notes to `/tmp/liquidiumbar-release-notes.md`, then create the
-release:
+Write release notes to `$RELEASE_NOTES`. Generate the signed static updater
+manifest using the final archive URL and signature:
 
 ```sh
-gh release create "v${VERSION}" "$DMG" \
+UPDATER_URL="https://github.com/dylanvanh/LiquidiumBar/releases/download/v${VERSION}/LiquidiumBar.app.tar.gz"
+pnpm updater:manifest \
+  "$VERSION" \
+  "$UPDATER_URL" \
+  "$UPDATER_SIGNATURE" \
+  "$LATEST_JSON" \
+  "$RELEASE_NOTES"
+
+gh release create "v${VERSION}" \
+  "$DMG" \
+  "$UPDATER_ARCHIVE" \
+  "$UPDATER_SIGNATURE" \
+  "$LATEST_JSON" \
   --repo dylanvanh/LiquidiumBar \
   --title "LiquidiumBar v${VERSION}" \
-  --notes-file /tmp/liquidiumbar-release-notes.md
+  --notes-file "$RELEASE_NOTES"
 ```
 
-Do not rebuild or modify the DMG after publication.
+Do not rebuild or modify any artifact after publication.
 
 ## 10. Verify the published GitHub asset
 
@@ -188,13 +241,18 @@ Do not rebuild or modify the DMG after publication.
 mkdir -p "/tmp/liquidiumbar-${VERSION}-published"
 gh release download "v${VERSION}" \
   --repo dylanvanh/LiquidiumBar \
-  --pattern "LiquidiumBar_${VERSION}_aarch64.dmg" \
   --dir "/tmp/liquidiumbar-${VERSION}-published" \
   --clobber
 shasum -a 256 "/tmp/liquidiumbar-${VERSION}-published/LiquidiumBar_${VERSION}_aarch64.dmg"
+shasum -a 256 "/tmp/liquidiumbar-${VERSION}-published/LiquidiumBar.app.tar.gz"
+cmp "$UPDATER_SIGNATURE" \
+  "/tmp/liquidiumbar-${VERSION}-published/LiquidiumBar.app.tar.gz.sig"
+cmp "$LATEST_JSON" \
+  "/tmp/liquidiumbar-${VERSION}-published/latest.json"
 ```
 
-Compare this checksum with the post-stapling checksum. Stop if they differ.
+Compare both checksums with the final local artifacts. Stop if any checksum,
+signature, or manifest differs.
 
 ## 11. Update the Homebrew cask
 
@@ -203,6 +261,7 @@ Edit `/Users/dylan/Development/homebrew-tap/Casks/liquidiumbar.rb`:
 - set `version` to the new version
 - set `sha256` to the post-stapling checksum
 - keep the GitHub release URL pattern unchanged
+- add `auto_updates true` for the updater bridge release, then keep it
 
 Validate and publish the cask:
 
@@ -257,6 +316,24 @@ accepted
 source=Notarized Developer ID
 ```
 
+For the updater bridge release, complete the isolated two-version procedure in
+[UPDATER_TEST.md](UPDATER_TEST.md). For later releases, confirm the previous
+Homebrew-installed version shows the update, installs it, relaunches with the
+new version, preserves profiles/settings, and remains the only
+`/Applications/LiquidiumBar.app`.
+
+After an in-app update, Homebrew's receipt may retain the bridge version while
+the readable app bundle reports the newer version. Confirm normal Homebrew
+behavior with:
+
+```sh
+brew info --cask --json=v2 dylanvanh/tap/liquidiumbar
+brew outdated --cask
+```
+
+The cask's `auto_updates true` declaration lets Homebrew compare the actual app
+bundle and avoid a normal downgrade.
+
 ## 13. Test the app
 
 - Launch the Homebrew-installed app and confirm no normal Dock icon appears.
@@ -269,6 +346,16 @@ source=Notarized Developer ID
 - Disconnect the network after a successful refresh and confirm cached data
   stays visible with a refresh error.
 - Restart the app and confirm profiles, settings, and cached snapshots persist.
+- Confirm a deliberately corrupted updater archive is rejected without
+  relaunching or modifying the installed app.
+
+Clear updater credentials from the shell after all release checks:
+
+```sh
+unset TAURI_SIGNING_PRIVATE_KEY
+unset TAURI_SIGNING_PRIVATE_KEY_PASSWORD
+unset UPDATER_PASSWORD
+```
 
 ## Release failures
 
@@ -297,6 +384,7 @@ checksum.
 
 - [Apple: Notarizing macOS software](https://developer.apple.com/documentation/security/notarizing-macos-software-before-distribution)
 - [Tauri: macOS code signing](https://v2.tauri.app/distribute/sign/macos/)
+- [Tauri: updater](https://v2.tauri.app/plugin/updater/)
 
 ## Distribution disclaimer
 

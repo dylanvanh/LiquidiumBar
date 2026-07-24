@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { truncateProfile } from "./format";
 import type { MenuBarMetric, ProfileRecord, RefreshIntervalSeconds } from "./storage";
 import { REFRESH_INTERVALS } from "./storage";
+import { CURRENT_VERSION } from "./updates";
 
 interface SettingsViewProps {
   refreshIntervalSeconds: RefreshIntervalSeconds;
@@ -171,8 +172,9 @@ export function SettingsView({
         <p className="disclosure-copy">
           Live read-only market and public profile data comes directly from Liquidium
           through <span className="mono-text">icp-api.io</span>, while protocol activity
-          comes from the Liquidium SDK API. Settings and versioned snapshots stay in
-          Tauri’s private app-data store on this Mac. No wallet, LiquidiumBar backend,
+          comes from the Liquidium SDK API. Signed update availability and downloads use
+          public GitHub Releases. Settings and versioned snapshots stay in Tauri’s
+          private app-data store on this Mac. No wallet, LiquidiumBar backend,
           analytics, or telemetry is used.
         </p>
       </SettingsGroup>
@@ -182,7 +184,7 @@ export function SettingsView({
           label="LiquidiumBar"
           description="Unofficial Liquidium monitoring client."
         >
-          <span className="setting-value">0.1.5</span>
+          <span className="setting-value">{CURRENT_VERSION}</span>
         </SettingRow>
         <SettingRow label="Liquidium SDK" description="Pinned read adapter.">
           <span className="setting-value mono-text">0.7.0</span>

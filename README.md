@@ -54,6 +54,8 @@ brew install --cask dylanvanh/tap/liquidiumbar
 
 Current releases use Developer ID signing and Apple notarization. Homebrew
 installs pass Gatekeeper without the previous **Open Anyway** workaround.
+Starting with the updater bridge release, LiquidiumBar checks for signed updates
+and installs them in place only after the user clicks **Update**.
 
 ## Run locally
 

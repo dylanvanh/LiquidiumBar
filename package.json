@@ -1,6 +1,6 @@
 {
   "name": "liquidiumbar",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@11.5.1",
@@ -13,7 +13,8 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "updater:manifest": "node scripts/generate-updater-manifest.mjs"
   },
   "dependencies": {
     "@icp-sdk/core": "5.4.0",
@@ -22,7 +23,9 @@
     "@tauri-apps/api": "2.11.1",
     "@tauri-apps/plugin-autostart": "2.5.1",
     "@tauri-apps/plugin-opener": "2.5.4",
+    "@tauri-apps/plugin-process": "2.3.1",
     "@tauri-apps/plugin-store": "2.4.3",
+    "@tauri-apps/plugin-updater": "2.10.1",
     "clsx": "2.1.1",
     "d3-scale": "4.0.2",
     "d3-shape": "3.2.0",
