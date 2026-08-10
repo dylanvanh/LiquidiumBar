@@ -262,6 +262,8 @@ describe("insights", () => {
     expect(screen.getByText("Total supplied")).toBeVisible();
     expect(screen.getByLabelText("Pool totals")).toBeVisible();
     expect(screen.getAllByText("BTC")[0]).toBeVisible();
+    expect(screen.getByText("5.13% APY")).toBeVisible();
+    expect(screen.getByText("10.52% APY")).toBeVisible();
     expect(screen.queryByText("Supplied vs borrowed")).not.toBeInTheDocument();
     expect(screen.getByText(/activity now has its own tab/)).toBeVisible();
   });

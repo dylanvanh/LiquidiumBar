@@ -10,7 +10,7 @@ import type {
 import { AssetIcon } from "./AssetIcon";
 import { DisplayModeSwitcher } from "./DisplayModeSwitcher";
 import { MarketCompositionChart, MarketValueChart } from "./DitherCharts";
-import { formatAge } from "./format";
+import { formatAge, formatApr } from "./format";
 import { fetchMarkets } from "./queries";
 import type { DisplayMode } from "./storage";
 
@@ -168,8 +168,16 @@ function InsightsNumbers({
               <strong>{market.symbol}</strong>
               <small>{market.chain}</small>
             </span>
-            <NumberValue label="Supplied" value={market.totalSuppliedUsd} />
-            <NumberValue label="Borrowed" value={market.totalBorrowedUsd} />
+            <NumberValue
+              label="Supplied"
+              value={market.totalSuppliedUsd}
+              apy={market.supplyApy}
+            />
+            <NumberValue
+              label="Borrowed"
+              value={market.totalBorrowedUsd}
+              apy={market.borrowApy}
+            />
           </div>
         ))}
       </section>
@@ -198,14 +206,17 @@ function ProtocolTotals({
 function NumberValue({
   label,
   value,
+  apy,
 }: {
   label: string;
   value: ScaledAmount | undefined;
+  apy: ScaledRatio;
 }) {
   return (
     <span className="market-rate">
       <small>{label}</small>
       <strong>{formatCompactUsd(value)}</strong>
+      <small>{formatApr(apy)} APY</small>
     </span>
   );
 }

@@ -25,6 +25,8 @@ export interface NormalizedMarket {
   priceUsd?: number;
   supplyApr: ScaledRatio;
   borrowApr: ScaledRatio;
+  supplyApy: ScaledRatio;
+  borrowApy: ScaledRatio;
   utilization: ScaledRatio;
   maxLtv: ScaledRatio;
   liquidationThreshold: ScaledRatio;

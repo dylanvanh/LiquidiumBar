@@ -13,6 +13,14 @@ describe("Liquidium 0.7.0 normalization", () => {
       value: 50_000_000_000_000_000_000_000_000n,
       decimals: 27,
     });
+    expect(market.supplyApy).toEqual({
+      value: 51_271_096_376_024_039_697_517_637n,
+      decimals: 27,
+    });
+    expect(market.borrowApy).toEqual({
+      value: 105_155_781_616_227_756_968_930_795n,
+      decimals: 27,
+    });
     expect(market.maxLtv).toEqual({ value: 6_500n, decimals: 4 });
     expect(market.liquidationThreshold).toEqual({ value: 7_400n, decimals: 4 });
     expect(market.totalSuppliedUsd?.value).toBe(200_000_000_000_000n);

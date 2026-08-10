@@ -26,7 +26,7 @@ Market, position, and profile reads are public canister queries. Protocol activi
 - Market and portfolio responses are normalized before reaching React.
 - SDK failures are mapped to typed application errors without exposing raw objects or profile data in logs.
 - USD calculations use the decimal metadata returned by the SDK.
-- Protocol rates are rendered as APR.
+- Pool rows show the SDK's estimated supply and borrow APY. Position rates are rendered as APR.
 - Aggregate utilization and USD totals are calculated from normalized pools.
 - Weighted supply, borrow, and net APR require complete prices and rates. If any required input is absent, the metric is unavailable rather than estimated.
 - LiquidiumBar derives health factor as `liquidationThresholdBps / currentLtvBps`. Zero debt is represented as no finite risk ratio.
@@ -37,7 +37,6 @@ SDK `0.7.0` documents current LTV, maximum LTV, liquidation threshold, liquidati
 
 | Field | LiquidiumBar behavior |
 | --- | --- |
-| Estimated supply and borrow APY | `Pool.estimatedLendingApy` and `Pool.estimatedBorrowingApy` are available but not displayed; LiquidiumBar shows current APR. |
 | Per-position collateral flags | Not inferred from aggregate collateral data. |
 | Price fetch timestamp | `client.market.getAssetPriceSnapshot()` returns an SDK retrieval timestamp, not an oracle observation timestamp. LiquidiumBar still calls `getAssetPrices()` and records the completion time of its combined market fetch. |
 | Market display names | `Pool.displayName` is available, but LiquidiumBar uses asset symbols and app-owned icons. |

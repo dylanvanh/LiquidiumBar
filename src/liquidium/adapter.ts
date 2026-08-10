@@ -196,6 +196,8 @@ export function normalizeMarket(pool: Pool, priceUsd?: number): NormalizedMarket
     priceUsd: validPrice(priceUsd),
     supplyApr: ratio(pool.lendingRate, rateDecimals),
     borrowApr: ratio(pool.borrowingRate, rateDecimals),
+    supplyApy: ratio(pool.estimatedLendingApy, rateDecimals),
+    borrowApy: ratio(pool.estimatedBorrowingApy, rateDecimals),
     utilization: ratio(pool.utilizationRate, rateDecimals),
     // SDK runtime values and quote constraints use basis points for these fields,
     // despite the generated Pool comments claiming the 27-decimal rate scale.
