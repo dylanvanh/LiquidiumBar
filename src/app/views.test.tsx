@@ -323,6 +323,33 @@ describe("activity", () => {
     );
   });
 
+  it("opens Solana transaction signatures in Solscan", async () => {
+    // given
+    const user = userEvent.setup();
+    const SOLANA_SIGNATURE =
+      "5VERv8NMvzbJMEkV8xnrLkEaWRtSz9CosKDYjCJjBRnbJLgp8uirBgmQpjKhoR4tjF3ZpRzrFmBV6UjKdiSZkQUW";
+    const activitySnapshot = protocolActivityFixture();
+    const firstActivity = activitySnapshot.entries[0];
+    if (!firstActivity) throw new Error("Expected an activity fixture entry");
+    activitySnapshot.entries[0] = {
+      ...firstActivity,
+      symbol: "SOL",
+      txids: [SOLANA_SIGNATURE],
+    };
+    queryMocks.fetchProtocolActivity.mockResolvedValue(activitySnapshot);
+    queryMocks.fetchMarkets.mockResolvedValue(marketSnapshotFixture());
+    tauriMocks.openUrl.mockClear();
+
+    // when
+    renderWithQuery(<ActivityView {...activityViewProps} />);
+    await user.click(await screen.findByTitle(SOLANA_SIGNATURE));
+
+    // then
+    expect(tauriMocks.openUrl).toHaveBeenCalledWith(
+      `https://solscan.io/tx/${SOLANA_SIGNATURE}`
+    );
+  });
+
   it("keeps the asset logo aligned when an activity has no transaction ID", async () => {
     // given
     queryMocks.fetchProtocolActivity.mockResolvedValue(protocolActivityFixture());
@@ -364,7 +391,7 @@ describe("portfolio states", () => {
     queryMocks.resolveProfileInput.mockRejectedValue({
       type: "invalid-profile",
       message:
-        "Enter a valid Liquidium profile principal, Ethereum address, or Bitcoin address.",
+        "Enter a valid Liquidium profile principal or an Ethereum, Bitcoin, or Solana address.",
     });
     await user.type(
       screen.getByLabelText("Profile principal or wallet address"),

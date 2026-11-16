@@ -31,6 +31,8 @@ const OPERATION_PRESENTATION: Record<
 
 const ICP_LEDGER_TRANSACTION_ID_PATTERN = /^\d+$/;
 const EVM_TRANSACTION_ID_PATTERN = /^0x[0-9a-fA-F]{64}$/;
+// Solana signatures are 64 bytes in base58: 86-88 characters, never hex-only.
+const SOLANA_SIGNATURE_PATTERN = /^[1-9A-HJ-NP-Za-km-z]{86,88}$/;
 const TXID_DISPLAY_PREFIX_LENGTH = 4;
 const TXID_DISPLAY_SUFFIX_LENGTH = 4;
 
@@ -188,6 +190,9 @@ function transactionExplorerUrl(txid: string, chain: string | undefined): string
   }
   if (chain === "ETH" || EVM_TRANSACTION_ID_PATTERN.test(txid)) {
     return `https://etherscan.io/tx/${txid}`;
+  }
+  if (chain === "SOL" || SOLANA_SIGNATURE_PATTERN.test(txid)) {
+    return `https://solscan.io/tx/${txid}`;
   }
   return `https://mempool.space/tx/${txid}`;
 }

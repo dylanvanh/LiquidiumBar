@@ -146,7 +146,7 @@ describe("application contracts", () => {
     });
   });
 
-  it("recognizes supported Ethereum and Bitcoin wallet address shapes", () => {
+  it("recognizes supported Ethereum, Bitcoin, and Solana wallet address shapes", () => {
     expect(isSupportedWalletAddress("0x1111111111111111111111111111111111111111")).toBe(
       true
     );
@@ -154,6 +154,9 @@ describe("application contracts", () => {
     expect(isSupportedWalletAddress("bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kygt080")).toBe(
       true
     );
+    expect(
+      isSupportedWalletAddress("7EcDhSYGxXyscszYEp35KHN8vvw3svAuLKTzXwCFLtV")
+    ).toBe(true);
     expect(isSupportedWalletAddress("not a wallet")).toBe(false);
   });
 

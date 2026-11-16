@@ -117,7 +117,7 @@ function ProfileOnboarding({
             setProfileInput(event.target.value);
             setError(undefined);
           }}
-          placeholder="aaaaa-aa, 0x…, or bc1…"
+          placeholder="aaaaa-aa, 0x…, bc1…, or Solana address"
           autoComplete="off"
           spellCheck={false}
           disabled={resolving}
@@ -130,8 +130,8 @@ function ProfileOnboarding({
           </p>
         ) : (
           <p id="profile-help" className="field-help">
-            Supports Liquidium profile principals and linked Ethereum or Bitcoin
-            addresses.
+            Supports Liquidium profile principals and linked Ethereum, Bitcoin, or
+            Solana addresses.
           </p>
         )}
         <label htmlFor="profile-label">

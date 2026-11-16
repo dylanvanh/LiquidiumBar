@@ -128,7 +128,7 @@ export class SdkLiquidiumReadAdapter implements LiquidiumReadAdapter {
       throw {
         type: "invalid-profile",
         message:
-          "Enter a valid Liquidium profile principal, Ethereum address, or Bitcoin address.",
+          "Enter a valid Liquidium profile principal or an Ethereum, Bitcoin, or Solana address.",
       } satisfies LiquidiumAppError;
     }
 
@@ -164,11 +164,13 @@ export function isSupportedWalletAddress(input: string): boolean {
   const evmAddress = /^0x[0-9a-fA-F]{40}$/;
   const legacyBitcoinAddress = /^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$/;
   const segwitBitcoinAddress = /^bc1[ac-hj-np-z02-9]{11,71}$/;
+  const solanaAddress = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
 
   return (
     evmAddress.test(address) ||
     legacyBitcoinAddress.test(address) ||
-    segwitBitcoinAddress.test(address.toLowerCase())
+    segwitBitcoinAddress.test(address.toLowerCase()) ||
+    solanaAddress.test(address)
   );
 }
 

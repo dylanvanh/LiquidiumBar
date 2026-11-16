@@ -23,6 +23,7 @@ export const poolFixture: Pool = {
   liquidationBonus: 500n,
   protocolLiquidationFee: 500n,
   reserveFactor: 1_500n,
+  activationFee: 0n,
   rateDecimals: 27n,
   lendingRate: 50_000_000_000_000_000_000_000_000n,
   estimatedLendingApy: 51_271_096_376_024_039_697_517_637n,

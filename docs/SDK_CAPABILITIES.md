@@ -2,7 +2,7 @@
 
 ## Version and inspection basis
 
-LiquidiumBar pins `@liquidium/client@0.7.0` for read-only market, portfolio, profile, and protocol activity data. Version `0.7.0` was the npm `latest` release when these notes were verified on 2026-07-23. The capability details below were checked against the installed declarations, the upstream `@liquidium/client@0.7.0` tag, and its changelog.
+LiquidiumBar pins `@liquidium/client@0.12.0` for read-only market, portfolio, profile, and protocol activity data. Version `0.12.0` was the npm `latest` release when these notes were verified on 2026-11-16. The capability details below were checked against the installed declarations, the upstream `@liquidium/client@0.12.0` tag, and its changelog.
 
 ## Used surface
 
@@ -31,7 +31,7 @@ Market, position, and profile reads are public canister queries. Protocol activi
 - Weighted supply, borrow, and net APR require complete prices and rates. If any required input is absent, the metric is unavailable rather than estimated.
 - LiquidiumBar derives health factor as `liquidationThresholdBps / currentLtvBps`. Zero debt is represented as no finite risk ratio.
 
-SDK `0.7.0` documents current LTV, maximum LTV, liquidation threshold, liquidation bonus, protocol liquidation fee, and reserve factor as basis points. APR, APY, and utilization fields use the pool's `rateDecimals` scale. The adapter normalizes those two scales separately.
+SDK `0.12.0` documents current LTV, maximum LTV, liquidation threshold, liquidation bonus, protocol liquidation fee, and reserve factor as basis points. APR, APY, and utilization fields use the pool's `rateDecimals` scale. The adapter normalizes those two scales separately.
 
 ## Unused or unavailable data
 
@@ -42,6 +42,12 @@ SDK `0.7.0` documents current LTV, maximum LTV, liquidation threshold, liquidati
 | Market display names | `Pool.displayName` is available, but LiquidiumBar uses asset symbols and app-owned icons. |
 | SDK health factor | `UserPositionSummary.healthFactor` is now `bigint | null` with an explicit `healthFactorDecimals` scale. LiquidiumBar still derives its displayed value from basis-point LTV and liquidation-threshold fields. |
 | Profile registration | `client.accounts.profileExists(profileId)` can distinguish a registered profile from an unknown principal. LiquidiumBar does not call it, so a syntactically valid unknown profile can still appear as an empty portfolio. |
+
+## Solana
+
+SDK `0.12.0` adds the `SOL` asset and chain. Native SOL transfers on Solana, and ckSOL transfers on the Internet Computer (`asset: "SOL"`, `chain: "ICP"`). Both share one SOL pool. The SDK bundles the production SOL pool canister, so `listPools()` returns it without extra configuration. SOL amounts use lamports (9 decimals), which the adapter reads from the pool's `decimals` like any other market.
+
+Solana is also a signing chain, so a Solana wallet can be linked to a Liquidium profile. LiquidiumBar accepts a base58 Solana address in the profile field and resolves it through `client.accounts.getProfileId(...)`. The local check is shape-only (32 to 44 base58 characters); the SDK lookup decides whether a profile is linked. Activity entries in the SOL pool link Solana signatures to Solscan, and ckSOL ledger transaction ids link to the ICP dashboard.
 
 ## Principal validation
 

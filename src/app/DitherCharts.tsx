@@ -26,9 +26,10 @@ const compositionColors = {
   ICP: "blue",
   USDT: "purple",
   USDC: "green",
+  SOL: "pink",
 } as const;
-const fallbackColors = ["pink", "red", "grey"] as const;
-const preferredCompositionOrder = ["BTC", "ICP", "USDT", "USDC"];
+const fallbackColors = ["red", "grey"] as const;
+const preferredCompositionOrder = ["BTC", "ICP", "SOL", "USDT", "USDC"];
 
 interface ValueDatum {
   label: string;

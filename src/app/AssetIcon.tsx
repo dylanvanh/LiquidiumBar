@@ -1,6 +1,7 @@
 import btcLogoUrl from "../assets/crypto/btc.svg";
 import ethLogoUrl from "../assets/crypto/eth.svg";
 import icpLogoUrl from "../assets/crypto/icp.svg";
+import solLogoUrl from "../assets/crypto/sol.svg";
 import usdcLogoUrl from "../assets/crypto/usdc.svg";
 import usdtLogoUrl from "../assets/crypto/usdt.svg";
 
@@ -8,6 +9,7 @@ const tokenLogoUrls: Record<string, string> = {
   BTC: btcLogoUrl,
   ETH: ethLogoUrl,
   ICP: icpLogoUrl,
+  SOL: solLogoUrl,
   USDC: usdcLogoUrl,
   USDT: usdtLogoUrl,
 };

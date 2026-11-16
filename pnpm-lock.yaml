@@ -12,8 +12,8 @@ importers:
         specifier: 5.4.0
         version: 5.4.0
       '@liquidium/client':
-        specifier: 0.7.0
-        version: 0.7.0(typescript@7.0.2)
+        specifier: 0.12.0
+        version: 0.12.0(typescript@7.0.2)
       '@tanstack/react-query':
         specifier: 5.101.2
         version: 5.101.2(react@19.2.7)
@@ -288,8 +288,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@liquidium/client@0.7.0':
-    resolution: {integrity: sha512-uZMkQ3ULg1X0/8YadQXDqW4T1VN3eOtOQA+k39DdZ6c5KhHrvNq6wkCYpP8CZQSz5AgZ2myWk0mRnInFw1m22g==}
+  '@liquidium/client@0.12.0':
+    resolution: {integrity: sha512-SjKII5F2qv895rIo+pG54Bw7QjflhAXqPOXcUlbBCPn8U2ltE1kjJ1jGAn6dsSk20fjjjPJixrGnh5RjsnRsWQ==}
 
   '@napi-rs/wasm-runtime@1.1.6':
     resolution: {integrity: sha512-ZLv/JdUfkvOy9eCnnBaGfiO+XimbjebAeO+MRQqD/B+FR1tnRN0tpKSJHRbE8sFfS6aqsXZ67TQjfwfsxULVbg==}
@@ -1229,8 +1229,8 @@ packages:
     resolution: {integrity: sha512-9miFgM2OFba7hB+pRgvtV84pYTBaoTHohvmIgiRt6dRIzbwEOIaNaP+dIlGs2fNFoB0SeISs0Jz5WFVRid6Xyg==}
     engines: {node: '>=12.20.0'}
 
-  ox@0.14.31:
-    resolution: {integrity: sha512-WqtI37YEJCV6wkLw877FPrwWHwXEFrVZLecqBqQQjUmFhATjd+upfaKpWHXrhKaRUPMU6LH8T1lydHBda5ww5A==}
+  ox@0.14.65:
+    resolution: {integrity: sha512-K7oj+jvEP4Gf78ZOYuWAWzKEX/g5z7p6ukj84gdbFnezmFSt6SpprEp9tH5tymXsywSqRdeqk+8JL4+9o0Schw==}
     peerDependencies:
       typescript: '>=5.4.0'
     peerDependenciesMeta:
@@ -1375,11 +1375,14 @@ packages:
   undici-types@8.3.0:
     resolution: {integrity: sha512-j375ScV60dom+YkPFIfTLcOiPxkN/buHz5GobjLhixFuANaNs3C9l4GmrWqejgXWJ7BbJcFYpTEUkS1Ge8bpZQ==}
 
-  viem@2.55.5:
-    resolution: {integrity: sha512-2GaTBslLhbP1xUbFoSkFbzKye5W76ixPlaqPg96HFyc40R76t95dqITYoXXr/xP9bhmDLYKxLODTLoiWWjpViQ==}
+  viem@2.57.19:
+    resolution: {integrity: sha512-ULAHSwef42oL1reV41Os40iR34PF9BFNIX/RBapHLAJL1X6VmrgQikS4q4ulZ7/8GqlFLqrRI5GoNms3hcxsHw==}
     peerDependencies:
+      mppx: '>=0.17.0'
       typescript: '>=5.0.4'
     peerDependenciesMeta:
+      mppx:
+        optional: true
       typescript:
         optional: true
 
@@ -1669,16 +1672,17 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@liquidium/client@0.7.0(typescript@7.0.2)':
+  '@liquidium/client@0.12.0(typescript@7.0.2)':
     dependencies:
       '@dfinity/utils': 4.2.1(@icp-sdk/core@5.4.0)
       '@icp-sdk/canisters': 3.6.0(@dfinity/utils@4.2.1(@icp-sdk/core@5.4.0))(@icp-sdk/core@5.4.0)
       '@icp-sdk/core': 5.4.0
       '@scure/base': 2.2.0
       bitcoin-address-validation: 3.0.0
-      viem: 2.55.5(typescript@7.0.2)
+      viem: 2.57.19(typescript@7.0.2)
     transitivePeerDependencies:
       - bufferutil
+      - mppx
       - typescript
       - utf-8-validate
       - zod
@@ -2395,7 +2399,7 @@ snapshots:
 
   obug@2.1.3: {}
 
-  ox@0.14.31(typescript@7.0.2):
+  ox@0.14.65(typescript@7.0.2):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
       '@noble/ciphers': 1.3.0
@@ -2557,7 +2561,7 @@ snapshots:
 
   undici-types@8.3.0: {}
 
-  viem@2.55.5(typescript@7.0.2):
+  viem@2.57.19(typescript@7.0.2):
     dependencies:
       '@noble/curves': 1.9.1
       '@noble/hashes': 1.8.0
@@ -2565,7 +2569,7 @@ snapshots:
       '@scure/bip39': 1.6.0
       abitype: 1.2.3(typescript@7.0.2)
       isows: 1.0.7(ws@8.21.0)
-      ox: 0.14.31(typescript@7.0.2)
+      ox: 0.14.65(typescript@7.0.2)
       ws: 8.21.0
     optionalDependencies:
       typescript: 7.0.2
